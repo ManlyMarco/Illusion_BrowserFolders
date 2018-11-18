@@ -199,7 +199,7 @@ namespace SceneBrowserFolders
 
             if (_openedObjects.Contains(fullNameLower))
             {
-                foreach (var subDir in subDirs.OrderBy(x => x.Name))
+                foreach (var subDir in subDirs.OrderBy(x => x.Name, new Utils.WindowsStringComparer()))
                     DisplayObjectTreeHelper(subDir, indent + 1);
             }
         }

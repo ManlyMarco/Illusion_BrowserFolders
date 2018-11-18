@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace SceneBrowserFolders
@@ -24,6 +27,18 @@ namespace SceneBrowserFolders
 
             // It's necessary to make a new GUIStyle here or the texture doesn't show up
             GUI.Box(windowRect, GUIContent.none, new GUIStyle { normal = new GUIStyleState { background = WindowBackground } });
+        }
+
+        public class WindowsStringComparer : IComparer<string>
+        {
+            [DllImport("shlwapi.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
+            static extern int StrCmpLogicalW(String x, String y);
+
+            public int Compare(string x, string y)
+            {
+                return StrCmpLogicalW(x, y);
+            }
+
         }
     }
 }
