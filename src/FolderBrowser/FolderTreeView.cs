@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Studio;
 using UnityEngine;
 
-namespace SceneBrowserFolders
+namespace FolderBrowser
 {
     public class FolderTreeView
     {

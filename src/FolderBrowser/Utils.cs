@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace SceneBrowserFolders
+namespace FolderBrowser
 {
     internal static class Utils
     {

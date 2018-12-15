@@ -7,8 +7,8 @@
     <ProjectGuid>{74C2DB86-55BB-47B4-9805-51B5B992EF35}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SceneBrowserFolders</RootNamespace>
-    <AssemblyName>KKSceneBrowserFolders</AssemblyName>
+    <RootNamespace>FolderBrowser</RootNamespace>
+    <AssemblyName>KK_FolderBrowser</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -54,10 +54,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FolderBrowser.cs" />
     <Compile Include="FolderTreeView.cs" />
     <Compile Include="MakerFolders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SceneBrowserFolders.cs" />
     <Compile Include="SceneFolders.cs" />
     <Compile Include="StudioCharaFolders.cs" />
     <Compile Include="Utils.cs" />

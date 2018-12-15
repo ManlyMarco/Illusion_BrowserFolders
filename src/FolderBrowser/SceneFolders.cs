@@ -8,7 +8,7 @@ using Harmony;
 using Studio;
 using UnityEngine;
 
-namespace SceneBrowserFolders
+namespace FolderBrowser
 {
     public class SceneFolders
     {
@@ -61,12 +61,19 @@ namespace SceneBrowserFolders
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), new[] {typeof(string)})]
+        [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), new[] { typeof(string) })]
         public static void SavePrefix(ref string _path)
         {
-            var name = Path.GetFileName(_path);
-            if (!string.IsNullOrEmpty(name))
-                _path = Path.Combine(_folderTreeView.CurrentFolder, name);
+            if (FolderBrowser.StudioSaveOverride.Value)
+            {
+                var name = Path.GetFileName(_path);
+                if (!string.IsNullOrEmpty(name) &&
+                    // Play nice with other mods if they want to save outside
+                    _path.ToLowerInvariant().Replace('\\', '/').Contains("userdata/studio/scene"))
+                {
+                    _path = Path.Combine(_folderTreeView.CurrentFolder, name);
+                }
+            }
         }
 
         private static string _currentRelativeFolder;
