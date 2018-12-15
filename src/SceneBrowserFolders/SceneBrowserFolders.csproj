@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\Games\Koikatsu\BepInEx\</OutputPath>
+    <OutputPath>..\..\..\..\..\Games\Koikatsu\BepInEx\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -49,8 +49,13 @@
       <HintPath>..\lib\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\lib\UnityEngine.UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FolderTreeView.cs" />
+    <Compile Include="MakerFolders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SceneBrowserFolders.cs" />
     <Compile Include="SceneFolders.cs" />
