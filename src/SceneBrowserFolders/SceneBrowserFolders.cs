@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace SceneBrowserFolders
 {
-    [BepInPlugin(Guid, "Scene Browser Folders", "1.0")]
-    internal class SceneBrowserFolders : BaseUnityPlugin
+    [BepInPlugin(Guid, "Folder Browser", "1.1")]
+    internal class FolderBrowser : BaseUnityPlugin
     {
-        public const string Guid = "marco.SceneBrowserFolders";
+        public const string Guid = "marco.FolderBrowser";
 
         private SceneFolders _sceneFolders;
         private MakerFolders _makerFolders;

@@ -20,7 +20,7 @@ namespace SceneBrowserFolders
             _folderTreeView = new FolderTreeView(Utils.GetUserDataPath(), Path.Combine(Utils.GetUserDataPath(), @"studio\scene"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(SceneBrowserFolders.Guid + "." + nameof(SceneFolders)).PatchAll(typeof(SceneFolders));
+            HarmonyInstance.Create(FolderBrowser.Guid + "." + nameof(SceneFolders)).PatchAll(typeof(SceneFolders));
         }
 
         public void OnGui()
@@ -33,8 +33,8 @@ namespace SceneBrowserFolders
             }
         }
 
-        [HarmonyPatch(typeof(SceneLoadScene), "InitInfo")]
         [HarmonyTranspiler]
+        [HarmonyPatch(typeof(SceneLoadScene), "InitInfo")]
         public static IEnumerable<CodeInstruction> StudioInitInfoPatch(IEnumerable<CodeInstruction> instructions)
         {
             foreach (var instruction in instructions)
@@ -50,14 +50,23 @@ namespace SceneBrowserFolders
             }
         }
 
-        [HarmonyPatch(typeof(SceneLoadScene), "InitInfo")]
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(SceneLoadScene), "InitInfo")]
         public static void StudioInitInfoPost(SceneLoadScene __instance)
         {
             _studioInitObject = __instance;
             if (_folderTreeView.CurrentFolder == null)
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
             _folderTreeView.ScrollListToSelected();
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), new[] {typeof(string)})]
+        public static void SavePrefix(ref string _path)
+        {
+            var name = Path.GetFileName(_path);
+            if (!string.IsNullOrEmpty(name))
+                _path = Path.Combine(_folderTreeView.CurrentFolder, name);
         }
 
         private static string _currentRelativeFolder;
