@@ -11,4 +11,5 @@ You can support development of my plugins through my Patreon page: https://www.p
 4. Start Maker or Studio and open the maker character/scene load window. You should see a new window next to the standard file list. Click on the folder names in the list to open contents of that folder.
 
 ## Screenshots
+![preview](https://user-images.githubusercontent.com/39247311/50127191-5b211c00-0270-11e9-9f3b-969777a236a4.png)
 ![preview](https://user-images.githubusercontent.com/39247311/48666011-11e77c00-eaba-11e8-833b-daa4f8dced6d.PNG)
