@@ -7,7 +7,7 @@ You can support development of my plugins through my Patreon page: https://www.p
 1. Make sure [BepInEx](https://github.com/BepInEx/BepInEx) is installed and your game is updated.
 2. Download the latest release from [here](https://github.com/ManlyMarco/KKSceneBrowserFolders/releases).
 3. Place the dll file into the folder `BepInEx` in your game's directory.
-3. Remove KKSceneBrowserFolders.dll from `BepInEx` if you have it, it's an old version of this mod.
+3. Remove KKSceneBrowserFolders.dll from `BepInEx` if you have it, it's an old version of this mod. There is a mild incompatibility in KK_ReloadCharaListOnChange v1.2 and older, check for an updated version.
 4. Start Maker or Studio and open the maker character/scene load window. You should see a new window next to the standard file list. Click on the folder names in the list to open contents of that folder.
 
 ## Screenshots
