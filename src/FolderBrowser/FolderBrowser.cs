@@ -2,10 +2,10 @@
 using BepInEx;
 using UnityEngine;
 
-namespace FolderBrowser
+namespace BrowserFolders
 {
-    [BepInPlugin(Guid, "Folder Browser", Version)]
-    internal class FolderBrowser : BaseUnityPlugin
+    [BepInPlugin(Guid, "Maker/Studio Browser Folders", Version)]
+    public class KK_BrowserFolders : BaseUnityPlugin
     {
         public const string Guid = "marco.FolderBrowser";
         public const string Version = "1.1";

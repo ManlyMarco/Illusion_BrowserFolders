@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FolderBrowser", "FolderBrowser\FolderBrowser.csproj", "{74C2DB86-55BB-47B4-9805-51B5B992EF35}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders", "FolderBrowser\KK_BrowserFolders.csproj", "{74C2DB86-55BB-47B4-9805-51B5B992EF35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

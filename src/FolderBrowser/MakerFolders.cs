@@ -9,7 +9,7 @@ using Harmony;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace FolderBrowser
+namespace BrowserFolders
 {
     public class MakerFolders
     {
@@ -27,7 +27,7 @@ namespace FolderBrowser
             _folderTreeView = new FolderTreeView(Utils.GetUserDataPath(), Utils.GetUserDataPath());
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(FolderBrowser.Guid + "." + nameof(MakerFolders)).PatchAll(typeof(MakerFolders));
+            HarmonyInstance.Create(KK_BrowserFolders.Guid + "." + nameof(MakerFolders)).PatchAll(typeof(MakerFolders));
         }
 
         [HarmonyPrefix]

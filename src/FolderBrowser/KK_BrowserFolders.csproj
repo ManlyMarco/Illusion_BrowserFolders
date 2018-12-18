@@ -7,8 +7,8 @@
     <ProjectGuid>{74C2DB86-55BB-47B4-9805-51B5B992EF35}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FolderBrowser</RootNamespace>
-    <AssemblyName>KK_FolderBrowser</AssemblyName>
+    <RootNamespace>BrowserFolders</RootNamespace>
+    <AssemblyName>KK_BrowserFolders</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

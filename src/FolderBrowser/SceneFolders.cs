@@ -8,7 +8,7 @@ using Harmony;
 using Studio;
 using UnityEngine;
 
-namespace FolderBrowser
+namespace BrowserFolders
 {
     public class SceneFolders
     {
@@ -20,7 +20,7 @@ namespace FolderBrowser
             _folderTreeView = new FolderTreeView(Utils.GetUserDataPath(), Path.Combine(Utils.GetUserDataPath(), @"studio\scene"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(FolderBrowser.Guid + "." + nameof(SceneFolders)).PatchAll(typeof(SceneFolders));
+            HarmonyInstance.Create(KK_BrowserFolders.Guid + "." + nameof(SceneFolders)).PatchAll(typeof(SceneFolders));
         }
 
         public void OnGui()
@@ -64,7 +64,7 @@ namespace FolderBrowser
         [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), new[] { typeof(string) })]
         public static void SavePrefix(ref string _path)
         {
-            if (FolderBrowser.StudioSaveOverride.Value)
+            if (KK_BrowserFolders.StudioSaveOverride.Value)
             {
                 var name = Path.GetFileName(_path);
                 if (!string.IsNullOrEmpty(name) &&

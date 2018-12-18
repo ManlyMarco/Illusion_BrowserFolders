@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace FolderBrowser
+namespace BrowserFolders
 {
     internal static class Utils
     {
