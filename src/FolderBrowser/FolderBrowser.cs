@@ -33,7 +33,7 @@ namespace FolderBrowser
         {
             EnableMaker = new ConfigWrapper<bool>(nameof(EnableMaker), this, true);
             EnableStudio = new ConfigWrapper<bool>(nameof(EnableStudio), this, true);
-            StudioSaveOverride = new ConfigWrapper<bool>(nameof(StudioSaveOverride), this, true);
+            StudioSaveOverride = new ConfigWrapper<bool>(nameof(StudioSaveOverride), this, false);
 
             if (Application.productName == "CharaStudio")
             {
