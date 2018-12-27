@@ -12,10 +12,14 @@ namespace BrowserFolders
 
         private SceneFolders _sceneFolders;
         private MakerFolders _makerFolders;
+        private ClassroomFolders _classroomFolders;
 
         [DisplayName("Enable folder browser in maker")]
         [Description("Changes take effect on game restart")]
         public static ConfigWrapper<bool> EnableMaker { get; private set; }
+        [DisplayName("Enable folder browser in classroom browser")]
+        [Description("Changes take effect on game restart")]
+        public static ConfigWrapper<bool> EnableClassroom { get; private set; }
         [DisplayName("Enable folder browser in studio")]
         [Description("Changes take effect on game restart")]
         public static ConfigWrapper<bool> EnableStudio { get; private set; }
@@ -26,12 +30,17 @@ namespace BrowserFolders
         private void OnGUI()
         {
             if (_sceneFolders != null) _sceneFolders.OnGui();
-            else if (_makerFolders != null) _makerFolders.OnGui();
+            else
+            {
+                _makerFolders?.OnGui();
+                _classroomFolders?.OnGui();
+            }
         }
 
         private void Awake()
         {
             EnableMaker = new ConfigWrapper<bool>(nameof(EnableMaker), this, true);
+            EnableClassroom = new ConfigWrapper<bool>(nameof(EnableClassroom), this, true);
             EnableStudio = new ConfigWrapper<bool>(nameof(EnableStudio), this, true);
             StudioSaveOverride = new ConfigWrapper<bool>(nameof(StudioSaveOverride), this, false);
 
@@ -44,6 +53,8 @@ namespace BrowserFolders
             {
                 if (EnableMaker.Value)
                     _makerFolders = new MakerFolders();
+                if (EnableClassroom.Value)
+                    _classroomFolders = new ClassroomFolders();
             }
         }
     }

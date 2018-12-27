@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClassroomFolders.cs" />
     <Compile Include="FolderBrowser.cs" />
     <Compile Include="FolderTreeView.cs" />
     <Compile Include="MakerFolders.cs" />
