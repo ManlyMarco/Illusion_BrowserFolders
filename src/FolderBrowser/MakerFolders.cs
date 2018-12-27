@@ -34,6 +34,10 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(CustomCharaFile), "Start")]
         public static void InitHook(CustomCharaFile __instance)
         {
+            var instance = CustomBase.Instance;
+            _folderTreeView.DefaultPath = Path.Combine(Utils.GetUserDataPath(), instance.modeSex != 0 ? @"chara/female" : "chara/male");
+            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+
             _customCharaFile = __instance;
 
             var gt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop");
@@ -42,10 +46,6 @@ namespace BrowserFolders
 
             var mt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMainMenu/BaseTop/tglSystem");
             _catToggle = mt.GetComponent<Toggle>();
-
-            var instance = CustomBase.Instance;
-            _folderTreeView.DefaultPath = Path.Combine(Utils.GetUserDataPath(), instance.modeSex != 0 ? @"chara/female" : "chara/male");
-            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
         }
 
         [HarmonyTranspiler]

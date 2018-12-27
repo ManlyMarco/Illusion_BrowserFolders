@@ -13,6 +13,7 @@ namespace BrowserFolders
         private SceneFolders _sceneFolders;
         private MakerFolders _makerFolders;
         private ClassroomFolders _classroomFolders;
+        private FreeHFolders _freeHFolders;
 
         [DisplayName("Enable folder browser in maker")]
         [Description("Changes take effect on game restart")]
@@ -20,6 +21,9 @@ namespace BrowserFolders
         [DisplayName("Enable folder browser in classroom browser")]
         [Description("Changes take effect on game restart")]
         public static ConfigWrapper<bool> EnableClassroom { get; private set; }
+        [DisplayName("Enable folder browser in Free H browser")]
+        [Description("Changes take effect on game restart")]
+        public static ConfigWrapper<bool> EnableFreeH { get; private set; }
         [DisplayName("Enable folder browser in studio")]
         [Description("Changes take effect on game restart")]
         public static ConfigWrapper<bool> EnableStudio { get; private set; }
@@ -34,6 +38,7 @@ namespace BrowserFolders
             {
                 _makerFolders?.OnGui();
                 _classroomFolders?.OnGui();
+                _freeHFolders?.OnGui();
             }
         }
 
@@ -41,6 +46,7 @@ namespace BrowserFolders
         {
             EnableMaker = new ConfigWrapper<bool>(nameof(EnableMaker), this, true);
             EnableClassroom = new ConfigWrapper<bool>(nameof(EnableClassroom), this, true);
+            EnableFreeH = new ConfigWrapper<bool>(nameof(EnableFreeH), this, true);
             EnableStudio = new ConfigWrapper<bool>(nameof(EnableStudio), this, true);
             StudioSaveOverride = new ConfigWrapper<bool>(nameof(StudioSaveOverride), this, false);
 
@@ -55,6 +61,8 @@ namespace BrowserFolders
                     _makerFolders = new MakerFolders();
                 if (EnableClassroom.Value)
                     _classroomFolders = new ClassroomFolders();
+                if (EnableFreeH.Value)
+                    _freeHFolders = new FreeHFolders();
             }
         }
     }

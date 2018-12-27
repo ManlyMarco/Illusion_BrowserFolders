@@ -39,6 +39,9 @@
       <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\lib\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
     <Reference Include="BepInEx">
       <HintPath>..\lib\BepInEx.dll</HintPath>
       <Private>False</Private>
@@ -57,6 +60,7 @@
     <Compile Include="ClassroomFolders.cs" />
     <Compile Include="FolderBrowser.cs" />
     <Compile Include="FolderTreeView.cs" />
+    <Compile Include="FreeHFolders.cs" />
     <Compile Include="MakerFolders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SceneFolders.cs" />

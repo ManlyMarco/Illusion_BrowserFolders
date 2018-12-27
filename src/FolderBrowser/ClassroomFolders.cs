@@ -30,10 +30,10 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(ClassRoomCharaFile), "Start")]
         public static void InitHook(ClassRoomCharaFile __instance)
         {
+            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+
             _customCharaFile = __instance;
             _canvas = __instance.transform.GetComponentInParent<Canvas>();
-
-            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
         }
 
         [HarmonyTranspiler]
@@ -57,10 +57,15 @@ namespace BrowserFolders
         {
             if (_canvas != null && _canvas.enabled)
             {
-                var screenRect = new Rect((int) (Screen.width * 0.006), (int) (Screen.height * 0.4f), (int) (Screen.width * 0.17), (int) (Screen.height * 0.4));
+                var screenRect = GetFullscreenBrowserRect();
                 Utils.DrawSolidWindowBackground(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
             }
+        }
+
+        internal static Rect GetFullscreenBrowserRect()
+        {
+            return new Rect((int)(Screen.width * 0.015), (int)(Screen.height * 0.35f), (int)(Screen.width * 0.16), (int)(Screen.height * 0.4));
         }
 
         private static void OnFolderChanged()
