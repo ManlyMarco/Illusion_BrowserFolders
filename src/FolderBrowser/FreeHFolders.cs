@@ -23,6 +23,8 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
 
         private static string _currentRelativeFolder;
+        // todo Actually fix this? Difficult
+        private static bool _isLive;
 
         public FreeHFolders()
         {
@@ -40,6 +42,8 @@ namespace BrowserFolders
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
             _freeHFile = __instance;
+
+            _isLive = GameObject.Find("LiveStage") != null;
         }
 
         [HarmonyTranspiler]
@@ -181,7 +185,7 @@ namespace BrowserFolders
 
         public void OnGui()
         {
-            if (_freeHFile != null)
+            if (_freeHFile != null && !_isLive)
             {
                 var screenRect = ClassroomFolders.GetFullscreenBrowserRect();
                 Utils.DrawSolidWindowBackground(screenRect);
