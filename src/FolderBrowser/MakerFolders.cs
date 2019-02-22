@@ -18,6 +18,7 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
         private static Toggle _loadCharaToggle;
         private static Toggle _saveCharaToggle;
+        private static GameObject _saveFront;
 
         private static string _currentRelativeFolder;
         private static bool _refreshList;
@@ -46,6 +47,8 @@ namespace BrowserFolders
 
             var mt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMainMenu/BaseTop/tglSystem");
             _catToggle = mt.GetComponent<Toggle>();
+
+            _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
         }
 
         [HarmonyTranspiler]
@@ -82,19 +85,25 @@ namespace BrowserFolders
 
         public void OnGui()
         {
+            // Check the opened category
             if (_catToggle != null && _catToggle.isOn)
             {
+                // Check opened tab
                 if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
                 {
-                    if (_refreshList)
+                    // Check if the character picture take screen is displayed
+                    if (_saveFront == null || !_saveFront.activeSelf)
                     {
-                        OnFolderChanged();
-                        _refreshList = false;
-                    }
+                        if (_refreshList)
+                        {
+                            OnFolderChanged();
+                            _refreshList = false;
+                        }
 
-                    var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
-                    Utils.DrawSolidWindowBackground(screenRect);
-                    GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
+                        var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
+                        Utils.DrawSolidWindowBackground(screenRect);
+                        GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
+                    }
                 }
             }
         }
