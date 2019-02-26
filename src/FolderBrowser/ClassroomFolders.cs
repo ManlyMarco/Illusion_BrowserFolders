@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using ActionGame;
 using Harmony;
+using Manager;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -17,6 +18,7 @@ namespace BrowserFolders
 
         private static ClassRoomCharaFile _customCharaFile;
         private static Canvas _canvas;
+        private static string _targetScene;
 
         public ClassroomFolders()
         {
@@ -34,6 +36,8 @@ namespace BrowserFolders
 
             _customCharaFile = __instance;
             _canvas = __instance.transform.GetComponentInParent<Canvas>();
+
+            _targetScene = Scene.Instance.AddSceneName;
         }
 
         [HarmonyTranspiler]
@@ -55,7 +59,7 @@ namespace BrowserFolders
 
         public void OnGui()
         {
-            if (_canvas != null && _canvas.enabled)
+            if (_canvas != null && _canvas.enabled && _targetScene == Scene.Instance.AddSceneName)
             {
                 var screenRect = GetFullscreenBrowserRect();
                 Utils.DrawSolidWindowBackground(screenRect);

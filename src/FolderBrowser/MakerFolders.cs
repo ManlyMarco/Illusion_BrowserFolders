@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using ChaCustom;
 using Harmony;
+using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,6 +23,7 @@ namespace BrowserFolders
 
         private static string _currentRelativeFolder;
         private static bool _refreshList;
+        private static string _targetScene;
 
         public MakerFolders()
         {
@@ -49,6 +51,8 @@ namespace BrowserFolders
             _catToggle = mt.GetComponent<Toggle>();
 
             _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
+
+            _targetScene = Scene.Instance.AddSceneName;
         }
 
         [HarmonyTranspiler]
@@ -86,7 +90,7 @@ namespace BrowserFolders
         public void OnGui()
         {
             // Check the opened category
-            if (_catToggle != null && _catToggle.isOn)
+            if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.Instance.AddSceneName)
             {
                 // Check opened tab
                 if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)

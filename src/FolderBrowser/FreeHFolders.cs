@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using ActionGame;
-using ChaCustom;
 using FreeH;
 using Harmony;
-using Illusion.Game;
 using Manager;
-using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,8 +19,9 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
 
         private static string _currentRelativeFolder;
-        // todo Actually fix this? Difficult
         private static bool _isLive;
+        private static string _targetScene;
+        private static bool _refreshing;
 
         public FreeHFolders()
         {
@@ -38,12 +35,17 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(FreeHClassRoomCharaFile), "Start")]
         public static void InitHook(FreeHClassRoomCharaFile __instance)
         {
+            if(_refreshing) return;
+
             _folderTreeView.DefaultPath = Path.Combine(Utils.GetUserDataPath(), __instance.sex != 0 ? @"chara/female" : "chara/male");
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
             _freeHFile = __instance;
 
+            // todo Actually fix this instead of the workaround? Difficult
             _isLive = GameObject.Find("LiveStage") != null;
+
+            _targetScene = Scene.Instance.AddSceneName;
         }
 
         [HarmonyTranspiler]
@@ -89,103 +91,30 @@ namespace BrowserFolders
             }
             return field;
         }
-
-        /// <summary>
-        /// Everything is put into Start and some vars we need to change are locals, so we need to clean state and run start again
-        /// </summary>
+        
         private static void RefreshList()
         {
-            var listCtrl = (ClassRoomFileListCtrl)AccessTools.Field(typeof(FreeHClassRoomCharaFile), "listCtrl").GetValue(_freeHFile);
-            ClearEventInvocations(listCtrl, "OnPointerClick");
-            var enterButton = (Button)AccessTools.Field(typeof(FreeHClassRoomCharaFile), "enterButton").GetValue(_freeHFile);
-            enterButton.onClick.RemoveAllListeners();
-
-            //AccessTools.Method(typeof(FreeHClassRoomCharaFile), "Start").Invoke(_freeHFile, null);
-            
-            FolderAssist folderAssist = new FolderAssist();
-            folderAssist.CreateFolderInfoEx(UserData.Path + _currentRelativeFolder, new[] { "*.png" }, true);
-            listCtrl.ClearList();
-            int fileCount = folderAssist.GetFileCount();
-            int num = 0;
-            Dictionary<int, ChaFileControl> chaFileDic = new Dictionary<int, ChaFileControl>();
-            for (int i = 0; i < fileCount; i++)
+            try
             {
-                FolderAssist.FileInfo fileInfo = folderAssist.lstFile[i];
-                ChaFileControl chaFileControl = new ChaFileControl();
-                if (chaFileControl.LoadCharaFile(fileInfo.FullPath, 255, false, true))
-                {
-                    if ((int)chaFileControl.parameter.sex == _freeHFile.sex)
-                    {
-                        string club = string.Empty;
-                        string personality = string.Empty;
-                        if (_freeHFile.sex != 0)
-                        {
-                            VoiceInfo.Param param;
-                            if (!Singleton<Voice>.Instance.voiceInfoDic.TryGetValue(chaFileControl.parameter.personality, out param))
-                            {
-                                personality = "不明";
-                            }
-                            else
-                            {
-                                personality = param.Personality;
-                            }
-                            ClubInfo.Param param2;
-                            if (!Game.ClubInfos.TryGetValue((int)chaFileControl.parameter.clubActivities, out param2))
-                            {
-                                club = "不明";
-                            }
-                            else
-                            {
-                                club = param2.Name;
-                            }
-                        }
-                        else
-                        {
-                            listCtrl.DisableAddInfo();
-                        }
-                        listCtrl.AddList(num, chaFileControl.parameter.fullname, club, personality, fileInfo.FullPath, fileInfo.FileName, fileInfo.time, false, false);
-                        chaFileDic.Add(num, chaFileControl);
-                        num++;
-                    }
-                }
+                _refreshing = true;
+
+                //Everything is put into Start and some vars we need to change are locals, so we need to clean state and run start again
+                var listCtrl = (ClassRoomFileListCtrl)AccessTools.Field(typeof(FreeHClassRoomCharaFile), "listCtrl").GetValue(_freeHFile);
+                ClearEventInvocations(listCtrl, "OnPointerClick");
+                var enterButton = (Button)AccessTools.Field(typeof(FreeHClassRoomCharaFile), "enterButton").GetValue(_freeHFile);
+                enterButton.onClick.RemoveAllListeners();
+
+                AccessTools.Method(typeof(FreeHClassRoomCharaFile), "Start").Invoke(_freeHFile, null);
             }
-
-            var info = (ReactiveProperty<ChaFileControl>)AccessTools.Field(typeof(FreeHClassRoomCharaFile), "info").GetValue(_freeHFile);
-            listCtrl.OnPointerClick += delegate (CustomFileInfo cinfo)
+            finally
             {
-                info.Value = ((info != null) ? chaFileDic[cinfo.index] : null);
-                Illusion.Game.Utils.Sound.Play(SystemSE.sel);
-            };
-            listCtrl.Create(delegate (CustomFileInfoComponent fic)
-            {
-                if (fic == null)
-                {
-                    return;
-                }
-                fic.transform.GetChild(0).GetOrAddComponent<PreviewDataComponent>().SetChaFile(chaFileDic[fic.info.index]);
-            });
-            enterButton.onClick.AddListener(() =>
-            {
-                var onEnter = (Action<ChaFileControl>)AccessTools.Field(typeof(FreeHClassRoomCharaFile), "onEnter").GetValue(_freeHFile);
-                
-                onEnter(info.Value);
-            });
-            Button[] source = new Button[]
-            {
-                enterButton
-            };
-            source.ToList<Button>().ForEach(delegate (Button bt)
-            {
-                bt.onClick.AddListener(()=>
-                {
-                    Illusion.Game.Utils.Sound.Play(SystemSE.ok_s);
-                });
-            });
+                _refreshing = false;
+            }
         }
 
         public void OnGui()
         {
-            if (_freeHFile != null && !_isLive)
+            if (_freeHFile != null && !_isLive && _targetScene == Scene.Instance.AddSceneName)
             {
                 var screenRect = ClassroomFolders.GetFullscreenBrowserRect();
                 Utils.DrawSolidWindowBackground(screenRect);
