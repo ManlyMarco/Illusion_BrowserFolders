@@ -1,5 +1,5 @@
 # Maker and Studio File Browser Folders for Koikatsu!
-Adds folder support to main game character browsers and studio scene browser in Koikatu. You can organize your scenes into folders and use this plugin to browse them. Also known as KKSceneBrowserFolders or MakerFolders.
+Adds folder support to main game character browsers and studio scene browser in Koikatu. You can organize your cards and scenes into folders and use this plugin to browse them. Also known as KKSceneBrowserFolders or MakerFolders.
 
 You can support development of my plugins through my Patreon page: https://www.patreon.com/ManlyMarco
 
