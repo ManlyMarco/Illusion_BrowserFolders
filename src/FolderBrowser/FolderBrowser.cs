@@ -14,11 +14,13 @@ namespace BrowserFolders
         private MakerFolders _makerFolders;
         private ClassroomFolders _classroomFolders;
         private FreeHFolders _freeHFolders;
+        private NewGameFolders _newGameFolders;
 
         [DisplayName("Enable folder browser in maker")]
         [Category("Main game")]
         [Description("Changes take effect on game restart")]
         public static ConfigWrapper<bool> EnableMaker { get; private set; }
+
         [DisplayName("Enable folder browser in classroom/new game browser")]
         [Category("Main game")]
         [Description("Changes take effect on game restart")]
@@ -49,6 +51,7 @@ namespace BrowserFolders
                 _makerFolders?.OnGui();
                 _classroomFolders?.OnGui();
                 _freeHFolders?.OnGui();
+                _newGameFolders?.OnGui();
             }
         }
 
@@ -70,7 +73,11 @@ namespace BrowserFolders
                 if (EnableMaker.Value)
                     _makerFolders = new MakerFolders();
                 if (EnableClassroom.Value)
+                {
                     _classroomFolders = new ClassroomFolders();
+                    _newGameFolders = new NewGameFolders();
+                }
+
                 if (EnableFreeH.Value)
                     _freeHFolders = new FreeHFolders();
             }
