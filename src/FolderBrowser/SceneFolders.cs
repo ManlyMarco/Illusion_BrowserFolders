@@ -64,7 +64,7 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), new[] { typeof(string) })]
         public static void SavePrefix(ref string _path)
         {
-            if (KK_BrowserFolders.StudioSaveOverride.Value)
+            if (KK_BrowserFolders.StudioSaveOverride.Value && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
             {
                 var name = Path.GetFileName(_path);
                 if (!string.IsNullOrEmpty(name) &&
