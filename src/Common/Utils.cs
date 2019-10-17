@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace BrowserFolders
+namespace BrowserFolders.Common
 {
-    internal static class Utils
+    public static class Utils
     {
-        public static string GetUserDataPath()
+        public static string NormalizePath(string path)
         {
-            return Path.GetFullPath(UserData.Path).Replace('/', '\\').TrimEnd('\\').ToLower();
+            return Path.GetFullPath(path).Replace('/', '\\').TrimEnd('\\').ToLower();
         }
 
         private static Texture2D WindowBackground { get; set; }
@@ -29,6 +31,30 @@ namespace BrowserFolders
             GUI.Box(windowRect, GUIContent.none, new GUIStyle { normal = new GUIStyleState { background = WindowBackground } });
         }
 
+        public static IEnumerable<Type> GetTypesSafe(this Assembly ass)
+        {
+            try { return ass.GetTypes(); }
+            catch (ReflectionTypeLoadException e) { return e.Types.Where(x => x != null); }
+            catch { return Enumerable.Empty<Type>(); }
+        }
+
+        public static IEnumerable<T2> Attempt<T, T2>(this IEnumerable<T> items, Func<T,T2> action)
+        {
+            foreach (var item in items)
+            {
+                T2 result;
+                try
+                {
+                    result = action(item);
+                }
+                catch
+                {
+                    continue;
+                }
+                yield return result;
+            }
+        }
+
         public class WindowsStringComparer : IComparer<string>
         {
             [DllImport("shlwapi.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
@@ -38,7 +64,6 @@ namespace BrowserFolders
             {
                 return StrCmpLogicalW(x, y);
             }
-
         }
     }
 }

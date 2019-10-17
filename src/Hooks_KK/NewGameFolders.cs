@@ -4,15 +4,17 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using ActionGame;
+using BrowserFolders.Common;
 using Harmony;
 using Manager;
 using UnityEngine;
 
-namespace BrowserFolders
+namespace BrowserFolders.Hooks.KK
 {
-    public class NewGameFolders
+    public class NewGameFolders : IFolderBrowser
     {
+        public BrowserType Type => BrowserType.NewGame;
+
         private static string _currentRelativeFolder;
         private static FolderTreeView _folderTreeView;
 
@@ -22,10 +24,10 @@ namespace BrowserFolders
 
         public NewGameFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.GetUserDataPath(), Path.Combine(Utils.GetUserDataPath(), "chara/male/"));
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/male/"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(KK_BrowserFolders.Guid + "." + nameof(NewGameFolders)).PatchAll(typeof(NewGameFolders));
+            HarmonyInstance.Create(GetType().FullName).PatchAll(typeof(NewGameFolders));
         }
 
         [HarmonyPrefix]

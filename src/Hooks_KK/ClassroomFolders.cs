@@ -5,14 +5,17 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using ActionGame;
+using BrowserFolders.Common;
 using Harmony;
 using Manager;
 using UnityEngine;
 
-namespace BrowserFolders
+namespace BrowserFolders.Hooks.KK
 {
-    public class ClassroomFolders
+    public class ClassroomFolders : IFolderBrowser
     {
+        public BrowserType Type => BrowserType.Classroom;
+
         private static string _currentRelativeFolder;
         private static FolderTreeView _folderTreeView;
 
@@ -22,10 +25,10 @@ namespace BrowserFolders
 
         public ClassroomFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.GetUserDataPath(), Path.Combine(Utils.GetUserDataPath(), "chara/female/"));
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female/"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(KK_BrowserFolders.Guid + "." + nameof(ClassroomFolders)).PatchAll(typeof(ClassroomFolders));
+            HarmonyInstance.Create(GetType().FullName).PatchAll(typeof(ClassroomFolders));
         }
 
         [HarmonyPrefix]
@@ -98,9 +101,9 @@ namespace BrowserFolders
                     if (GUILayout.Button("Current folder"))
                         Process.Start("explorer.exe", $"\"{_folderTreeView.CurrentFolder}\"");
                     if (GUILayout.Button("Screenshot folder"))
-                        Process.Start("explorer.exe", $"\"{Path.Combine(Utils.GetUserDataPath(), "cap")}\"");
+                        Process.Start("explorer.exe", $"\"{Path.Combine(Utils.NormalizePath(UserData.Path), "cap")}\"");
                     if (GUILayout.Button("Main game folder"))
-                        Process.Start("explorer.exe", $"\"{Path.GetDirectoryName(Utils.GetUserDataPath())}\"");
+                        Process.Start("explorer.exe", $"\"{Path.GetDirectoryName(Utils.NormalizePath(UserData.Path))}\"");
                 }
                 GUILayout.EndVertical();
             }

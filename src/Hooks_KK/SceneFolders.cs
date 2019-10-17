@@ -4,23 +4,26 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using BrowserFolders.Common;
 using Harmony;
 using Studio;
 using UnityEngine;
 
-namespace BrowserFolders
+namespace BrowserFolders.Hooks.KK
 {
-    public class SceneFolders
+    public class SceneFolders : IFolderBrowser
     {
+        public BrowserType Type => BrowserType.Scene;
+
         private static FolderTreeView _folderTreeView;
         private static SceneLoadScene _studioInitObject;
 
         public SceneFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.GetUserDataPath(), Path.Combine(Utils.GetUserDataPath(), @"studio\scene"));
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), @"studio\scene"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(KK_BrowserFolders.Guid + "." + nameof(SceneFolders)).PatchAll(typeof(SceneFolders));
+            HarmonyInstance.Create(GetType().FullName).PatchAll(typeof(SceneFolders));
         }
 
         public void OnGui()
@@ -64,15 +67,22 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), new[] { typeof(string) })]
         public static void SavePrefix(ref string _path)
         {
-            if (KK_BrowserFolders.StudioSaveOverride.Value && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
+            try
             {
-                var name = Path.GetFileName(_path);
-                if (!string.IsNullOrEmpty(name) &&
-                    // Play nice with other mods if they want to save outside
-                    _path.ToLowerInvariant().Replace('\\', '/').Contains("userdata/studio/scene"))
+                if (Settings.StudioSaveOverride() && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
                 {
-                    _path = Path.Combine(_folderTreeView.CurrentFolder, name);
+                    var name = Path.GetFileName(_path);
+                    if (!string.IsNullOrEmpty(name) &&
+                        // Play nice with other mods if they want to save outside
+                        _path.ToLowerInvariant().Replace('\\', '/').Contains("userdata/studio/scene"))
+                    {
+                        _path = Path.Combine(_folderTreeView.CurrentFolder, name);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
             }
         }
 
@@ -106,11 +116,11 @@ namespace BrowserFolders
                     if (GUILayout.Button("Open current folder in explorer"))
                         Process.Start("explorer.exe", $"\"{_folderTreeView.CurrentFolder}\"");
                     if (GUILayout.Button("Open screenshot folder in explorer"))
-                        Process.Start("explorer.exe", $"\"{Path.Combine(Utils.GetUserDataPath(), "cap")}\"");
+                        Process.Start("explorer.exe", $"\"{Path.Combine(Utils.NormalizePath(UserData.Path), "cap")}\"");
                     if (GUILayout.Button("Open character folder in explorer"))
-                        Process.Start("explorer.exe", $"\"{Path.Combine(Utils.GetUserDataPath(), "chara")}\"");
+                        Process.Start("explorer.exe", $"\"{Path.Combine(Utils.NormalizePath(UserData.Path), "chara")}\"");
                     if (GUILayout.Button("Open main game folder in explorer"))
-                        Process.Start("explorer.exe", $"\"{Path.GetDirectoryName(Utils.GetUserDataPath())}\"");
+                        Process.Start("explorer.exe", $"\"{Path.GetDirectoryName(Utils.NormalizePath(UserData.Path))}\"");
                 }
                 GUILayout.EndVertical();
             }

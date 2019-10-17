@@ -4,16 +4,19 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using BrowserFolders.Common;
 using ChaCustom;
 using Harmony;
 using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BrowserFolders
+namespace BrowserFolders.Hooks.KK
 {
-    public class MakerFolders
+    public class MakerFolders : IFolderBrowser
     {
+        public BrowserType Type => BrowserType.Maker;
+
         private static Toggle _catToggle;
         private static CustomCharaFile _customCharaFile;
         private static FolderTreeView _folderTreeView;
@@ -27,10 +30,10 @@ namespace BrowserFolders
 
         public MakerFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.GetUserDataPath(), Utils.GetUserDataPath());
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(KK_BrowserFolders.Guid + "." + nameof(MakerFolders)).PatchAll(typeof(MakerFolders));
+            HarmonyInstance.Create(GetType().FullName).PatchAll(typeof(MakerFolders));
         }
 
         [HarmonyPrefix]
@@ -38,7 +41,7 @@ namespace BrowserFolders
         public static void InitHook(CustomCharaFile __instance)
         {
             var instance = CustomBase.Instance;
-            _folderTreeView.DefaultPath = Path.Combine(Utils.GetUserDataPath(), instance.modeSex != 0 ? @"chara/female" : "chara/male");
+            _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), instance.modeSex != 0 ? @"chara/female" : "chara/male");
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
             _customCharaFile = __instance;
@@ -142,9 +145,9 @@ namespace BrowserFolders
                     if (GUILayout.Button("Current folder"))
                         Process.Start("explorer.exe", $"\"{_folderTreeView.CurrentFolder}\"");
                     if (GUILayout.Button("Screenshot folder"))
-                        Process.Start("explorer.exe", $"\"{Path.Combine(Utils.GetUserDataPath(), "cap")}\"");
+                        Process.Start("explorer.exe", $"\"{Path.Combine(Utils.NormalizePath(UserData.Path), "cap")}\"");
                     if (GUILayout.Button("Main game folder"))
-                        Process.Start("explorer.exe", $"\"{Path.GetDirectoryName(Utils.GetUserDataPath())}\"");
+                        Process.Start("explorer.exe", $"\"{Path.GetDirectoryName(Utils.NormalizePath(UserData.Path))}\"");
                 }
                 GUILayout.EndVertical();
             }
