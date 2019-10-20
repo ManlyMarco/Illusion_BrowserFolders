@@ -16,7 +16,7 @@ namespace BrowserFolders
     public class KK_BrowserFolders : BaseUnityPlugin
     {
         public const string Guid = "marco.FolderBrowser";
-        public const string Version = "1.3";
+        public const string Version = "1.4";
 
         private IFolderBrowser _sceneFolders;
         private IFolderBrowser _makerFolders;
