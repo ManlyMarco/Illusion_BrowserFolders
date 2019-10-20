@@ -1,14 +1,12 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using BepInEx.Harmony;
-using BrowserFolders.Common;
 using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
 using Manager;
 using UnityEngine;
 using UnityEngine.UI;
-using Utils = BrowserFolders.Common.Utils;
 
 namespace BrowserFolders.Hooks.KKP
 {

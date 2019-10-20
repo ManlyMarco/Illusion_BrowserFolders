@@ -1,4 +1,4 @@
-﻿namespace BrowserFolders.Common
+﻿namespace BrowserFolders
 {
     public enum BrowserType
     {

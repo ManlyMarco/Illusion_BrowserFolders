@@ -54,7 +54,6 @@
     <Compile Include="IFolderBrowser.cs" />
     <Compile Include="KK_BrowserFolders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceUtils.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

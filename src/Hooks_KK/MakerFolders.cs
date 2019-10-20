@@ -5,7 +5,6 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx.Harmony;
-using BrowserFolders.Common;
 using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;

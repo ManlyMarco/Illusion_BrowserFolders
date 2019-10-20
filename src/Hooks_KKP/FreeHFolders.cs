@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using BrowserFolders.Common;
 using FreeH;
 using Localize.Translate;
 using Manager;

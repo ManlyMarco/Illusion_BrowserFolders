@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace BrowserFolders.Common
+namespace BrowserFolders
 {
     public static class Utils
     {

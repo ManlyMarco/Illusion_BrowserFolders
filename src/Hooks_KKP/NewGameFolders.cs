@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using BrowserFolders.Common;
 using HarmonyLib;
 using Manager;
 using UnityEngine;

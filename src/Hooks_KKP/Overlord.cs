@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using ActionGame;
 using BepInEx.Harmony;
-using BrowserFolders.Common;
 using ChaCustom;
 using FreeH;
 using HarmonyLib;
@@ -21,14 +20,14 @@ namespace BrowserFolders.Hooks.KKP
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(Localize.Translate.Manager.DefaultData), nameof(Localize.Translate.Manager.DefaultData.UserDataAssist), new[] { typeof(string), typeof(bool) })]
+        [HarmonyPatch(typeof(Localize.Translate.Manager.DefaultData), nameof(Localize.Translate.Manager.DefaultData.UserDataAssist), typeof(string), typeof(bool))]
         internal static void FilenameHook(ref string path, ref bool useDefaultData)
         {
             var sex = path == "chara/female/" ? 1 : 0;
 
             useDefaultData = useDefaultData && KK_BrowserFolders.ShowDefaultCharas.Value;
 
-            var freeh = GameObject.FindObjectOfType<FreeHPreviewCharaList>();
+            var freeh = Object.FindObjectOfType<FreeHPreviewCharaList>();
             if (freeh != null)
             {
                 FreeHFolders.Init(freeh, sex);
@@ -40,7 +39,7 @@ namespace BrowserFolders.Hooks.KKP
                 return;
             }
 
-            var newGame = GameObject.FindObjectOfType<EntryPlayer>();
+            var newGame = Object.FindObjectOfType<EntryPlayer>();
             if (newGame != null)
             {
                 NewGameFolders.Init(newGame, sex);
@@ -52,7 +51,7 @@ namespace BrowserFolders.Hooks.KKP
                 return;
             }
 
-            var classroom = GameObject.FindObjectOfType<PreviewCharaList>();
+            var classroom = Object.FindObjectOfType<PreviewCharaList>();
             if (classroom != null)
             {
                 ClassroomFolders.Init(classroom, sex);
@@ -64,7 +63,7 @@ namespace BrowserFolders.Hooks.KKP
                 return;
             }
 
-            var maker = GameObject.FindObjectOfType<CustomCharaFile>();
+            var maker = Object.FindObjectOfType<CustomCharaFile>();
             if (maker != null)
             {
                 //MakerFolders.Init(classroom, sex);
@@ -72,8 +71,6 @@ namespace BrowserFolders.Hooks.KKP
                 var overridePath = MakerFolders.CurrentRelativeFolder;
                 if (!string.IsNullOrEmpty(overridePath))
                     path = overridePath;
-
-                return;
             }
         }
 

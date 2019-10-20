@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-namespace BrowserFolders.Common
+namespace BrowserFolders
 {
     public class FolderTreeView
     {
@@ -21,7 +21,7 @@ namespace BrowserFolders.Common
 
         public FolderTreeView(string topmostPath, string defaultPath)
         {
-            if(!defaultPath.StartsWith(topmostPath, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("default path has to be inside topmost path");
+            if (!defaultPath.StartsWith(topmostPath, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("default path has to be inside topmost path");
 
             DefaultPath = defaultPath;
             _topmostPath = Path.GetFullPath(topmostPath.ToLowerInvariant().TrimEnd('\\'));

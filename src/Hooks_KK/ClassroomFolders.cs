@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using ActionGame;
 using BepInEx.Harmony;
-using BrowserFolders.Common;
 using HarmonyLib;
 using Manager;
 using UnityEngine;
