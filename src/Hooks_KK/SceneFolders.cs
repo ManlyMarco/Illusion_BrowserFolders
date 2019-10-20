@@ -4,8 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using BepInEx.Harmony;
 using BrowserFolders.Common;
-using Harmony;
+using HarmonyLib;
 using Studio;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), @"studio\scene"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(GetType().FullName).PatchAll(typeof(SceneFolders));
+            HarmonyWrapper.PatchAll(typeof(SceneFolders));
         }
 
         public void OnGui()
@@ -38,7 +39,7 @@ namespace BrowserFolders.Hooks.KK
 
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(SceneLoadScene), "InitInfo")]
-        public static IEnumerable<CodeInstruction> StudioInitInfoPatch(IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> StudioInitInfoPatch(IEnumerable<CodeInstruction> instructions)
         {
             foreach (var instruction in instructions)
             {
@@ -55,7 +56,7 @@ namespace BrowserFolders.Hooks.KK
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(SceneLoadScene), "InitInfo")]
-        public static void StudioInitInfoPost(SceneLoadScene __instance)
+        internal static void StudioInitInfoPost(SceneLoadScene __instance)
         {
             _studioInitObject = __instance;
             if (_folderTreeView.CurrentFolder == null)
@@ -64,12 +65,12 @@ namespace BrowserFolders.Hooks.KK
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), new[] { typeof(string) })]
-        public static void SavePrefix(ref string _path)
+        [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), typeof(string))]
+        internal static void SavePrefix(ref string _path)
         {
             try
             {
-                if (Settings.StudioSaveOverride() && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
+                if (KK_BrowserFolders.StudioSaveOverride.Value && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
                 {
                     var name = Path.GetFileName(_path);
                     if (!string.IsNullOrEmpty(name) &&

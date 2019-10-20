@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using System.Reflection.Emit;
 using BepInEx.Harmony;
 using BrowserFolders.Common;
 using ChaCustom;
@@ -12,8 +8,9 @@ using KKAPI.Maker;
 using Manager;
 using UnityEngine;
 using UnityEngine.UI;
+using Utils = BrowserFolders.Common.Utils;
 
-namespace BrowserFolders.Hooks.KK
+namespace BrowserFolders.Hooks.KKP
 {
     public class MakerFolders : IFolderBrowser
     {
@@ -26,7 +23,8 @@ namespace BrowserFolders.Hooks.KK
         private static Toggle _saveCharaToggle;
         private static GameObject _saveFront;
 
-        private static string _currentRelativeFolder;
+        public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
+
         private static bool _refreshList;
         private static string _targetScene;
 
@@ -36,7 +34,10 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
             HarmonyWrapper.PatchAll(typeof(MakerFolders));
+
             MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
+
+            Overlord.Init();
         }
 
         private static string DirectoryPathModifier(string currentDirectoryPath)
@@ -46,10 +47,9 @@ namespace BrowserFolders.Hooks.KK
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CustomCharaFile), "Start")]
-        internal static void InitHook(CustomCharaFile __instance)
+        public static void InitHook(CustomCharaFile __instance)
         {
-            var instance = CustomBase.Instance;
-            _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), instance.modeSex != 0 ? @"chara/female" : "chara/male");
+            _folderTreeView.DefaultPath = Overlord.GetDefaultPath(CustomBase.Instance.modeSex);
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
             _customCharaFile = __instance;
@@ -64,24 +64,6 @@ namespace BrowserFolders.Hooks.KK
             _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
 
             _targetScene = Scene.Instance.AddSceneName;
-        }
-
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(CustomCharaFile), "Initialize")]
-        internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
-        {
-            foreach (var instruction in instructions)
-            {
-                if (string.Equals(instruction.operand as string, "chara/female/", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(instruction.operand as string, "chara/male/", StringComparison.OrdinalIgnoreCase))
-                {
-                    //0x7E	ldsfld <field>	Push the value of the static field on the stack.
-                    instruction.opcode = OpCodes.Ldsfld;
-                    instruction.operand = typeof(MakerFolders).GetField(nameof(_currentRelativeFolder), BindingFlags.NonPublic | BindingFlags.Static);
-                }
-
-                yield return instruction;
-            }
         }
 
         public void OnGui()
@@ -111,14 +93,12 @@ namespace BrowserFolders.Hooks.KK
 
         private static void OnFolderChanged()
         {
-            _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
-
             if (_customCharaFile == null) return;
 
             if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
             {
-                // private bool Initialize()
-                Traverse.Create(_customCharaFile).Method("Initialize").GetValue();
+                // private bool Initialize(bool isDefaultDataAdd, bool reCreate)
+                Traverse.Create(_customCharaFile).Method("Initialize", _loadCharaToggle?.isOn == true, false).GetValue();
             }
         }
 
@@ -130,6 +110,9 @@ namespace BrowserFolders.Hooks.KK
 
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
+                    if (Overlord.DrawDefaultCardsToggle())
+                        OnFolderChanged();
+
                     if (GUILayout.Button("Refresh thumbnails"))
                         OnFolderChanged();
 

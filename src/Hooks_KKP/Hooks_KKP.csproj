@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BrowserFolders.Hooks.KKP</RootNamespace>
-    <AssemblyName>Hooks_KKP</AssemblyName>
+    <AssemblyName>KK_BrowserFolders_Hooks_KKP</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -33,39 +33,49 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\lib\bepinex4\0Harmony.dll</HintPath>
+      <HintPath>..\lib\bepinex5\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\lib\kkp\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\lib\kkp\Assembly-CSharp-firstpass.dll</HintPath>
+    <Reference Include="BepInEx">
+      <HintPath>..\lib\bepinex5\BepInEx.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="BepInEx.Harmony">
+      <HintPath>..\lib\bepinex5\BepInEx.Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="KKAPI">
+      <HintPath>..\..\..\..\KKEC\KKAPI\bin\KKAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\lib\kk\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\lib\kk\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\lib\kkp\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClassroomFolders.cs" />
+    <Compile Include="FreeHFolders.cs" />
+    <Compile Include="MakerFolders.cs" />
+    <Compile Include="NewGameFolders.cs" />
+    <Compile Include="Overlord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
-      <Project>{93e3c920-8a11-496a-a108-2ee224ca0608}</Project>
-      <Name>Common</Name>
+    <ProjectReference Include="..\FolderBrowser\KK_BrowserFolders.csproj">
+      <Project>{74c2db86-55bb-47b4-9805-51b5b992ef35}</Project>
+      <Name>KK_BrowserFolders</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

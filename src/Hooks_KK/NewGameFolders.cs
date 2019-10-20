@@ -4,8 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using BepInEx.Harmony;
 using BrowserFolders.Common;
-using Harmony;
+using HarmonyLib;
 using Manager;
 using UnityEngine;
 
@@ -27,12 +28,12 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/male/"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(GetType().FullName).PatchAll(typeof(NewGameFolders));
+            HarmonyWrapper.PatchAll(typeof(NewGameFolders));
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EntryPlayer), "Start")]
-        public static void InitHook(EntryPlayer __instance)
+        internal static void InitHook(EntryPlayer __instance)
         {
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
@@ -44,7 +45,7 @@ namespace BrowserFolders.Hooks.KK
 
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(EntryPlayer), "CreateMaleList")]
-        public static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
         {
             foreach (var instruction in instructions)
             {

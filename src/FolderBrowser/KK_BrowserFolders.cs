@@ -1,14 +1,18 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
+using BepInEx.Configuration;
 using BrowserFolders.Common;
+using KKAPI;
 using UnityEngine;
 
 namespace BrowserFolders
 {
     [BepInPlugin(Guid, "Maker/Studio Browser Folders", Version)]
+    [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
     public class KK_BrowserFolders : BaseUnityPlugin
     {
         public const string Guid = "marco.FolderBrowser";
@@ -20,32 +24,14 @@ namespace BrowserFolders
         private IFolderBrowser _freeHFolders;
         private IFolderBrowser _newGameFolders;
 
-        [DisplayName("Enable folder browser in maker")]
-        [Category("Main game")]
-        [Description("Changes take effect on game restart")]
-        public static ConfigWrapper<bool> EnableMaker { get; private set; }
+        public static ConfigEntry<bool> EnableMaker { get; private set; }
+        public static ConfigEntry<bool> EnableClassroom { get; private set; }
+        public static ConfigEntry<bool> EnableFreeH { get; private set; }
 
-        [DisplayName("Enable folder browser in classroom/new game browser")]
-        [Category("Main game")]
-        [Description("Changes take effect on game restart")]
-        public static ConfigWrapper<bool> EnableClassroom { get; private set; }
+        public static ConfigEntry<bool> EnableStudio { get; private set; }
+        public static ConfigEntry<bool> StudioSaveOverride { get; private set; }
 
-        [DisplayName("Enable folder browser in Free H browser")]
-        [Category("Main game")]
-        [Description("Changes take effect on game restart")]
-        public static ConfigWrapper<bool> EnableFreeH { get; private set; }
-
-        [DisplayName("Enable folder browser in scene browser")]
-        [Category("Chara Studio")]
-        [Description("Changes take effect on game restart")]
-        public static ConfigWrapper<bool> EnableStudio { get; private set; }
-
-        [DisplayName("Save scenes to current folder")]
-        [Category("Chara Studio")]
-        [Description("When you select a custom folder to load a scene from, " +
-                     "newly saved scenes will be saved to this folder.\n" +
-                     "If disabled, scenes are always saved to default folder (studio/scene).")]
-        public static ConfigWrapper<bool> StudioSaveOverride { get; private set; }
+        public static ConfigEntry<bool> ShowDefaultCharas { get; private set; }
 
         private void OnGUI()
         {
@@ -61,17 +47,8 @@ namespace BrowserFolders
 
         private void Start()
         {
-            Assembly.Load(ResourceUtils.GetEmbeddedResource("Hooks_KK.dll"));
-            if (Application.productName != "CharaStudio")
-                Assembly.Load(ResourceUtils.GetEmbeddedResource("Hooks_KKP.dll"));
-
-            var browserType = typeof(IFolderBrowser);
-            var browsers = Assembly.GetExecutingAssembly()
-                .GetTypesSafe()
-                .Where(x => x.IsClass && !x.IsAbstract && browserType.IsAssignableFrom(x))
-                .Attempt(Activator.CreateInstance)
-                .Cast<IFolderBrowser>()
-                .ToList();
+            var browsers = LoadBrowsers();
+            if (browsers.Count == 0) return;
 
             var maker = browsers.FirstOrDefault(x => x.Type == BrowserType.Maker);
             var classroom = browsers.FirstOrDefault(x => x.Type == BrowserType.Classroom);
@@ -80,19 +57,18 @@ namespace BrowserFolders
             var scene = browsers.FirstOrDefault(x => x.Type == BrowserType.Scene);
 
             if (maker != null)
-                EnableMaker = new ConfigWrapper<bool>(nameof(EnableMaker), this, true);
+                EnableMaker = Config.AddSetting("Main game", "Enable folder browser in maker", true, "Changes take effect on game restart");
 
             if (classroom != null || newGame != null)
-                EnableClassroom = new ConfigWrapper<bool>(nameof(EnableClassroom), this, true);
+                EnableClassroom = Config.AddSetting("Main game", "Enable folder browser in classroom/new game browser", true, "Changes take effect on game restart");
 
             if (freeH != null)
-                EnableFreeH = new ConfigWrapper<bool>(nameof(EnableFreeH), this, true);
+                EnableFreeH = Config.AddSetting("Main game", "Enable folder browser in Free H browser", true, "Changes take effect on game restart");
 
             if (scene != null)
             {
-                EnableStudio = new ConfigWrapper<bool>(nameof(EnableStudio), this, true);
-                StudioSaveOverride = new ConfigWrapper<bool>(nameof(StudioSaveOverride), this, false);
-                Settings.StudioSaveOverride = () => StudioSaveOverride.Value;
+                EnableStudio = Config.AddSetting("Chara Studio", "Enable folder browser in scene browser", true, "Changes take effect on game restart");
+                StudioSaveOverride = Config.AddSetting("Chara Studio", "Save scenes to current folder", true, "When you select a custom folder to load a scene from, newly saved scenes will be saved to this folder.\nIf disabled, scenes are always saved to default folder (studio/scene).");
             }
 
             if (Application.productName == "CharaStudio")
@@ -102,6 +78,9 @@ namespace BrowserFolders
             }
             else
             {
+                if (Application.productName == "Koikatsu Party")
+                    ShowDefaultCharas = Config.AddSetting("Main game", "Show default character cards", true);
+
                 if (EnableMaker != null && EnableMaker.Value)
                     _makerFolders = maker;
 
@@ -114,6 +93,27 @@ namespace BrowserFolders
                 if (EnableFreeH != null && EnableFreeH.Value)
                     _freeHFolders = freeH;
             }
+        }
+
+        private static List<IFolderBrowser> LoadBrowsers()
+        {
+            try
+            {
+                var assHooks = Application.productName == "Koikatsu Party" ? "KK_BrowserFolders_Hooks_KKP" : "KK_BrowserFolders_Hooks_KK";
+                return GetBrowsers(Assembly.Load(assHooks)).ToList();
+            }
+            catch (FileNotFoundException) { }
+
+            return new List<IFolderBrowser>();
+        }
+
+        private static IEnumerable<IFolderBrowser> GetBrowsers(Assembly ass)
+        {
+            var browserType = typeof(IFolderBrowser);
+            return ass.GetTypesSafe()
+                .Where(x => x.IsClass && !x.IsAbstract && browserType.IsAssignableFrom(x))
+                .Attempt(Activator.CreateInstance)
+                .Cast<IFolderBrowser>();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿namespace BrowserFolders.Common {
+﻿namespace BrowserFolders.Common
+{
     public interface IFolderBrowser
     {
         void OnGui();

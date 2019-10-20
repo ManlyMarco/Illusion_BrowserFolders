@@ -5,9 +5,10 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using ActionGame;
+using BepInEx.Harmony;
 using BrowserFolders.Common;
 using FreeH;
-using Harmony;
+using HarmonyLib;
 using Manager;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,12 +32,12 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyInstance.Create(GetType().FullName).PatchAll(typeof(FreeHFolders));
+            HarmonyWrapper.PatchAll(typeof(FreeHFolders));
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(FreeHClassRoomCharaFile), "Start")]
-        public static void InitHook(FreeHClassRoomCharaFile __instance)
+        internal static void InitHook(FreeHClassRoomCharaFile __instance)
         {
             if(_refreshing) return;
 
@@ -53,7 +54,7 @@ namespace BrowserFolders.Hooks.KK
 
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(FreeHClassRoomCharaFile), "Start")]
-        public static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
+        internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
         {
             foreach (var instruction in instructions)
             {
@@ -69,11 +70,10 @@ namespace BrowserFolders.Hooks.KK
             }
         }
 
-        public static void ClearEventInvocations(object obj, string eventName)
+        private static void ClearEventInvocations(object obj, string eventName)
         {
             var fi = GetEventField(obj.GetType(), eventName);
-            if (fi == null) return;
-            fi.SetValue(obj, null);
+            fi?.SetValue(obj, null);
         }
 
         private static FieldInfo GetEventField(Type type, string eventName)
