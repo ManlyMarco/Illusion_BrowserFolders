@@ -20,7 +20,6 @@ namespace BrowserFolders.Hooks.KK
         private static FolderTreeView _folderTreeView;
 
         private static EntryPlayer _customCharaFile;
-        //private static Canvas _canvas;
         private static string _targetScene;
 
         public NewGameFolders()
@@ -38,7 +37,6 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
             _customCharaFile = __instance;
-            //_canvas = __instance.transform.GetComponentInParent<Canvas>();
 
             _targetScene = Scene.Instance.AddSceneName;
         }

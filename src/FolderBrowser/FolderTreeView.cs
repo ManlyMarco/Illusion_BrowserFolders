@@ -35,11 +35,11 @@ namespace BrowserFolders.Common
                 if (string.IsNullOrEmpty(value))
                     value = DefaultPath;
 
-                var lowVal = Path.GetFullPath(value.ToLower().TrimEnd('\\'));
+                var lowVal = Path.GetFullPath(value.TrimEnd('\\')).ToLower() + "/";
                 if (_currentFolder == lowVal) return;
 
                 _currentFolder = lowVal;
-                CurrentRelativeFolder = _currentFolder.Length > _topmostPath.Length ? _currentFolder.Substring(_topmostPath.Length) : "";
+                CurrentRelativeFolder = _currentFolder.Length > _topmostPath.Length ? _currentFolder.Substring(_topmostPath.Length) : "/";
 
                 CurrentFolderChanged?.Invoke();
             }
@@ -104,7 +104,7 @@ namespace BrowserFolders.Common
             }
 
             var c = GUI.color;
-            if (fullNameLower == CurrentFolder)
+            if (fullNameLower.TrimEnd('/', '\\') == CurrentFolder.TrimEnd('/'))
             {
                 GUI.color = Color.cyan;
                 if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
