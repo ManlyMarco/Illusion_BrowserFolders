@@ -35,16 +35,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BepInEx">
-      <HintPath>..\lib\bepinex5\BepInEx.dll</HintPath>
+      <HintPath>..\..\lib\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="KKAPI">
-      <HintPath>..\..\..\..\KKEC\KKAPI\bin\KKAPI.dll</HintPath>
+      <HintPath>..\..\lib\kk\KKAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
-      <HintPath>..\lib\kk\UnityEngine.dll</HintPath>
+      <HintPath>..\..\lib\kk\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

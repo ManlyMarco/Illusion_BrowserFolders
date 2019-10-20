@@ -33,33 +33,33 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\lib\bepinex5\0Harmony.dll</HintPath>
+      <HintPath>..\..\lib\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\lib\kk\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\lib\kk\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\lib\bepinex5\BepInEx.dll</HintPath>
+      <HintPath>..\..\lib\BepInEx.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx.Harmony">
-      <HintPath>..\lib\bepinex5\BepInEx.Harmony.dll</HintPath>
+      <HintPath>..\..\lib\BepInEx.Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="KKAPI">
-      <HintPath>..\..\..\..\KKEC\KKAPI\bin\KKAPI.dll</HintPath>
+      <HintPath>..\..\lib\kk\KKAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
-      <HintPath>..\lib\kk\UnityEngine.dll</HintPath>
+      <HintPath>..\..\lib\kk\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\lib\kk\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\..\lib\kk\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
