@@ -33,7 +33,7 @@ namespace BrowserFolders
 
         public static ConfigEntry<bool> ShowDefaultCharas { get; private set; }
 
-        private void OnGUI()
+        internal void OnGUI()
         {
             if (_sceneFolders != null) _sceneFolders.OnGui();
             else
@@ -45,7 +45,7 @@ namespace BrowserFolders
             }
         }
 
-        private void Start()
+        internal void Start()
         {
             var browsers = LoadBrowsers();
             if (browsers.Count == 0) return;

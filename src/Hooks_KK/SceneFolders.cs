@@ -96,9 +96,9 @@ namespace BrowserFolders.Hooks.KK
             if (_studioInitObject == null) return;
 
             var sls = typeof(SceneLoadScene);
-            sls.GetMethod("OnClickCancel", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(_studioInitObject, null);
-            sls.GetMethod("InitInfo", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(_studioInitObject, null);
-            sls.GetMethod("SetPage", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(_studioInitObject, new object[] { SceneLoadScene.page });
+            sls.GetMethod("OnClickCancel", AccessTools.all)?.Invoke(_studioInitObject, null);
+            sls.GetMethod("InitInfo", AccessTools.all)?.Invoke(_studioInitObject, null);
+            sls.GetMethod("SetPage", AccessTools.all)?.Invoke(_studioInitObject, new object[] { SceneLoadScene.page });
         }
 
         private static void TreeWindow(int id)
