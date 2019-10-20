@@ -95,14 +95,14 @@ namespace BrowserFolders
             }
         }
 
-        private static List<IFolderBrowser> LoadBrowsers()
+        private List<IFolderBrowser> LoadBrowsers()
         {
             try
             {
                 var assHooks = Application.productName == "Koikatsu Party" ? "KK_BrowserFolders_Hooks_KKP" : "KK_BrowserFolders_Hooks_KK";
                 return GetBrowsers(Assembly.Load(assHooks)).ToList();
             }
-            catch (FileNotFoundException) { }
+            catch (FileNotFoundException ex) { Logger.LogWarning("Failed to load browsers - " + ex); }
 
             return new List<IFolderBrowser>();
         }
