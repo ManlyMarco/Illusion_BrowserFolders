@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -52,6 +53,19 @@ namespace BrowserFolders
                     continue;
                 }
                 yield return result;
+            }
+        }
+
+        public static void OpenDirInExplorer(string path)
+        {
+            try
+            {
+                Process.Start("explorer.exe", $"\"{Path.GetFullPath(path)}\"");
+            }
+            catch (Exception e)
+            {
+                KK_BrowserFolders.Logger.LogError(e);
+                KK_BrowserFolders.Logger.LogMessage("Failed to open the folder - " + e.Message);
             }
         }
 

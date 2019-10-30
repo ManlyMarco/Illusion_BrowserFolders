@@ -148,11 +148,11 @@ namespace BrowserFolders.Hooks.KK
 
                     GUILayout.Label("Open in explorer...");
                     if (GUILayout.Button("Current folder"))
-                        Process.Start("explorer.exe", $"\"{_folderTreeView.CurrentFolder}\"");
+                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
                     if (GUILayout.Button("Screenshot folder"))
-                        Process.Start("explorer.exe", $"\"{Path.Combine(Utils.NormalizePath(UserData.Path), "cap")}\"");
+                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
                     if (GUILayout.Button("Main game folder"))
-                        Process.Start("explorer.exe", $"\"{Path.GetDirectoryName(Utils.NormalizePath(UserData.Path))}\"");
+                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
                 }
                 GUILayout.EndVertical();
             }

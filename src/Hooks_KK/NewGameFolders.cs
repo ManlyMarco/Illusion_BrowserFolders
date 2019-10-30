@@ -93,7 +93,7 @@ namespace BrowserFolders.Hooks.KK
                         OnFolderChanged();
                     
                     if (GUILayout.Button("Open current folder in explorer"))
-                        Process.Start("explorer.exe", $"\"{_folderTreeView.CurrentFolder}\"");
+                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
                 }
                 GUILayout.EndVertical();
             }

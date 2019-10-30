@@ -42,6 +42,7 @@
       <HintPath>..\..\lib\kk\KKAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\lib\kk\UnityEngine.dll</HintPath>

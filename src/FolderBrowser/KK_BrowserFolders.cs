@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
+using BepInEx.Logging;
 using KKAPI;
 using UnityEngine;
 
@@ -16,6 +17,8 @@ namespace BrowserFolders
     {
         public const string Guid = "marco.FolderBrowser";
         public const string Version = "1.4";
+
+        internal static new ManualLogSource Logger { get; private set; }
 
         private IFolderBrowser _sceneFolders;
         private IFolderBrowser _makerFolders;
@@ -46,6 +49,8 @@ namespace BrowserFolders
 
         internal void Start()
         {
+            Logger = base.Logger;
+
             var browsers = LoadBrowsers();
             if (browsers.Count == 0) return;
 
