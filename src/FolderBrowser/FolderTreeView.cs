@@ -103,20 +103,20 @@ namespace BrowserFolders
                 return;
             }
 
-            var c = GUI.color;
-            if (fullNameLower.TrimEnd('/', '\\') == CurrentFolder.TrimEnd('/'))
-            {
-                GUI.color = Color.cyan;
-                if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
-                {
-                    _scrollTreeToSelected = false;
-                    _treeScrollPosition.y = GUILayoutUtility.GetLastRect().y - 50;
-                }
-            }
-
             GUILayout.BeginHorizontal();
             {
                 GUILayout.Space(indent * 20f);
+
+                var c = GUI.color;
+                if (fullNameLower.TrimEnd('/', '\\') == CurrentFolder.TrimEnd('/'))
+                {
+                    GUI.color = Color.cyan;
+                    if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
+                    {
+                        _scrollTreeToSelected = false;
+                        _treeScrollPosition.y = GUILayoutUtility.GetLastRect().y - 50;
+                    }
+                }
 
                 GUILayout.BeginHorizontal();
                 {
@@ -143,10 +143,10 @@ namespace BrowserFolders
                         }
                         CurrentFolder = fullNameLower;
                     }
-
-                    GUI.color = c;
                 }
                 GUILayout.EndHorizontal();
+
+                GUI.color = c;
             }
             GUILayout.EndHorizontal();
 
