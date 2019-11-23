@@ -1,10 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using ActionGame;
 using BepInEx.Harmony;
 using ChaCustom;
 using FreeH;
 using HarmonyLib;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace BrowserFolders.Hooks.KKP
 {
@@ -23,6 +25,10 @@ namespace BrowserFolders.Hooks.KKP
         [HarmonyPatch(typeof(Localize.Translate.Manager.DefaultData), nameof(Localize.Translate.Manager.DefaultData.UserDataAssist), typeof(string), typeof(bool))]
         internal static void FilenameHook(ref string path, ref bool useDefaultData)
         {
+            // Prevents breaking the kkp coordinate list in maker
+            if (path.TrimEnd('\\', '/').EndsWith("coordinate", StringComparison.OrdinalIgnoreCase))
+                return;
+
             var sex = path == "chara/female/" ? 1 : 0;
 
             useDefaultData = useDefaultData && KK_BrowserFolders.ShowDefaultCharas.Value;
@@ -88,7 +94,7 @@ namespace BrowserFolders.Hooks.KKP
         {
             GUI.changed = false;
             var newVal = GUILayout.Toggle(KK_BrowserFolders.ShowDefaultCharas.Value, "Show default cards");
-            if(GUI.changed)
+            if (GUI.changed)
             {
                 KK_BrowserFolders.ShowDefaultCharas.Value = newVal;
                 return true;
