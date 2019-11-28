@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -11,10 +10,9 @@ using UnityEngine;
 
 namespace BrowserFolders.Hooks.KK
 {
+    [BrowserType(BrowserType.NewGame)]
     public class NewGameFolders : IFolderBrowser
     {
-        public BrowserType Type => BrowserType.NewGame;
-
         private static string _currentRelativeFolder;
         private static FolderTreeView _folderTreeView;
 
@@ -91,7 +89,7 @@ namespace BrowserFolders.Hooks.KK
                 {
                     if (GUILayout.Button("Refresh thumbnails"))
                         OnFolderChanged();
-                    
+
                     if (GUILayout.Button("Open current folder in explorer"))
                         Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
                 }

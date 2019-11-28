@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using BepInEx.Harmony;
 using ChaCustom;
 using HarmonyLib;
@@ -10,10 +9,9 @@ using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KKP
 {
+    [BrowserType(BrowserType.Maker)]
     public class MakerFolders : IFolderBrowser
     {
-        public BrowserType Type => BrowserType.Maker;
-
         private static Toggle _catToggle;
         private static CustomCharaFile _customCharaFile;
         private static FolderTreeView _folderTreeView;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -11,10 +10,9 @@ using UnityEngine;
 
 namespace BrowserFolders.Hooks.KK
 {
+    [BrowserType(BrowserType.Scene)]
     public class SceneFolders : IFolderBrowser
     {
-        public BrowserType Type => BrowserType.Scene;
-
         private static FolderTreeView _folderTreeView;
         private static SceneLoadScene _studioInitObject;
 

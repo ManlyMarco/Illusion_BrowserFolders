@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -12,10 +11,9 @@ using UnityEngine;
 
 namespace BrowserFolders.Hooks.KK
 {
+    [BrowserType(BrowserType.Classroom)]
     public class ClassroomFolders : IFolderBrowser
     {
-        public BrowserType Type => BrowserType.Classroom;
-
         private static string _currentRelativeFolder;
         private static FolderTreeView _folderTreeView;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -14,10 +13,9 @@ using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KK
 {
+    [BrowserType(BrowserType.FreeH)]
     public class FreeHFolders : IFolderBrowser
     {
-        public BrowserType Type => BrowserType.FreeH;
-
         private static FreeHClassRoomCharaFile _freeHFile;
         private static FolderTreeView _folderTreeView;
 
@@ -38,7 +36,7 @@ namespace BrowserFolders.Hooks.KK
         [HarmonyPatch(typeof(FreeHClassRoomCharaFile), "Start")]
         internal static void InitHook(FreeHClassRoomCharaFile __instance)
         {
-            if(_refreshing) return;
+            if (_refreshing) return;
 
             _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), __instance.sex != 0 ? @"chara/female" : "chara/male");
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
@@ -93,7 +91,7 @@ namespace BrowserFolders.Hooks.KK
             }
             return field;
         }
-        
+
         private static void RefreshList()
         {
             try

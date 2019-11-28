@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using FreeH;
 using Localize.Translate;
 using Manager;
@@ -7,10 +6,9 @@ using UnityEngine;
 
 namespace BrowserFolders.Hooks.KKP
 {
+    [BrowserType(BrowserType.FreeH)]
     public class FreeHFolders : IFolderBrowser
     {
-        public BrowserType Type => BrowserType.FreeH;
-
         private static FolderTreeView _folderTreeView;
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 

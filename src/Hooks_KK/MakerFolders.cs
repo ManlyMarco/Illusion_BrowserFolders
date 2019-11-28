@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -14,10 +13,9 @@ using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KK
 {
+    [BrowserType(BrowserType.Maker)]
     public class MakerFolders : IFolderBrowser
     {
-        public BrowserType Type => BrowserType.Maker;
-
         private static Toggle _catToggle;
         private static CustomCharaFile _customCharaFile;
         private static FolderTreeView _folderTreeView;

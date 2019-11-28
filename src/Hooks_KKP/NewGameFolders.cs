@@ -4,10 +4,9 @@ using UnityEngine;
 
 namespace BrowserFolders.Hooks.KKP
 {
+    [BrowserType(BrowserType.NewGame)]
     public class NewGameFolders : IFolderBrowser
     {
-        public BrowserType Type => BrowserType.NewGame;
-
         private static FolderTreeView _folderTreeView;
 
         private static string _targetScene;

@@ -1,15 +1,13 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using ActionGame;
 using Manager;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KKP
 {
+    [BrowserType(BrowserType.Classroom)]
     public class ClassroomFolders : IFolderBrowser
     {
-        public BrowserType Type => BrowserType.Classroom;
-
         private static FolderTreeView _folderTreeView;
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
@@ -64,7 +62,7 @@ namespace BrowserFolders.Hooks.KKP
 
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
-                    if(Overlord.DrawDefaultCardsToggle())
+                    if (Overlord.DrawDefaultCardsToggle())
                         OnFolderChanged();
 
                     if (GUILayout.Button("Refresh thumbnails"))

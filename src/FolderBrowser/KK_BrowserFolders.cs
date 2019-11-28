@@ -47,18 +47,18 @@ namespace BrowserFolders
             }
         }
 
-        internal void Start()
+        private void Awake()
         {
             Logger = base.Logger;
 
             var browsers = LoadBrowsers();
             if (browsers.Count == 0) return;
 
-            var maker = browsers.FirstOrDefault(x => x.Type == BrowserType.Maker);
-            var classroom = browsers.FirstOrDefault(x => x.Type == BrowserType.Classroom);
-            var newGame = browsers.FirstOrDefault(x => x.Type == BrowserType.NewGame);
-            var freeH = browsers.FirstOrDefault(x => x.Type == BrowserType.FreeH);
-            var scene = browsers.FirstOrDefault(x => x.Type == BrowserType.Scene);
+            var maker = browsers.FirstOrDefault(x => x.Key == BrowserType.Maker).Value;
+            var classroom = browsers.FirstOrDefault(x => x.Key == BrowserType.Classroom).Value;
+            var newGame = browsers.FirstOrDefault(x => x.Key == BrowserType.NewGame).Value;
+            var freeH = browsers.FirstOrDefault(x => x.Key == BrowserType.FreeH).Value;
+            var scene = browsers.FirstOrDefault(x => x.Key == BrowserType.Scene).Value;
 
             if (maker != null)
                 EnableMaker = Config.AddSetting("Main game", "Enable folder browser in maker", true, "Changes take effect on game restart");
@@ -77,47 +77,48 @@ namespace BrowserFolders
 
             if (Application.productName == "CharaStudio")
             {
-                if (EnableStudio != null && EnableStudio.Value)
-                    _sceneFolders = scene;
+                if (scene != null && EnableStudio.Value)
+                    _sceneFolders = (IFolderBrowser)Activator.CreateInstance(scene);
             }
             else
             {
                 if (Application.productName == "Koikatsu Party")
                     ShowDefaultCharas = Config.AddSetting("Main game", "Show default character cards", true);
 
-                if (EnableMaker != null && EnableMaker.Value)
-                    _makerFolders = maker;
+                if (maker != null && EnableMaker.Value)
+                    _makerFolders = (IFolderBrowser)Activator.CreateInstance(maker);
 
                 if (EnableClassroom != null && EnableClassroom.Value)
                 {
-                    _classroomFolders = classroom;
-                    _newGameFolders = newGame;
+                    if (classroom != null) _classroomFolders = (IFolderBrowser)Activator.CreateInstance(classroom);
+                    if (newGame != null) _newGameFolders = (IFolderBrowser)Activator.CreateInstance(newGame);
                 }
 
-                if (EnableFreeH != null && EnableFreeH.Value)
-                    _freeHFolders = freeH;
+                if (freeH != null && EnableFreeH.Value)
+                    _freeHFolders = (IFolderBrowser)Activator.CreateInstance(freeH);
             }
         }
 
-        private List<IFolderBrowser> LoadBrowsers()
+        private static List<KeyValuePair<BrowserType, Type>> LoadBrowsers()
         {
             try
             {
                 var assHooks = Application.productName == "Koikatsu Party" ? "KK_BrowserFolders_Hooks_KKP" : "KK_BrowserFolders_Hooks_KK";
-                return GetBrowsers(Assembly.Load(assHooks)).ToList();
+                return GetBrowsers(Assembly.Load(assHooks));
             }
             catch (FileNotFoundException ex) { Logger.LogWarning("Failed to load browsers - " + ex); }
 
-            return new List<IFolderBrowser>();
+            return new List<KeyValuePair<BrowserType, Type>>();
         }
 
-        private static IEnumerable<IFolderBrowser> GetBrowsers(Assembly ass)
+        private static List<KeyValuePair<BrowserType, Type>> GetBrowsers(Assembly ass)
         {
-            var browserType = typeof(IFolderBrowser);
-            return ass.GetTypesSafe()
-                .Where(x => x.IsClass && !x.IsAbstract && browserType.IsAssignableFrom(x))
-                .Attempt(Activator.CreateInstance)
-                .Cast<IFolderBrowser>();
+            var query = from t in ass.GetTypesSafe()
+                        where t.IsClass
+                        let attr = t.GetCustomAttributes(false).OfType<BrowserTypeAttribute>().FirstOrDefault()
+                        where attr != null
+                        group t by attr.BrowserType;
+            return query.Select(x => new KeyValuePair<BrowserType, Type>(x.Key, x.Single())).ToList();
         }
     }
 }
