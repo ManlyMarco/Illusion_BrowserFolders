@@ -103,8 +103,9 @@ namespace BrowserFolders
         {
             try
             {
-                var assHooks = Application.productName == "Koikatsu Party" ? "KK_BrowserFolders_Hooks_KKP" : "KK_BrowserFolders_Hooks_KK";
-                return GetBrowsers(Assembly.Load(assHooks)).ToList();
+                var assHooks = Application.productName == "Koikatsu Party" ? "KK_BrowserFolders_Hooks_KKP.dll" : "KK_BrowserFolders_Hooks_KK.dll";
+                var loc = Assembly.GetExecutingAssembly().Location;
+                return GetBrowsers(Assembly.LoadFile(Path.Combine(loc, assHooks))).ToList();
             }
             catch (FileNotFoundException ex) { Logger.LogWarning("Failed to load browsers - " + ex); }
 
