@@ -25,26 +25,28 @@ namespace BrowserFolders
         private IFolderBrowser _classroomFolders;
         private IFolderBrowser _freeHFolders;
         private IFolderBrowser _newGameFolders;
+        private IFolderBrowser _studioCharaFolders;
 
         public static ConfigEntry<bool> EnableMaker { get; private set; }
         public static ConfigEntry<bool> EnableClassroom { get; private set; }
         public static ConfigEntry<bool> EnableFreeH { get; private set; }
 
         public static ConfigEntry<bool> EnableStudio { get; private set; }
+        public static ConfigEntry<bool> EnableStudioChara { get; private set; }
         public static ConfigEntry<bool> StudioSaveOverride { get; private set; }
 
         public static ConfigEntry<bool> ShowDefaultCharas { get; private set; }
 
         internal void OnGUI()
         {
-            if (_sceneFolders != null) _sceneFolders.OnGui();
-            else
-            {
-                _makerFolders?.OnGui();
-                _classroomFolders?.OnGui();
-                _freeHFolders?.OnGui();
-                _newGameFolders?.OnGui();
-            }
+
+            _sceneFolders?.OnGui();
+            _studioCharaFolders?.OnGui();
+            _makerFolders?.OnGui();
+            _classroomFolders?.OnGui();
+            _freeHFolders?.OnGui();
+            _newGameFolders?.OnGui();
+
         }
 
         private void Awake()
@@ -59,6 +61,7 @@ namespace BrowserFolders
             var newGame = browsers.FirstOrDefault(x => x.Key == BrowserType.NewGame).Value;
             var freeH = browsers.FirstOrDefault(x => x.Key == BrowserType.FreeH).Value;
             var scene = browsers.FirstOrDefault(x => x.Key == BrowserType.Scene).Value;
+            var studioChara = browsers.FirstOrDefault(x => x.Key == BrowserType.StudioChara).Value;
 
             if (maker != null)
                 EnableMaker = Config.AddSetting("Main game", "Enable folder browser in maker", true, "Changes take effect on game restart");
@@ -69,9 +72,10 @@ namespace BrowserFolders
             if (freeH != null)
                 EnableFreeH = Config.AddSetting("Main game", "Enable folder browser in Free H browser", true, "Changes take effect on game restart");
 
-            if (scene != null)
+            if (scene != null || studioChara != null)
             {
                 EnableStudio = Config.AddSetting("Chara Studio", "Enable folder browser in scene browser", true, "Changes take effect on game restart");
+                EnableStudioChara = Config.AddSetting("Chara Studio", "Enable folder browser in character browser", true, "Changes take effect on game restart");
                 StudioSaveOverride = Config.AddSetting("Chara Studio", "Save scenes to current folder", true, "When you select a custom folder to load a scene from, newly saved scenes will be saved to this folder.\nIf disabled, scenes are always saved to default folder (studio/scene).");
             }
 
@@ -79,6 +83,9 @@ namespace BrowserFolders
             {
                 if (scene != null && EnableStudio.Value)
                     _sceneFolders = (IFolderBrowser)Activator.CreateInstance(scene);
+
+                if (studioChara != null && EnableStudioChara.Value)
+                    _studioCharaFolders = (IFolderBrowser)Activator.CreateInstance(studioChara);
             }
             else
             {
