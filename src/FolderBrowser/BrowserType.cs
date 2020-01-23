@@ -6,6 +6,7 @@
         FreeH,
         Classroom,
         Maker,
-        Scene
+        Scene,
+        StudioChara
     }
 }
