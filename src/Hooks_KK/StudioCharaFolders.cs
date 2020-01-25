@@ -1,9 +1,9 @@
-﻿using BepInEx.Harmony;
-using HarmonyLib;
-using Studio;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BepInEx.Harmony;
+using HarmonyLib;
+using Studio;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KK
@@ -11,162 +11,40 @@ namespace BrowserFolders.Hooks.KK
     [BrowserType(BrowserType.StudioChara)]
     public class StudioCharaFolders : IFolderBrowser
     {
-        internal class CharaListEntry
-        {
-            private CharaList _charaList;
-            private int _sex = -1;
-            private FolderTreeView _folderTreeView = null;
-            private string _currentFolder = null;
-            private List<CharaFileInfo> _BackupFileInfos = null;
-            public bool refilterInProgress = false;
-
-            public CharaListEntry(CharaList charaList)
-            {
-                _charaList = charaList;
-            }
-
-            public List<CharaFileInfo> CharaFileInfos => Traverse.Create(_charaList)?.Field<CharaFileSort>("charaFileSort")?.Value?.cfiList;
-
-            public int Sex
-            {
-                get
-                {
-                    if (_sex == -1)
-                    {
-                        _sex = Traverse.Create(_charaList).Field<int>("sex").Value;
-                    }
-                    return _sex;
-                }
-            }
-
-            public FolderTreeView FolderTreeView
-            {
-                get
-                {
-                    if (_folderTreeView == null)
-                    {
-                        _folderTreeView = new FolderTreeView(
-                            Utils.NormalizePath(UserData.Path),
-                            Path.Combine(Utils.NormalizePath(UserData.Path), Sex != 0 ? "chara/female" : "chara/male"));
-                        _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
-                        _folderTreeView.CurrentFolderChanged = OnFolderChanged;
-                        OnFolderChanged();
-                    }
-                    return _folderTreeView;
-                }
-            }
-
-            public void InitCharaList(bool force)
-            {
-                _charaList.InitCharaList(force);
-            }
-
-            public void OnFolderChanged()
-            {
-                _currentFolder = Utils.NormalizePath(FolderTreeView.CurrentFolder);
-                refilterInProgress = true;
-                InitCharaList(true);
-            }
-
-            public bool isActiveAndEnabled => _charaList.isActiveAndEnabled;
-
-            public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? UserData.Path);
-
-            public void SaveFullList()
-            {
-                _BackupFileInfos = CharaFileInfos.ToList();
-            }
-
-            public void ApplyFilter()
-            {
-                CharaFileInfos.RemoveAll((cfi) => Utils.NormalizePath(Path.GetDirectoryName(cfi.file)) != CurrentFolder);
-            }
-
-            public void RestoreUnfiltered()
-            {
-                if (_BackupFileInfos != null)
-                {
-                    CharaFileInfos.Clear();
-                    CharaFileInfos.AddRange(_BackupFileInfos);
-                }
-            }
-        }
-
-        private static Dictionary<string, CharaListEntry> CharaListEntries = null;
-        private static bool refilterOnly = false;
+        private static readonly Dictionary<string, CharaListEntry> _charaListEntries = new Dictionary<string, CharaListEntry>();
+        private static bool _refilterOnly;
 
         public StudioCharaFolders()
         {
-            if (CharaListEntries == null)
-            {
-                CharaListEntries = new Dictionary<string, CharaListEntry>();
-            }
             HarmonyWrapper.PatchAll(typeof(StudioCharaFolders));
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CharaList), "InitCharaList")]
-        internal static void InitCharaListPrefix(CharaList __instance, bool _force)
+        public void OnGui()
         {
-            if (!CharaListEntries.ContainsKey(__instance.name))
-            {
-                CharaListEntries[__instance.name] = new CharaListEntry(__instance);
-            }
-            refilterOnly = _force && CharaListEntries[__instance.name].refilterInProgress;
+            var entry = _charaListEntries.Values.SingleOrDefault(x => x.isActiveAndEnabled);
+            if (entry == null) return;
+            var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f), (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
+            Utils.DrawSolidWindowBackground(windowRect);
+            GUILayout.Window(363, windowRect, id => TreeWindow(entry), "Select folder with cards to view");
+            Utils.EatInputInRect(windowRect);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CharaList), "InitCharaList")]
         internal static void InitCharaListPostfix(CharaList __instance)
         {
-            if (CharaListEntries.TryGetValue(__instance.name, out CharaListEntry entry))
-            {
-                entry.refilterInProgress = false;
-            }
-            refilterOnly = false;
-        }
-
-        internal void Update()
-        {
-        }
-
-        private static bool InitListPrefix(string name)
-        {
-            if (CharaListEntries.TryGetValue(name, out CharaListEntry entry))
-            {
-                // detect if force reload was triggered by a change of folder
-                if (refilterOnly)
-                {
-                    // if so just restore cached values so they can be re-filtered without
-                    // going back to disk and refilter them
-                    entry.RestoreUnfiltered();
-                    // stop real method from running, filter in postfix
-                    return false;
-
-                }
-            }
-            return true;
-        }
-
-        private static void InitListPostfix(string name)
-        {
-            if (CharaListEntries.TryGetValue(name, out CharaListEntry entry))
-            {
-                if (!refilterOnly)
-                {
-                    // don't update results if we didn't get new ones
-                    entry.SaveFullList();
-                }
-                // list must be filtered before the rest of InitCharaList runs
-                entry.ApplyFilter();
-            }
+            if (_charaListEntries.TryGetValue(__instance.name, out var entry))
+                entry.RefilterInProgress = false;
+            _refilterOnly = false;
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(CharaList), "InitFemaleList")]
-        internal static bool InitFemaleListPrefix(CharaList __instance)
+        [HarmonyPatch(typeof(CharaList), "InitCharaList")]
+        internal static void InitCharaListPrefix(CharaList __instance, bool _force)
         {
-            return InitListPrefix(__instance.name);
+            if (!_charaListEntries.ContainsKey(__instance.name))
+                _charaListEntries[__instance.name] = new CharaListEntry(__instance);
+            _refilterOnly = _force && _charaListEntries[__instance.name].RefilterInProgress;
         }
 
         [HarmonyPostfix]
@@ -177,8 +55,8 @@ namespace BrowserFolders.Hooks.KK
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(CharaList), "InitMaleList")]
-        internal static bool InitMaleListPrefix(CharaList __instance)
+        [HarmonyPatch(typeof(CharaList), "InitFemaleList")]
+        internal static bool InitFemaleListPrefix(CharaList __instance)
         {
             return InitListPrefix(__instance.name);
         }
@@ -190,21 +68,45 @@ namespace BrowserFolders.Hooks.KK
             InitListPostfix(__instance.name);
         }
 
-        public void OnGui()
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CharaList), "InitMaleList")]
+        internal static bool InitMaleListPrefix(CharaList __instance)
         {
-            foreach (CharaListEntry entry in CharaListEntries.Values)
+            return InitListPrefix(__instance.name);
+        }
+
+        private static void InitListPostfix(string name)
+        {
+            if (_charaListEntries.TryGetValue(name, out var entry))
             {
-                if (entry.isActiveAndEnabled)
+                if (!_refilterOnly)
                 {
-                    var screenRect = new Rect((int)(Screen.width * 0.1f), (int)(Screen.height * 0.5f), (int)(Screen.width * 0.25f), (int)(Screen.height * 0.4f));
-                    Utils.DrawSolidWindowBackground(screenRect);
-                    GUILayout.Window(362, screenRect, (id) => TreeWindow(id, entry), "Select folder with cards to view");
-                    break;
+                    // don't update results if we didn't get new ones
+                    entry.SaveFullList();
                 }
+                // list must be filtered before the rest of InitCharaList runs
+                entry.ApplyFilter();
             }
         }
 
-        private static void TreeWindow(int id, CharaListEntry entry)
+        private static bool InitListPrefix(string name)
+        {
+            if (_charaListEntries.TryGetValue(name, out var entry))
+            {
+                // detect if force reload was triggered by a change of folder
+                if (_refilterOnly)
+                {
+                    // if so just restore cached values so they can be re-filtered without
+                    // going back to disk and refilter them
+                    entry.RestoreUnfiltered();
+                    // stop real method from running, filter in postfix
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static void TreeWindow(CharaListEntry entry)
         {
             GUILayout.BeginVertical();
             {
@@ -222,23 +124,97 @@ namespace BrowserFolders.Hooks.KK
 
                     GUILayout.Label("Open in explorer...");
                     if (GUILayout.Button("Current folder"))
-                    {
                         Utils.OpenDirInExplorer(entry.CurrentFolder);
-                    }
 
                     if (GUILayout.Button("Screenshot folder"))
-                    {
                         Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    }
 
                     if (GUILayout.Button("Main game folder"))
-                    {
                         Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                    }
                 }
                 GUILayout.EndVertical();
             }
             GUILayout.EndVertical();
+        }
+
+        private class CharaListEntry
+        {
+            private readonly CharaList _charaList;
+            public bool RefilterInProgress;
+            private List<CharaFileInfo> _backupFileInfos;
+            private string _currentFolder;
+            private FolderTreeView _folderTreeView;
+            private int _sex = -1;
+
+            public CharaListEntry(CharaList charaList)
+            {
+                _charaList = charaList;
+            }
+
+            public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? UserData.Path);
+
+            public FolderTreeView FolderTreeView
+            {
+                get
+                {
+                    if (_folderTreeView == null)
+                    {
+                        _folderTreeView = new FolderTreeView(
+                            Utils.NormalizePath(UserData.Path),
+                            Path.Combine(Utils.NormalizePath(UserData.Path), GetSex() != 0 ? "chara/female" : "chara/male"));
+                        _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+                        _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+                        OnFolderChanged();
+                    }
+                    return _folderTreeView;
+                }
+            }
+
+            public bool isActiveAndEnabled => _charaList.isActiveAndEnabled;
+
+            public void ApplyFilter()
+            {
+                GetCharaFileInfos().RemoveAll(cfi => Utils.NormalizePath(Path.GetDirectoryName(cfi.file)) != CurrentFolder);
+            }
+
+            public void InitCharaList(bool force)
+            {
+                _charaList.InitCharaList(force);
+            }
+
+            public void RestoreUnfiltered()
+            {
+                if (_backupFileInfos != null)
+                {
+                    var fileInfos = GetCharaFileInfos();
+                    fileInfos.Clear();
+                    fileInfos.AddRange(_backupFileInfos);
+                }
+            }
+
+            public void SaveFullList()
+            {
+                _backupFileInfos = GetCharaFileInfos().ToList();
+            }
+
+            private List<CharaFileInfo> GetCharaFileInfos()
+            {
+                return Traverse.Create(_charaList)?.Field<CharaFileSort>("charaFileSort")?.Value?.cfiList;
+            }
+
+            private int GetSex()
+            {
+                if (_sex == -1)
+                    _sex = Traverse.Create(_charaList).Field<int>("sex").Value;
+                return _sex;
+            }
+
+            private void OnFolderChanged()
+            {
+                _currentFolder = Utils.NormalizePath(FolderTreeView.CurrentFolder);
+                RefilterInProgress = true;
+                InitCharaList(true);
+            }
         }
     }
 }

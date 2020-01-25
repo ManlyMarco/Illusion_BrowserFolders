@@ -11,6 +11,12 @@ namespace BrowserFolders
 {
     public static class Utils
     {
+        public static void EatInputInRect(Rect eatRect)
+        {
+            if (eatRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
+                Input.ResetInputAxes();
+        }
+
         public static string NormalizePath(string path)
         {
             return Path.GetFullPath(path).Replace('/', '\\').TrimEnd('\\').ToLower();
