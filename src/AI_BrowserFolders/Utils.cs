@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace AI_BrowserFolders
+namespace BrowserFolders
 {
     public static class Utils
     {

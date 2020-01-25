@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-namespace AI_BrowserFolders
+namespace BrowserFolders
 {
     public class FolderTreeView
     {

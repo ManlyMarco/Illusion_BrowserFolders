@@ -3,7 +3,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using KKAPI;
 
-namespace AI_BrowserFolders
+namespace BrowserFolders
 {
     [BepInPlugin(Guid, "Studio Browser Folders", Version)]
     [BepInProcess("StudioNEOV2")]

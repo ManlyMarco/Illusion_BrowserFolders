@@ -6,7 +6,7 @@ using HarmonyLib;
 using Studio;
 using UnityEngine;
 
-namespace AI_BrowserFolders
+namespace BrowserFolders
 {
     public class StudioCharaFolders : IFolderBrowser
     {

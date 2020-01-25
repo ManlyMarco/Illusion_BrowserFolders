@@ -1,4 +1,4 @@
-﻿namespace AI_BrowserFolders
+﻿namespace BrowserFolders
 {
     public interface IFolderBrowser
     {
