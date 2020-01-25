@@ -73,19 +73,19 @@ namespace BrowserFolders
             var studioChara = browsers.FirstOrDefault(x => x.Key == BrowserType.StudioChara).Value;
 
             if (maker != null)
-                EnableMaker = Config.AddSetting("Main game", "Enable folder browser in maker", true, "Changes take effect on game restart");
+                EnableMaker = Config.Bind("Main game", "Enable folder browser in maker", true, "Changes take effect on game restart");
 
             if (classroom != null || newGame != null)
-                EnableClassroom = Config.AddSetting("Main game", "Enable folder browser in classroom/new game browser", true, "Changes take effect on game restart");
+                EnableClassroom = Config.Bind("Main game", "Enable folder browser in classroom/new game browser", true, "Changes take effect on game restart");
 
             if (freeH != null)
-                EnableFreeH = Config.AddSetting("Main game", "Enable folder browser in Free H browser", true, "Changes take effect on game restart");
+                EnableFreeH = Config.Bind("Main game", "Enable folder browser in Free H browser", true, "Changes take effect on game restart");
 
             if (scene != null || studioChara != null)
             {
-                EnableStudio = Config.AddSetting("Chara Studio", "Enable folder browser in scene browser", true, "Changes take effect on game restart");
-                EnableStudioChara = Config.AddSetting("Chara Studio", "Enable folder browser in character browser", true, "Changes take effect on game restart");
-                StudioSaveOverride = Config.AddSetting("Chara Studio", "Save scenes to current folder", true, "When you select a custom folder to load a scene from, newly saved scenes will be saved to this folder.\nIf disabled, scenes are always saved to default folder (studio/scene).");
+                EnableStudio = Config.Bind("Chara Studio", "Enable folder browser in scene browser", true, "Changes take effect on game restart");
+                EnableStudioChara = Config.Bind("Chara Studio", "Enable folder browser in character browser", true, "Changes take effect on game restart");
+                StudioSaveOverride = Config.Bind("Chara Studio", "Save scenes to current folder", true, "When you select a custom folder to load a scene from, newly saved scenes will be saved to this folder.\nIf disabled, scenes are always saved to default folder (studio/scene).");
             }
 
             if (_insideStudio)
@@ -99,7 +99,7 @@ namespace BrowserFolders
             else
             {
                 if (_insideParty)
-                    ShowDefaultCharas = Config.AddSetting("Main game", "Show default character cards", true);
+                    ShowDefaultCharas = Config.Bind("Main game", "Show default character cards", true);
 
                 if (maker != null && EnableMaker.Value)
                     _makerFolders = (IFolderBrowser)Activator.CreateInstance(maker);
