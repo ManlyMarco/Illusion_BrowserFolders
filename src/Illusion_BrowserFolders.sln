@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders", "FolderBrowser\KK_BrowserFolders.csproj", "{74C2DB86-55BB-47B4-9805-51B5B992EF35}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders", "KK_FolderBrowser\KK_BrowserFolders.csproj", "{74C2DB86-55BB-47B4-9805-51B5B992EF35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hooks_KK", "Hooks_KK\Hooks_KK.csproj", "{6A22392A-EBC1-4E86-9DBC-591715A1C799}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hooks_KK", "KK_Hooks_KK\Hooks_KK.csproj", "{6A22392A-EBC1-4E86-9DBC-591715A1C799}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hooks_KKP", "Hooks_KKP\Hooks_KKP.csproj", "{3D441F96-C387-473E-BB0E-5E4EC205D2E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hooks_KKP", "KK_Hooks_KKP\Hooks_KKP.csproj", "{3D441F96-C387-473E-BB0E-5E4EC205D2E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI_BrowserFolders", "AI_BrowserFolders\AI_BrowserFolders.csproj", "{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}"
 EndProject
