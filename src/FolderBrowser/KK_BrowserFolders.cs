@@ -20,6 +20,9 @@ namespace BrowserFolders
 
         internal static new ManualLogSource Logger { get; private set; }
 
+        private static bool _insideStudio;
+        private static bool _insideParty;
+
         private IFolderBrowser _sceneFolders;
         private IFolderBrowser _makerFolders;
         private IFolderBrowser _classroomFolders;
@@ -39,19 +42,25 @@ namespace BrowserFolders
 
         internal void OnGUI()
         {
-
-            _sceneFolders?.OnGui();
-            _studioCharaFolders?.OnGui();
-            _makerFolders?.OnGui();
-            _classroomFolders?.OnGui();
-            _freeHFolders?.OnGui();
-            _newGameFolders?.OnGui();
-
+            if (_insideStudio)
+            {
+                _sceneFolders?.OnGui();
+                _studioCharaFolders?.OnGui();
+            }
+            else
+            {
+                _makerFolders?.OnGui();
+                _classroomFolders?.OnGui();
+                _freeHFolders?.OnGui();
+                _newGameFolders?.OnGui();
+            }
         }
 
         private void Awake()
         {
             Logger = base.Logger;
+            _insideStudio = Application.productName == "CharaStudio";
+            _insideParty = Application.productName == "Koikatsu Party";
 
             var browsers = LoadBrowsers();
             if (browsers.Count == 0) return;
@@ -79,7 +88,7 @@ namespace BrowserFolders
                 StudioSaveOverride = Config.AddSetting("Chara Studio", "Save scenes to current folder", true, "When you select a custom folder to load a scene from, newly saved scenes will be saved to this folder.\nIf disabled, scenes are always saved to default folder (studio/scene).");
             }
 
-            if (Application.productName == "CharaStudio")
+            if (_insideStudio)
             {
                 if (scene != null && EnableStudio.Value)
                     _sceneFolders = (IFolderBrowser)Activator.CreateInstance(scene);
@@ -89,7 +98,7 @@ namespace BrowserFolders
             }
             else
             {
-                if (Application.productName == "Koikatsu Party")
+                if (_insideParty)
                     ShowDefaultCharas = Config.AddSetting("Main game", "Show default character cards", true);
 
                 if (maker != null && EnableMaker.Value)
@@ -110,7 +119,7 @@ namespace BrowserFolders
         {
             try
             {
-                var assHooks = Application.productName == "Koikatsu Party" ? "KK_BrowserFolders_Hooks_KKP" : "KK_BrowserFolders_Hooks_KK";
+                var assHooks = _insideParty ? "KK_BrowserFolders_Hooks_KKP" : "KK_BrowserFolders_Hooks_KK";
                 return GetBrowsers(Assembly.Load(assHooks));
             }
             catch (FileNotFoundException ex) { Logger.LogWarning("Failed to load browsers - " + ex); }
