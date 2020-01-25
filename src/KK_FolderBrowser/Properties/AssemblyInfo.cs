@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Maker/Studio Browser Folders")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("ManlyMarco")]
+[assembly: AssemblyCompany("https://github.com/ManlyMarco/Illusion_BrowserFolders")]
 [assembly: AssemblyProduct("Maker/Studio Browser Folders")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
