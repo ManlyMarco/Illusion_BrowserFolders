@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hooks_KK", "Hooks_KK\Hooks_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hooks_KKP", "Hooks_KKP\Hooks_KKP.csproj", "{3D441F96-C387-473E-BB0E-5E4EC205D2E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI_BrowserFolders", "AI_BrowserFolders\AI_BrowserFolders.csproj", "{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KK", "KK", "{B05A69F6-3FE6-4D75-B4BC-D75EFC3541AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,9 +38,20 @@ Global
 		{3D441F96-C387-473E-BB0E-5E4EC205D2E3}.Hello|Any CPU.Build.0 = Release|Any CPU
 		{3D441F96-C387-473E-BB0E-5E4EC205D2E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D441F96-C387-473E-BB0E-5E4EC205D2E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}.Hello|Any CPU.ActiveCfg = Release|Any CPU
+		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}.Hello|Any CPU.Build.0 = Release|Any CPU
+		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{74C2DB86-55BB-47B4-9805-51B5B992EF35} = {B05A69F6-3FE6-4D75-B4BC-D75EFC3541AD}
+		{6A22392A-EBC1-4E86-9DBC-591715A1C799} = {B05A69F6-3FE6-4D75-B4BC-D75EFC3541AD}
+		{3D441F96-C387-473E-BB0E-5E4EC205D2E3} = {B05A69F6-3FE6-4D75-B4BC-D75EFC3541AD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {28F0A8B3-ACB9-46D0-995C-4D9717D8E724}
