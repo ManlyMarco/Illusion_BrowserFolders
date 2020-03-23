@@ -71,46 +71,15 @@ namespace BrowserFolders.Hooks.KK
         }
         
         internal static void InitFileListPrefix( object __instance) 
-            {        
+        {        
             InitListPrefix(__instance.GetHashCode());
-            }
+        }
         
         internal static void InitFileListPostfix(object __instance) 
-            {    
+        {    
             InitListPostfix(__instance.GetHashCode());
-            }
-
-        //[HarmonyPostfix]
-        //[HarmonyPatch(typeof(CharaList), "InitFemaleList")]
-        //internal static void InitFemaleLisPostfix(CharaList __instance)
-        //{
-        //    InitListPostfix(__instance.name);
-        //}
-
-        //[HarmonyPrefix]
-        //[HarmonyPatch(typeof(CharaList), "InitFemaleList")]
-        //internal static bool InitFemaleListPrefix(CharaList __instance)
-        //{
-        //    return InitListPrefix(__instance.name);
-        //}
-
-        //[HarmonyPostfix]
-        //[HarmonyPatch(typeof(CharaList), "InitMaleList")]
-        //internal static void InitMaleListPostfix(CharaList __instance)
-        //{
-        //    InitListPostfix(__instance.name);
-        //}
-
-        //[HarmonyPrefix]
-        //[HarmonyPatch(typeof(CharaList), "InitMaleList")]
-        //internal static bool InitMaleListPrefix(CharaList __instance)
-        //{
-        //    return InitListPrefix(__instance.name);
-        //}
-        
-        
-
-  
+        }       
+          
         
         private static void InitListPostfix(int hash)
         {
@@ -141,7 +110,8 @@ namespace BrowserFolders.Hooks.KK
                 }
             }
             return true;
-        }        
+        }      
+        
         private static void TreeWindow(CostumeInfoEntry entry)
         {
             GUILayout.BeginVertical();
