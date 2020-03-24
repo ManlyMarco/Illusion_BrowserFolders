@@ -7,6 +7,8 @@
         Classroom,
         Maker,
         Scene,
-        StudioChara
+        StudioChara,
+        StudioOutfit,
+        MakerOutfit
     }
 }

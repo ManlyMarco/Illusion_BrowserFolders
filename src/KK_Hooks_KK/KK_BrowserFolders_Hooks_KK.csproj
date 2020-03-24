@@ -66,10 +66,12 @@
   <ItemGroup>
     <Compile Include="ClassroomFolders.cs" />
     <Compile Include="FreeHFolders.cs" />
+    <Compile Include="MakerOutfitFolders.cs" />
     <Compile Include="MakerFolders.cs" />
     <Compile Include="NewGameFolders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SceneFolders.cs" />
+    <Compile Include="StudioOutfitFolders.cs" />
     <Compile Include="StudioCharaFolders.cs" />
   </ItemGroup>
   <ItemGroup>
