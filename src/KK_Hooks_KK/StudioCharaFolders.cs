@@ -21,7 +21,7 @@ namespace BrowserFolders.Hooks.KK
 
         public void OnGui()
         {
-            var entry = _charaListEntries.Values.SingleOrDefault(x => x.isActiveAndEnabled);
+            var entry = _charaListEntries.Values.FirstOrDefault(x => x.isActiveAndEnabled);
             if (entry == null) return;
             var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f), (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
             Utils.DrawSolidWindowBackground(windowRect);
