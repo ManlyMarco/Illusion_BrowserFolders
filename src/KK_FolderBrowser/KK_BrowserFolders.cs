@@ -45,6 +45,7 @@ namespace BrowserFolders
         public static ConfigEntry<bool> EnableStudioOutfit { get; private set; }
 
         public static ConfigEntry<bool> ShowDefaultCharas { get; private set; }
+        public static ConfigEntry<bool> RandomCharaSubfolders { get; private set; }
 
         internal void OnGUI()
         {
@@ -89,7 +90,10 @@ namespace BrowserFolders
                 EnableMakerOutfit = Config.Bind("Main game", "Enable folder browser in maker for outfits", true, "Changes take effect on game restart");
 
             if (classroom != null || newGame != null)
+            {
                 EnableClassroom = Config.Bind("Main game", "Enable folder browser in classroom/new game browser", true, "Changes take effect on game restart");
+                RandomCharaSubfolders = Config.Bind("Main game", "Search subfolders for random characters", true, "When filling the class with random characters (or in other cases where a random character is picked) choose random characters from the main directory AND all of its subdirectories. If false, only search in the main directory (UserData/chara/female).");
+            }
 
             if (freeH != null)
                 EnableFreeH = Config.Bind("Main game", "Enable folder browser in Free H browser", true, "Changes take effect on game restart");

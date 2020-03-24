@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using ActionGame;
 using BepInEx.Harmony;
 using HarmonyLib;
+using Illusion.Extensions;
 using Manager;
 using UnityEngine;
 
@@ -56,6 +58,39 @@ namespace BrowserFolders.Hooks.KK
 
                 yield return instruction;
             }
+        }
+
+        /// <summary>
+        /// Make it possible to fill in class with random characters from all subfolders
+        /// ChaControl.GetRandomFemaleCard(int) : ChaFileControl[]
+        /// </summary>
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.GetRandomFemaleCard), typeof(int))]
+        internal static bool RandomCharaPickOverride(int num, ref ChaFileControl[] __result)
+        {
+            if (KK_BrowserFolders.RandomCharaSubfolders?.Value != true) return true;
+
+            var path = Path.Combine(UserData.Path, "chara/female");
+            if (!Directory.Exists(path))
+            {
+                __result = new ChaFileControl[0];
+                return false;
+            }
+
+            // Grab from all subdirs
+            var results = Directory.GetFiles(path, "*.png", SearchOption.AllDirectories);
+            // Try to load cards until enough load successfully
+            __result = results.Shuffle().Attempt(f =>
+            {
+                var chaFileControl = new ChaFileControl();
+                if (chaFileControl.LoadCharaFile(f, 1, true, true))
+                {
+                    if (chaFileControl.parameter.sex != 0)
+                        return chaFileControl;
+                }
+                return null;
+            }).Where(x => x != null).Take(num).ToArray();
+            return false;
         }
 
         public void OnGui()
