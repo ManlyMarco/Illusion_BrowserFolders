@@ -1,5 +1,5 @@
-# Maker and Studio File Browser Folders for Koikatsu and AI-Shoujo!
-Adds folder support to main game character browsers (only KK) and studio scene and character browsers. You can organize your cards and scenes into folders and use this plugin to browse them. Prevously known as KKSceneBrowserFolders and MakerFolders.
+# Maker and Studio File Browser Folders for games by Illusion
+A BepInEx plugin for Koikatu, Koikatsu Party, and AI-Shoujo that adds subfolder support to main game and studio. It works with character, outfit(coordinate) and scene file browsers. You can organize your cards and scenes into folders and use this plugin to browse them (features vary between different games). Prevously known as KKSceneBrowserFolders and MakerFolders.
 
 You can support development of my plugins through my Patreon page: https://www.patreon.com/ManlyMarco
 
@@ -11,5 +11,4 @@ You can support development of my plugins through my Patreon page: https://www.p
 5. Start Studio and open the scene load window. You should see a new window next to the standard file list. Click on the folder names in the list to open contents of that folder.
 
 ## Screenshots
-![preview](https://user-images.githubusercontent.com/39247311/50127191-5b211c00-0270-11e9-9f3b-969777a236a4.png)
-![preview](https://user-images.githubusercontent.com/39247311/48666011-11e77c00-eaba-11e8-833b-daa4f8dced6d.PNG)
+![folders preview](https://user-images.githubusercontent.com/39247311/77538502-230b7e80-6ea0-11ea-8722-79f93138e2f6.PNG)
