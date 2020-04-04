@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using ActionGame;
 using BepInEx.Harmony;
 using ChaCustom;
@@ -25,8 +26,9 @@ namespace BrowserFolders.Hooks.KKP
         internal static void FilenameHook(ref string path, ref bool useDefaultData)
         {
             // Prevents breaking the kkp coordinate list in maker
-          //  if (path.TrimEnd('\\', '/').EndsWith("coordinate", StringComparison.OrdinalIgnoreCase))
-           //     return;
+            bool isCoord = (path.TrimEnd('\\', '/').EndsWith("coordinate", StringComparison.OrdinalIgnoreCase));
+
+               
 
             var sex = path == "chara/female/" ? 1 : 0;
 
@@ -69,17 +71,18 @@ namespace BrowserFolders.Hooks.KKP
             }
 
             var maker = Object.FindObjectOfType<CustomCharaFile>();
-            if (maker != null)
+            if (maker != null && !isCoord)
             {
                 //MakerFolders.Init(classroom, sex);
 
                 var overridePath = MakerFolders.CurrentRelativeFolder;
                 if (!string.IsNullOrEmpty(overridePath))
                     path = overridePath;
+                return;
             }
 
             var makerOutfit = Object.FindObjectOfType<CustomCoordinateFile>();
-            if (makerOutfit != null) 
+            if (makerOutfit != null && isCoord) 
             {
                 var overridePath = MakerOutfitFolders.CurrentRelativeFolder;
                 if (!string.IsNullOrEmpty(overridePath))
