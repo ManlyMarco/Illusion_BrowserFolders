@@ -10,8 +10,6 @@ $array = @("KK", "AI")
 
 $copy = $dir + "\copy\BepInEx" 
 
-$ver = "v" + (Get-ChildItem -Path ($dir + "\BepInEx\") -Filter "*.dll" -Recurse -Force)[0].VersionInfo.FileVersion.ToString()
-
 
 New-Item -ItemType Directory -Force -Path ($dir + "\out")  
 
@@ -22,6 +20,7 @@ New-Item -ItemType Directory -Force -Path ($copy + "\plugins")
 
 Copy-Item -Path ($dir + "\BepInEx\plugins\" + $element + "*.*") -Destination ($copy + "\plugins\" ) -Recurse -Force 
 
+$ver = "v" + (Get-ChildItem -Path ($copy) -Filter "*.dll" -Recurse -Force)[0].VersionInfo.FileVersion.ToString()
 
 Compress-Archive -Path $copy -Force -CompressionLevel "Optimal" -DestinationPath ($dir + "out\" + $element + "_BrowserFolders_" + $ver + ".zip")
 
