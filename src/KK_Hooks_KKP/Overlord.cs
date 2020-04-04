@@ -25,11 +25,6 @@ namespace BrowserFolders.Hooks.KKP
         [HarmonyPatch(typeof(Localize.Translate.Manager.DefaultData), nameof(Localize.Translate.Manager.DefaultData.UserDataAssist), typeof(string), typeof(bool))]
         internal static void FilenameHook(ref string path, ref bool useDefaultData)
         {
-            // Prevents breaking the kkp coordinate list in maker
-            bool isCoord = (path.TrimEnd('\\', '/').EndsWith("coordinate", StringComparison.OrdinalIgnoreCase));
-
-               
-
             var sex = path == "chara/female/" ? 1 : 0;
 
             useDefaultData = useDefaultData && KK_BrowserFolders.ShowDefaultCharas.Value;
@@ -70,24 +65,27 @@ namespace BrowserFolders.Hooks.KKP
                 return;
             }
 
-            var maker = Object.FindObjectOfType<CustomCharaFile>();
-            if (maker != null && !isCoord)
+            // Prevents breaking the kkp coordinate list in maker
+            var isCoord = path.TrimEnd('\\', '/').EndsWith("coordinate", StringComparison.OrdinalIgnoreCase);
+            if (!isCoord)
             {
-                //MakerFolders.Init(classroom, sex);
-
-                var overridePath = MakerFolders.CurrentRelativeFolder;
-                if (!string.IsNullOrEmpty(overridePath))
-                    path = overridePath;
-                return;
+                var maker = Object.FindObjectOfType<CustomCharaFile>();
+                if (maker != null)
+                {
+                    var overridePath = MakerFolders.CurrentRelativeFolder;
+                    if (!string.IsNullOrEmpty(overridePath))
+                        path = overridePath;
+                }
             }
-
-            var makerOutfit = Object.FindObjectOfType<CustomCoordinateFile>();
-            if (makerOutfit != null && isCoord) 
+            else
             {
-                var overridePath = MakerOutfitFolders.CurrentRelativeFolder;
-                if (!string.IsNullOrEmpty(overridePath))
-                    path = overridePath;
-                return;
+                var makerOutfit = Object.FindObjectOfType<CustomCoordinateFile>();
+                if (makerOutfit != null)
+                {
+                    var overridePath = MakerOutfitFolders.CurrentRelativeFolder;
+                    if (!string.IsNullOrEmpty(overridePath))
+                        path = overridePath;
+                }
             }
         }
 
