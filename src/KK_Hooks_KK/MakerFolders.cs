@@ -115,7 +115,16 @@ namespace BrowserFolders.Hooks.KK
             if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
             {
                 // private bool Initialize()
-                Traverse.Create(_customCharaFile).Method("Initialize").GetValue();
+                var ccf = Traverse.Create(_customCharaFile);
+                ccf.Method("Initialize").GetValue();
+
+                // Fix add info toggle breaking
+                var tglField = ccf.Field("listCtrl").Field("tglAddInfo");
+                if (tglField.FieldExists())
+                {
+                    var tglInfo = tglField.GetValue<Toggle>();
+                    tglInfo.onValueChanged.Invoke(tglInfo.isOn);
+                }
             }
         }
 

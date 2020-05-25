@@ -10,6 +10,7 @@ using HarmonyLib;
 using Illusion.Extensions;
 using Manager;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KK
 {
@@ -115,6 +116,14 @@ namespace BrowserFolders.Hooks.KK
             if (_customCharaFile == null) return;
 
             _customCharaFile.InitializeList();
+
+            // Fix add info toggle breaking
+            var tglField = Traverse.Create(_customCharaFile).Field("listCtrl").Field("tglAddInfo");
+            if (tglField.FieldExists())
+            {
+                var tglInfo = tglField.GetValue<Toggle>();
+                tglInfo.onValueChanged.Invoke(tglInfo.isOn);
+            }
         }
 
         private static void TreeWindow(int id)

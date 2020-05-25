@@ -105,6 +105,10 @@ namespace BrowserFolders.Hooks.KK
                 enterButton.onClick.RemoveAllListeners();
 
                 AccessTools.Method(typeof(FreeHClassRoomCharaFile), "Start").Invoke(_freeHFile, null);
+
+                // Fix add info toggle breaking
+                var tglInfo = (Toggle)AccessTools.Field(typeof(ClassRoomFileListCtrl), "tglAddInfo").GetValue(listCtrl);
+                tglInfo.onValueChanged.Invoke(tglInfo.isOn);
             }
             finally
             {
