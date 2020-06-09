@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders_Hooks_KKP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI_BrowserFolders", "AI_BrowserFolders\AI_BrowserFolders.csproj", "{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HS2_BrowseFolders", "HS2_BrowseFolders\HS2_BrowseFolders.csproj", "{206D2E71-0933-4B96-B74D-D07521EB58DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +44,12 @@ Global
 		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}.Hello|Any CPU.Build.0 = Release|Any CPU
 		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{206D2E71-0933-4B96-B74D-D07521EB58DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{206D2E71-0933-4B96-B74D-D07521EB58DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{206D2E71-0933-4B96-B74D-D07521EB58DB}.Hello|Any CPU.ActiveCfg = Release|Any CPU
+		{206D2E71-0933-4B96-B74D-D07521EB58DB}.Hello|Any CPU.Build.0 = Release|Any CPU
+		{206D2E71-0933-4B96-B74D-D07521EB58DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{206D2E71-0933-4B96-B74D-D07521EB58DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
