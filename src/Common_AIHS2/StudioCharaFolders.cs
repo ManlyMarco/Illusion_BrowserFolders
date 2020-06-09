@@ -23,7 +23,7 @@ namespace BrowserFolders
         {
             var entry = _charaListEntries.Values.SingleOrDefault(x => x.isActiveAndEnabled);
             if (entry == null) return;
-            var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f), (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
+            var windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
             Utils.DrawSolidWindowBackground(windowRect);
             GUILayout.Window(363, windowRect, id => TreeWindow(entry), "Select folder with cards to view");
             Utils.EatInputInRect(windowRect);
@@ -127,10 +127,10 @@ namespace BrowserFolders
                         Utils.OpenDirInExplorer(entry.CurrentFolder);
 
                     if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")), "cap"));
+                        Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "cap"));
 
                     if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData"))));
+                        Utils.OpenDirInExplorer(Paths.GameRootPath);
                 }
                 GUILayout.EndVertical();
             }
@@ -151,7 +151,7 @@ namespace BrowserFolders
                 _charaList = charaList;
             }
 
-            public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? Path.Combine(Paths.GameRootPath, "UserData"));
+            public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? AI_BrowserFolders.UserDataPath);
 
             public FolderTreeView FolderTreeView
             {
@@ -160,8 +160,8 @@ namespace BrowserFolders
                     if (_folderTreeView == null)
                     {
                         _folderTreeView = new FolderTreeView(
-                            Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")),
-                            Path.Combine(Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")), GetSex() != 0 ? "chara/female" : "chara/male"));
+                            AI_BrowserFolders.UserDataPath,
+                            Path.Combine(AI_BrowserFolders.UserDataPath, GetSex() != 0 ? "chara/female" : "chara/male"));
                         _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
                         _folderTreeView.CurrentFolderChanged = OnFolderChanged;
                         OnFolderChanged();

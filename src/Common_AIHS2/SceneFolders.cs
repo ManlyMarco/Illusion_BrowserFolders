@@ -18,7 +18,7 @@ namespace BrowserFolders
 
         public SceneFolders()
         {            
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")), Path.Combine(Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")), @"Studio\scene"));
+            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, Path.Combine(AI_BrowserFolders.UserDataPath, @"studio\scene"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
             HarmonyWrapper.PatchAll(typeof(SceneFolders));
@@ -40,7 +40,7 @@ namespace BrowserFolders
         {
             foreach (var instruction in instructions)
             {
-                if (string.Equals(instruction.operand as string, "Studio/scene", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(instruction.operand as string, "studio/scene", StringComparison.OrdinalIgnoreCase))
                 {
                     //0x7E	ldsfld <field>	Push the value of the static field on the stack.
                     instruction.opcode = OpCodes.Ldsfld;
@@ -67,12 +67,12 @@ namespace BrowserFolders
         {
             try
             {
-                if (HS2_BrowserFolders.StudioSaveOverride.Value && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
+                if (AI_BrowserFolders.StudioSaveOverride.Value && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
                 {
                     var name = Path.GetFileName(_path);
                     if (!string.IsNullOrEmpty(name) &&
                         // Play nice with other mods if they want to save outside
-                        _path.ToLowerInvariant().Replace('\\', '/').Contains("UserData/Studio/scene"))
+                        _path.ToLowerInvariant().Replace('\\', '/').Contains("userdata/studio/scene"))
                     {
                         _path = Path.Combine(_folderTreeView.CurrentFolder, name);
                     }
@@ -114,11 +114,11 @@ namespace BrowserFolders
                     if (GUILayout.Button("Open current folder in explorer"))
                         Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
                     if (GUILayout.Button("Open screenshot folder in explorer"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")), "cap"));
+                        Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "cap"));
                     if (GUILayout.Button("Open character folder in explorer"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")), "chara"));
+                        Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "chara"));
                     if (GUILayout.Button("Open main game folder in explorer"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData"))));
+                        Utils.OpenDirInExplorer(Paths.GameRootPath);
                 }
                 GUILayout.EndVertical();
             }
