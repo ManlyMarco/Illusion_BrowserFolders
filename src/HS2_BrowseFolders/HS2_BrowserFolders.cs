@@ -2,8 +2,8 @@
 
 namespace BrowserFolders
 {
+    [BepInProcess("HoneySelect2")]
     [BepInProcess("StudioNEOV2")]
-    //[BepInProcess("HoneySelect2")]
     public partial class AI_BrowserFolders : BaseUnityPlugin
     {
     }

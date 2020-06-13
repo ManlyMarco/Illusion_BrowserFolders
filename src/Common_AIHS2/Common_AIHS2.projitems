@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FolderTreeView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IFolderBrowser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MakerFolders.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SceneFolders.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StudioCharaFolders.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
