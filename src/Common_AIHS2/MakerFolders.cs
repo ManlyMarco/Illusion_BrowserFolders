@@ -18,8 +18,6 @@ namespace BrowserFolders
         private static readonly float _w = 0.125f;
         private static readonly float _h = 0.4f;
 
-        //private static string _targetScene;
-
         private static CvsO_CharaLoad _charaLoad;
         private static CanvasGroup[] _charaLoadVisible;
         private static CvsO_CharaSave _charaSave;
@@ -107,22 +105,14 @@ namespace BrowserFolders
         public void OnGui()
         {
             var visibleWindow = IsVisible();
-            if (visibleWindow == VisibleWindow.None
-                //|| _targetScene != GetAddSceneName()
-            ) return;
+            if (visibleWindow == VisibleWindow.None) return;
 
-            // Hacky way to detect if a dialog/config screen is shown
-            //if (Time.timeScale == 0) return;
-            // Check if the character picture take screen is displayed
-            //if (_saveFront == null || !_saveFront.activeSelf)
-            {
-                if (_lastRefreshed != visibleWindow) RefreshCurrentWindow();
+            if (_lastRefreshed != visibleWindow) RefreshCurrentWindow();
 
-                var screenRect = new Rect((int) (Screen.width * _x), (int) (Screen.height * _y),
-                    (int) (Screen.width * _w), (int) (Screen.height * _h));
-                Utils.DrawSolidWindowBackground(screenRect);
-                GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-            }
+            var screenRect = new Rect((int)(Screen.width * _x), (int)(Screen.height * _y),
+                (int)(Screen.width * _w), (int)(Screen.height * _h));
+            Utils.DrawSolidWindowBackground(screenRect);
+            GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
         }
 
         private static void TreeWindow(int id)
@@ -150,15 +140,6 @@ namespace BrowserFolders
             }
             GUILayout.EndVertical();
         }
-
-//        private static string GetAddSceneName()
-//        {
-//#if HS2
-//            return Scene.AddSceneName;
-//#elif AI
-//            return Scene.Instance.AddSceneName;
-//#endif
-//        }
 
         private enum VisibleWindow
         {
