@@ -113,6 +113,7 @@ namespace BrowserFolders
                 (int)(Screen.width * _w), (int)(Screen.height * _h));
             Utils.DrawSolidWindowBackground(screenRect);
             GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
+            Utils.EatInputInRect(screenRect);
         }
 
         private static void TreeWindow(int id)

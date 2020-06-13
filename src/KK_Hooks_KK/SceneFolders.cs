@@ -31,6 +31,7 @@ namespace BrowserFolders.Hooks.KK
                 var screenRect = new Rect((int)(Screen.width / 11.3f), (int)(Screen.height / 90f), (int)(Screen.width / 2.5f), (int)(Screen.height / 5f));
                 Utils.DrawSolidWindowBackground(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select folder with scenes to view");
+                Utils.EatInputInRect(screenRect);
             }
         }
 

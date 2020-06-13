@@ -33,7 +33,7 @@ namespace BrowserFolders.Hooks.KK
 
             HarmonyWrapper.PatchAll(typeof(MakerOutfitFolders));
             //MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
-            
+
         }
 
         private static string DirectoryPathModifier(string currentDirectoryPath)
@@ -86,7 +86,7 @@ namespace BrowserFolders.Hooks.KK
             var name = Path.GetFileName(path);
             path = Path.Combine(DirectoryPathModifier(path), name);
 
-            _refreshList = true;            
+            _refreshList = true;
         }
 
         public void OnGui()
@@ -109,6 +109,7 @@ namespace BrowserFolders.Hooks.KK
                         var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                         Utils.DrawSolidWindowBackground(screenRect);
                         GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
+                        Utils.EatInputInRect(screenRect);
                     }
                 }
             }
@@ -120,10 +121,10 @@ namespace BrowserFolders.Hooks.KK
 
             if (_customCoordinateFile == null) return;
 
-            if (_saveOutfitToggle != null && _saveOutfitToggle.isOn || _loadOutfitToggle != null && _loadOutfitToggle.isOn) {
+            if (_saveOutfitToggle != null && _saveOutfitToggle.isOn || _loadOutfitToggle != null && _loadOutfitToggle.isOn)
+            {
                 // private bool Initialize()                
                 Traverse.Create(_customCoordinateFile).Method("Initialize").GetValue();
-                
             }
         }
 

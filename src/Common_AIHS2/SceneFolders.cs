@@ -17,7 +17,7 @@ namespace BrowserFolders
         private static SceneLoadScene _studioInitObject;
 
         public SceneFolders()
-        {            
+        {
             _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, Path.Combine(AI_BrowserFolders.UserDataPath, @"studio\scene"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
@@ -31,6 +31,7 @@ namespace BrowserFolders
                 var screenRect = new Rect((int)(Screen.width / 11.3f), (int)(Screen.height / 90f), (int)(Screen.width / 2.5f), (int)(Screen.height / 5f));
                 Utils.DrawSolidWindowBackground(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select folder with scenes to view");
+                Utils.EatInputInRect(screenRect);
             }
         }
 

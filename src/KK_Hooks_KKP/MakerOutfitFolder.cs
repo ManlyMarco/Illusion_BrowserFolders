@@ -63,7 +63,7 @@ namespace BrowserFolders.Hooks.KKP
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ChaFileCoordinate), "SaveFile")]
-        internal static void SaveFilePatch(ref string path) 
+        internal static void SaveFilePatch(ref string path)
         {
             var name = Path.GetFileName(path);
             path = Path.Combine(DirectoryPathModifier(path), name);
@@ -91,6 +91,7 @@ namespace BrowserFolders.Hooks.KKP
                         var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                         Utils.DrawSolidWindowBackground(screenRect);
                         GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
+                        Utils.EatInputInRect(screenRect);
                     }
                 }
             }

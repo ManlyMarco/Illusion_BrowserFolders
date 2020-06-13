@@ -53,6 +53,7 @@ namespace BrowserFolders.Hooks.KKP
                 var screenRect = GetFullscreenBrowserRect();
                 Utils.DrawSolidWindowBackground(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
+                Utils.EatInputInRect(screenRect);
             }
         }
 
