@@ -12,7 +12,7 @@ namespace BrowserFolders
     public partial class AI_BrowserFolders : BaseUnityPlugin
     {
         public const string Guid = "marco.FolderBrowser";
-        public const string Version = "1.6";
+        public const string Version = "2.1";
 
         internal static new ManualLogSource Logger { get; private set; }
 
