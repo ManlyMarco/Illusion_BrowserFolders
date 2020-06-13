@@ -19,8 +19,10 @@ namespace BrowserFolders
         private IFolderBrowser _sceneFolders;
         private IFolderBrowser _studioCharaFolders;
         private IFolderBrowser _makerCharaFolders;
+        private IFolderBrowser _makerClothesFolders;
 
         public static ConfigEntry<bool> EnableMaker { get; private set; }
+        public static ConfigEntry<bool> EnableMakerCoord { get; private set; }
         public static ConfigEntry<bool> EnableStudio { get; private set; }
         public static ConfigEntry<bool> EnableStudioChara { get; private set; }
         public static ConfigEntry<bool> StudioSaveOverride { get; private set; }
@@ -29,8 +31,11 @@ namespace BrowserFolders
         {
             Logger = base.Logger;
 
-            EnableMaker = Config.Bind("Main game", "Enable folder browser in maker", true, "Changes take effect on game restart");
+            EnableMaker = Config.Bind("Main game", "Enable character folder browser in maker", true, "Changes take effect on game restart");
             if (!StudioAPI.InsideStudio && EnableMaker.Value) _makerCharaFolders = new MakerFolders();
+
+            EnableMakerCoord = Config.Bind("Main game", "Enable clothes folder browser in maker", true, "Changes take effect on game restart");
+            if (!StudioAPI.InsideStudio && EnableMakerCoord.Value) _makerClothesFolders = new MakerOutfitFolders();
 
             EnableStudio = Config.Bind("Chara Studio", "Enable folder browser in scene browser", true, "Changes take effect on game restart");
             if (StudioAPI.InsideStudio && EnableStudio.Value) _sceneFolders = new SceneFolders();
@@ -43,9 +48,16 @@ namespace BrowserFolders
 
         private void OnGUI()
         {
-            _sceneFolders?.OnGui();
-            _studioCharaFolders?.OnGui();
-            _makerCharaFolders?.OnGui();
+            if (StudioAPI.InsideStudio)
+            {
+                _sceneFolders?.OnGui();
+                _studioCharaFolders?.OnGui();
+            }
+            else
+            {
+                _makerCharaFolders?.OnGui();
+                _makerClothesFolders?.OnGui();
+            }
         }
 
         internal static string UserDataPath { get; } = Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")); // UserData.Path
