@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 
@@ -40,7 +41,7 @@ namespace BrowserFolders.Hooks.KKP
             if (_newGame != null && _targetScene == Scene.Instance.AddSceneName)
             {
                 var screenRect = GetFullscreenBrowserRect();
-                Utils.DrawSolidWindowBackground(screenRect);
+                IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 Utils.EatInputInRect(screenRect);
             }

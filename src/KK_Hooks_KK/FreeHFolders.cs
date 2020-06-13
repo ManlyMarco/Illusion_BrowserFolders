@@ -7,6 +7,7 @@ using ActionGame;
 using BepInEx.Harmony;
 using FreeH;
 using HarmonyLib;
+using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 using UnityEngine.UI;
@@ -121,7 +122,7 @@ namespace BrowserFolders.Hooks.KK
             if (_freeHFile != null && !_isLive && _targetScene == Scene.Instance.AddSceneName)
             {
                 var screenRect = ClassroomFolders.GetFullscreenBrowserRect();
-                Utils.DrawSolidWindowBackground(screenRect);
+                IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 Utils.EatInputInRect(screenRect);
             }

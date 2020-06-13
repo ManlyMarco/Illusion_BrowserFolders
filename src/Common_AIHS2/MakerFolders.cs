@@ -7,6 +7,7 @@ using BepInEx.Harmony;
 using CharaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
+using KKAPI.Utilities;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -111,9 +112,9 @@ namespace BrowserFolders
 
             var screenRect = new Rect((int)(Screen.width * _x), (int)(Screen.height * _y),
                 (int)(Screen.width * _w), (int)(Screen.height * _h));
-            Utils.DrawSolidWindowBackground(screenRect);
+            IMGUIUtils.DrawSolidBox(screenRect);
             GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-            Utils.EatInputInRect(screenRect);
+            IMGUIUtils.EatInputInRect(screenRect);
         }
 
         private static void TreeWindow(int id)

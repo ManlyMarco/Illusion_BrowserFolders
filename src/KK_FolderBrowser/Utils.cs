@@ -11,6 +11,7 @@ namespace BrowserFolders
 {
     public static class Utils
     {
+        // todo use version in kkapi
         public static void EatInputInRect(Rect eatRect)
         {
             if (eatRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
@@ -20,22 +21,6 @@ namespace BrowserFolders
         public static string NormalizePath(string path)
         {
             return Path.GetFullPath(path).Replace('/', '\\').TrimEnd('\\').ToLower();
-        }
-
-        private static Texture2D WindowBackground { get; set; }
-
-        public static void DrawSolidWindowBackground(Rect windowRect)
-        {
-            if (WindowBackground == null)
-            {
-                var windowBackground = new Texture2D(1, 1, TextureFormat.ARGB32, false);
-                windowBackground.SetPixel(0, 0, new Color(0.84f, 0.84f, 0.84f));
-                windowBackground.Apply();
-                WindowBackground = windowBackground;
-            }
-
-            // It's necessary to make a new GUIStyle here or the texture doesn't show up
-            GUI.Box(windowRect, GUIContent.none, new GUIStyle { normal = new GUIStyleState { background = WindowBackground } });
         }
 
         public static IEnumerable<Type> GetTypesSafe(this Assembly ass)

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using HarmonyLib;
+using KKAPI.Utilities;
 using Studio;
 using UnityEngine;
 
@@ -38,7 +39,7 @@ namespace BrowserFolders.Hooks.KK
             if (_costumeInfoEntry != null && _costumeInfoEntry.isActive())
             {
                 var windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
-                Utils.DrawSolidWindowBackground(windowRect);
+                IMGUIUtils.DrawSolidBox(windowRect);
                 GUILayout.Window(363, windowRect, id => TreeWindow(), "Folder with outfits to view");
                 Utils.EatInputInRect(windowRect);
             }

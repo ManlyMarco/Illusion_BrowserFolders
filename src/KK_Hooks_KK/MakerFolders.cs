@@ -7,6 +7,7 @@ using BepInEx.Harmony;
 using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
+using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 using UnityEngine.UI;
@@ -99,7 +100,7 @@ namespace BrowserFolders.Hooks.KK
                         }
 
                         var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
-                        Utils.DrawSolidWindowBackground(screenRect);
+                        IMGUIUtils.DrawSolidBox(screenRect);
                         GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                         Utils.EatInputInRect(screenRect);
                     }

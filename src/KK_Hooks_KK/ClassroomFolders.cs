@@ -8,6 +8,7 @@ using ActionGame;
 using BepInEx.Harmony;
 using HarmonyLib;
 using Illusion.Extensions;
+using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 using UnityEngine.UI;
@@ -99,7 +100,7 @@ namespace BrowserFolders.Hooks.KK
             if (_canvas != null && _canvas.enabled && _targetScene == Scene.Instance.AddSceneName)
             {
                 var screenRect = GetFullscreenBrowserRect();
-                Utils.DrawSolidWindowBackground(screenRect);
+                IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 Utils.EatInputInRect(screenRect);
             }

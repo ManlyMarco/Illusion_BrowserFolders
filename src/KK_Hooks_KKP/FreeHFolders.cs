@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using FreeH;
+using KKAPI.Utilities;
 using Localize.Translate;
 using Manager;
 using UnityEngine;
@@ -51,7 +52,7 @@ namespace BrowserFolders.Hooks.KKP
                 && _targetScene == Scene.Instance.AddSceneName)
             {
                 var screenRect = GetFullscreenBrowserRect();
-                Utils.DrawSolidWindowBackground(screenRect);
+                IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 Utils.EatInputInRect(screenRect);
             }

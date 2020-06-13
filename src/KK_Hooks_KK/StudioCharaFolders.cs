@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using BepInEx.Harmony;
 using HarmonyLib;
+using KKAPI.Utilities;
 using Studio;
 using UnityEngine;
 
@@ -24,7 +25,7 @@ namespace BrowserFolders.Hooks.KK
             var entry = _charaListEntries.Values.FirstOrDefault(x => x.isActiveAndEnabled);
             if (entry == null) return;
             var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f), (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
-            Utils.DrawSolidWindowBackground(windowRect);
+            IMGUIUtils.DrawSolidBox(windowRect);
             GUILayout.Window(363, windowRect, id => TreeWindow(entry), "Select folder with cards to view");
             Utils.EatInputInRect(windowRect);
         }
