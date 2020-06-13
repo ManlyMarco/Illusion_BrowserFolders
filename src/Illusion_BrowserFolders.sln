@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders_Hooks_KKP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI_BrowserFolders", "AI_BrowserFolders\AI_BrowserFolders.csproj", "{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HS2_BrowseFolders", "HS2_BrowseFolders\HS2_BrowseFolders.csproj", "{206D2E71-0933-4B96-B74D-D07521EB58DB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HS2_BrowserFolders", "HS2_BrowserFolders\HS2_BrowserFolders.csproj", "{206D2E71-0933-4B96-B74D-D07521EB58DB}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common_AIHS2", "Common_AIHS2\Common_AIHS2.shproj", "{9808EF6D-057E-46E4-99AC-F7BBF2C5A057}"
 EndProject
