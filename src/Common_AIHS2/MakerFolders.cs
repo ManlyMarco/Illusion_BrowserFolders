@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using HarmonyLib;
 using KKAPI.Maker;
 using KKAPI.Utilities;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BrowserFolders
 {
@@ -187,12 +189,38 @@ namespace BrowserFolders
             _charaSaveVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
         }
 
-        [HarmonyPrefix]
+#if AI
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(CvsO_Fusion), "Start")]
-        internal static void InitHookFuse(CvsO_Fusion __instance)
+        internal static void InitHookFuse(CvsO_Fusion __instance, Button ___btnFusion,
+            CustomCharaWindow ___charaLoadWinA, CustomCharaWindow ___charaLoadWinB)
+        {
+            InitFusion(__instance, ___btnFusion, ___charaLoadWinA, ___charaLoadWinB);
+        }
+#elif HS2
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CvsO_Fusion), "Start")]
+        internal static void InitHookFuse(CvsO_Fusion __instance, Button ___btnFusion, 
+            CustomCharaWindow ___charaLoadWinA, CustomCharaWindow ___charaLoadWinB, ref IEnumerator __result)
+        {
+            __result = __result.AppendCo(() => InitFusion(__instance, ___btnFusion, ___charaLoadWinA, ___charaLoadWinB));
+        }
+#endif
+        private static void InitFusion(CvsO_Fusion __instance, Button ___btnFusion,
+            CustomCharaWindow ___charaLoadWinA, CustomCharaWindow ___charaLoadWinB)
         {
             _charaFusion = __instance;
             _charaFusionVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
+
+            // Fix fusion button not working when cards from different folers are used
+            ___btnFusion.onClick.RemoveAllListeners();
+            ___btnFusion.onClick.AddListener(() =>
+            {
+                var info = ___charaLoadWinA.GetSelectInfo();
+                var info2 = ___charaLoadWinB.GetSelectInfo();
+                __instance.FusionProc(info.info.FullPath, info2.info.FullPath);
+                Traverse.Create(__instance).Field("isFusion").SetValue(true);
+            });
         }
 
         [HarmonyTranspiler]
