@@ -98,6 +98,10 @@ namespace BrowserFolders
                     if (_charaFusion != null) _charaFusion.UpdateCharasList();
                     break;
             }
+
+            // clear tree cache
+            _folderTreeView.DefaultPathTree.Reset();
+
         }
 
         internal static Rect GetDisplayRect()

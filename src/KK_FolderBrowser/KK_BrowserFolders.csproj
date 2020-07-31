@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="BrowserType.cs" />
     <Compile Include="BrowserTypeAttribute.cs" />
+    <Compile Include="DirectoryTree.cs" />
     <Compile Include="FolderTreeView.cs" />
     <Compile Include="IFolderBrowser.cs" />
     <Compile Include="KK_BrowserFolders.cs" />
