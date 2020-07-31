@@ -85,22 +85,35 @@ namespace BrowserFolders
         {
             var visibleWindow = IsVisible();
             _lastRefreshed = visibleWindow;
-
+            var resetTree = false;
             switch (visibleWindow)
             {
                 case VisibleWindow.Load:
-                    if (_charaLoad != null) _charaLoad.UpdateCharasList();
+                    if (_charaLoad != null)
+                    {
+                        _charaLoad.UpdateCharasList();
+                        resetTree = true;
+                    }
                     break;
                 case VisibleWindow.Save:
-                    if (_charaSave != null) _charaSave.UpdateCharasList();
+                    if (_charaSave != null)
+                    {
+                        _charaSave.UpdateCharasList();
+                        resetTree = true;
+                    }
                     break;
                 case VisibleWindow.Fuse:
-                    if (_charaFusion != null) _charaFusion.UpdateCharasList();
+                    if (_charaFusion != null)
+                    {
+                        _charaFusion.UpdateCharasList();
+                        resetTree = true;
+                    }
+            
                     break;
             }
 
             // clear tree cache
-            _folderTreeView.DefaultPathTree.Reset();
+            if (resetTree) _folderTreeView.ResetTreeCache();
 
         }
 

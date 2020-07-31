@@ -118,7 +118,7 @@ namespace BrowserFolders.Hooks.KK
                     if (GUILayout.Button("Refresh characters"))
                     {
                         entry.InitCharaList(true);
-
+                        entry.FolderTreeView.ResetTreeCache();
                         entry.FolderTreeView.CurrentFolderChanged.Invoke();
                     }
                     GUILayout.Space(1);

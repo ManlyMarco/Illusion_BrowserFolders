@@ -90,7 +90,10 @@ namespace BrowserFolders.Hooks.KK
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
                     if (GUILayout.Button("Refresh thumbnails"))
+                    {
+                        _folderTreeView.ResetTreeCache();
                         OnFolderChanged();
+                    }
 
                     if (GUILayout.Button("Open current folder in explorer"))
                         Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);

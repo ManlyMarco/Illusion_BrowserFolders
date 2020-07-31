@@ -78,8 +78,20 @@ namespace BrowserFolders
             GUILayout.EndScrollView();
         }
 
+        public void ResetTreeCache()
+        {
+            DefaultPathTree.Reset();
+        }
+
         private void ExpandToCurrentFolder()
         {
+            if (!Directory.Exists(CurrentFolder))
+            {
+                // folder deleted out from under us, go back to the top.
+                ResetTreeCache();
+                CurrentFolder = DefaultPath;
+            }
+
             var path = CurrentFolder;
             var defaultPath = DefaultPath;
             _openedObjects.Clear();

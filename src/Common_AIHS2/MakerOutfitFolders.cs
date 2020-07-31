@@ -86,16 +86,28 @@ namespace BrowserFolders
         {
             var visibleWindow = IsVisible();
             _lastRefreshed = visibleWindow;
+            var resetTree = false;
 
             switch (visibleWindow)
             {
                 case VisibleWindow.Load:
-                    if (_charaLoad != null) _charaLoad.UpdateClothesList();
+                    if (_charaLoad != null)
+                    {
+                        _charaLoad.UpdateClothesList();
+                        resetTree = true;
+                    }
                     break;
                 case VisibleWindow.Save:
-                    if (_charaSave != null) _charaSave.UpdateClothesList();
+                    if (_charaSave != null)
+                    {
+                        _charaSave.UpdateClothesList();
+                        resetTree = true;
+                    }
                     break;
             }
+
+            // clear tree cache
+            if (resetTree) _folderTreeView.ResetTreeCache();
         }
 
         public void OnGui()

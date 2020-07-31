@@ -97,7 +97,7 @@ namespace BrowserFolders.Hooks.KK
                     if (GUILayout.Button("Refresh outfits"))
                     {
                         _costumeInfoEntry.InitOutfitList();
-
+                        _costumeInfoEntry.FolderTreeView.ResetTreeCache();
                         _costumeInfoEntry.FolderTreeView.CurrentFolderChanged.Invoke();
                     }
                     GUILayout.Space(1);

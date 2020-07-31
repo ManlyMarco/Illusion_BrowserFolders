@@ -137,7 +137,10 @@ namespace BrowserFolders.Hooks.KK
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
                     if (GUILayout.Button("Refresh thumbnails"))
+                    {
+                        _folderTreeView.ResetTreeCache();
                         OnFolderChanged();
+                    }
 
                     GUILayout.Space(1);
 

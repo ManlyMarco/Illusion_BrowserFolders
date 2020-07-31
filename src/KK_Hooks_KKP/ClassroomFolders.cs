@@ -107,7 +107,10 @@ namespace BrowserFolders.Hooks.KKP
                         OnFolderChanged();
 
                     if (GUILayout.Button("Refresh thumbnails"))
+                    {
+                        _folderTreeView.ResetTreeCache();
                         OnFolderChanged();
+                    }
 
                     GUILayout.Space(1);
 
