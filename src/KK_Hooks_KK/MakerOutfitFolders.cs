@@ -92,6 +92,7 @@ namespace BrowserFolders.Hooks.KK
 
         public void OnGui()
         {
+            var guiShown = false;
             // Check the opened category
             if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.Instance.AddSceneName)
             {
@@ -111,9 +112,11 @@ namespace BrowserFolders.Hooks.KK
                         IMGUIUtils.DrawSolidBox(screenRect);
                         GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
                         Utils.EatInputInRect(screenRect);
+                        guiShown = true;
                     }
                 }
             }
+            if (!guiShown) _folderTreeView?.StopMonitoringFiles();
         }
 
         private static void OnFolderChanged()

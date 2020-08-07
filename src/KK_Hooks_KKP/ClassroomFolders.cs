@@ -83,6 +83,10 @@ namespace BrowserFolders.Hooks.KKP
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 Utils.EatInputInRect(screenRect);
             }
+            else
+            {
+                _folderTreeView?.StopMonitoringFiles();
+            }
         }
 
         private static Rect GetFullscreenBrowserRect()

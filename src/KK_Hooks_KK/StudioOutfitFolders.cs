@@ -36,12 +36,20 @@ namespace BrowserFolders.Hooks.KK
 
         public void OnGui()
         {
-            if (_costumeInfoEntry != null && _costumeInfoEntry.isActive())
+            if (_costumeInfoEntry != null)
             {
-                var windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
-                IMGUIUtils.DrawSolidBox(windowRect);
-                GUILayout.Window(363, windowRect, id => TreeWindow(), "Folder with outfits to view");
-                Utils.EatInputInRect(windowRect);
+                if (_costumeInfoEntry.isActive())
+                {
+                    var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f),
+                        (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
+                    IMGUIUtils.DrawSolidBox(windowRect);
+                    GUILayout.Window(363, windowRect, id => TreeWindow(), "Folder with outfits to view");
+                    Utils.EatInputInRect(windowRect);
+                }
+                else
+                {
+                    _costumeInfoEntry.FolderTreeView?.StopMonitoringFiles();
+                }
             }
         }
 

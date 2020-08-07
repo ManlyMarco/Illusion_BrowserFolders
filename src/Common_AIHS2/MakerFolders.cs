@@ -138,6 +138,7 @@ namespace BrowserFolders
             if (visibleWindow == VisibleWindow.None)
             {
                 _lastRefreshed = VisibleWindow.None;
+                _folderTreeView?.StopMonitoringFiles();
                 return;
             }
 

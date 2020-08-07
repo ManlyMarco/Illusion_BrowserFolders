@@ -34,6 +34,10 @@ namespace BrowserFolders
                 GUILayout.Window(362, screenRect, TreeWindow, "Select folder with scenes to view");
                 IMGUIUtils.EatInputInRect(screenRect);
             }
+            else
+            {
+                _folderTreeView?.StopMonitoringFiles();
+            }
         }
 
         [HarmonyTranspiler]

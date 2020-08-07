@@ -8,6 +8,7 @@ namespace BrowserFolders
     public class FolderTreeView
     {
         private bool _scrollTreeToSelected;
+        private FileSystemWatcher _fileSystemWatcher;
 
         public void ScrollListToSelected()
         {
@@ -26,6 +27,7 @@ namespace BrowserFolders
 
             DefaultPath = defaultPath;
             _topmostPath = Path.GetFullPath(topmostPath.ToLowerInvariant().TrimEnd('\\'));
+            _fileSystemWatcher = null;
         }
 
         public string CurrentFolder
@@ -67,6 +69,7 @@ namespace BrowserFolders
 
         public void DrawDirectoryTree()
         {
+            StartMonitoringFiles();
             ExpandToCurrentFolder();
 
             _treeScrollPosition = GUILayout.BeginScrollView(
@@ -76,6 +79,46 @@ namespace BrowserFolders
                 DisplayObjectTreeHelper(DefaultPathTree, 0);
             }
             GUILayout.EndScrollView();
+        }
+
+        private void StartMonitoringFiles()
+        {
+            InitFileSystemWatcher();
+            _fileSystemWatcher.EnableRaisingEvents = true;
+        }
+
+        private void InitFileSystemWatcher()
+        {
+            if (_fileSystemWatcher != null) return;
+            _fileSystemWatcher = new FileSystemWatcher()
+            {
+                Path = Path.GetFullPath(DefaultPath),
+                NotifyFilter = NotifyFilters.DirectoryName,
+                IncludeSubdirectories = true
+            };
+            _fileSystemWatcher.Created += HandleFileSystemEvent;
+            _fileSystemWatcher.Deleted += HandleFileSystemEvent;
+        }
+
+        private void HandleFileSystemEvent(object sender, FileSystemEventArgs e)
+        {
+            ResetTreeCache();
+        }
+
+        public void StopMonitoringFiles()
+        {
+            if (_fileSystemWatcher == null) return;
+            _fileSystemWatcher.EnableRaisingEvents = false;
+        }
+
+        internal void OnDestroy()
+        {
+            if (_fileSystemWatcher != null)
+            {
+                _fileSystemWatcher.EnableRaisingEvents = false;
+                _fileSystemWatcher.Dispose();
+                _fileSystemWatcher = null;
+            }
         }
         public void ResetTreeCache()
         {
