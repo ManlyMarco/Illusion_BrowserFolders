@@ -74,6 +74,7 @@ namespace BrowserFolders.Hooks.KKP
 
         public void OnGui()
         {
+            bool guiShown = false;
             // Check the opened category
             if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.Instance.AddSceneName)
             {
@@ -85,6 +86,7 @@ namespace BrowserFolders.Hooks.KKP
                     {
                         if (_refreshList)
                         {
+                            _folderTreeView.ResetTreeCache();
                             OnFolderChanged();
                             _refreshList = false;
                         }
@@ -93,9 +95,11 @@ namespace BrowserFolders.Hooks.KKP
                         IMGUIUtils.DrawSolidBox(screenRect);
                         GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
                         Utils.EatInputInRect(screenRect);
+                        guiShown = true;
                     }
                 }
             }
+            if (!guiShown) _folderTreeView?.StopMonitoringFiles();
         }
 
         private static void OnFolderChanged()
@@ -121,7 +125,10 @@ namespace BrowserFolders.Hooks.KKP
                         OnFolderChanged();
 
                     if (GUILayout.Button("Refresh thumbnails"))
+                    {
+                        _folderTreeView.ResetTreeCache();
                         OnFolderChanged();
+                    }
 
                     GUILayout.Space(1);
 

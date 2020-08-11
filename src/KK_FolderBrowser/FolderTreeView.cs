@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -9,6 +8,7 @@ namespace BrowserFolders
     public class FolderTreeView
     {
         private bool _scrollTreeToSelected;
+        private FileSystemWatcher _fileSystemWatcher;
 
         public void ScrollListToSelected()
         {
@@ -19,12 +19,15 @@ namespace BrowserFolders
         private Vector2 _treeScrollPosition;
         private string _currentFolder;
 
+        private DirectoryTree _defaultPathTree;
+
         public FolderTreeView(string topmostPath, string defaultPath)
         {
             if (!defaultPath.StartsWith(topmostPath, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("default path has to be inside topmost path");
 
             DefaultPath = defaultPath;
             _topmostPath = Path.GetFullPath(topmostPath.ToLowerInvariant().TrimEnd('\\'));
+            _fileSystemWatcher = null;
         }
 
         public string CurrentFolder
@@ -52,10 +55,13 @@ namespace BrowserFolders
             get { return _defaultPath; }
             set
             {
+                _defaultPathTree = null;
                 if (value != null) _defaultPath = Path.GetFullPath(value.TrimEnd('\\'));
                 else _defaultPath = null;
             }
         }
+
+        public DirectoryTree DefaultPathTree => _defaultPathTree ?? (_defaultPathTree = new DirectoryTree(new DirectoryInfo(DefaultPath)));
 
         public Action CurrentFolderChanged;
         private readonly string _topmostPath;
@@ -63,21 +69,74 @@ namespace BrowserFolders
 
         public void DrawDirectoryTree()
         {
+            StartMonitoringFiles();
             ExpandToCurrentFolder();
 
             _treeScrollPosition = GUILayout.BeginScrollView(
                 _treeScrollPosition, GUI.skin.box,
                 GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
             {
-                DisplayObjectTreeHelper(new DirectoryInfo(DefaultPath), 0);
+                DisplayObjectTreeHelper(DefaultPathTree, 0);
             }
             GUILayout.EndScrollView();
         }
 
+        private void StartMonitoringFiles()
+        {
+            InitFileSystemWatcher();
+            _fileSystemWatcher.EnableRaisingEvents = true;
+        }
+
+        private void InitFileSystemWatcher()
+        {
+            if (_fileSystemWatcher != null) return;
+            _fileSystemWatcher = new FileSystemWatcher()
+            {
+                Path = Path.GetFullPath(DefaultPath),
+                NotifyFilter = NotifyFilters.DirectoryName,
+                IncludeSubdirectories = true
+            };
+            _fileSystemWatcher.Created += HandleFileSystemEvent;
+            _fileSystemWatcher.Deleted += HandleFileSystemEvent;
+        }
+
+        private void HandleFileSystemEvent(object sender, FileSystemEventArgs e)
+        {
+            ResetTreeCache();
+        }
+
+        public void StopMonitoringFiles()
+        {
+            if (_fileSystemWatcher == null) return;
+            _fileSystemWatcher.EnableRaisingEvents = false;
+        }
+
+        internal void OnDestroy()
+        {
+            if (_fileSystemWatcher != null)
+            {
+                _fileSystemWatcher.EnableRaisingEvents = false;
+                _fileSystemWatcher.Dispose();
+                _fileSystemWatcher = null;
+            }
+        }
+        public void ResetTreeCache()
+        {
+            DefaultPathTree.Reset();
+        }
+
         private void ExpandToCurrentFolder()
         {
+            if (!Directory.Exists(CurrentFolder))
+            {
+                // folder deleted out from under us, go back to the top.
+                ResetTreeCache();
+                CurrentFolder = DefaultPath;
+            }
+
             var path = CurrentFolder;
             var defaultPath = DefaultPath;
+            _openedObjects.Clear();
             _openedObjects.Add(defaultPath.ToLowerInvariant());
             while (!string.IsNullOrEmpty(path) && path.Length > defaultPath.Length)
             {
@@ -86,12 +145,12 @@ namespace BrowserFolders
             }
         }
 
-        private void DisplayObjectTreeHelper(DirectoryInfo dir, int indent)
+        private void DisplayObjectTreeHelper(DirectoryTree dir, int indent)
         {
             var fullNameLower = dir.FullName.ToLower();
-            var subDirs = dir.GetDirectories();
+            var subDirs = dir.SubDirs;
 
-            if (indent == 0 && subDirs.Length == 0)
+            if (indent == 0 && subDirs.Count == 0)
             {
                 GUILayout.BeginVertical();
                 {
@@ -120,7 +179,7 @@ namespace BrowserFolders
 
                 GUILayout.BeginHorizontal();
                 {
-                    if (subDirs.Length > 0)
+                    if (subDirs.Count > 0)
                     {
                         if (GUILayout.Toggle(_openedObjects.Contains(fullNameLower), "", GUILayout.ExpandWidth(false)))
                             _openedObjects.Add(fullNameLower);
@@ -152,7 +211,7 @@ namespace BrowserFolders
 
             if (_openedObjects.Contains(fullNameLower))
             {
-                foreach (var subDir in subDirs.OrderBy(x => x.Name, new Utils.WindowsStringComparer()))
+                foreach (var subDir in subDirs)
                     DisplayObjectTreeHelper(subDir, indent + 1);
             }
         }

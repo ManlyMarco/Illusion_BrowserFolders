@@ -65,6 +65,10 @@ namespace BrowserFolders.Hooks.KK
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 Utils.EatInputInRect(screenRect);
             }
+            else
+            {
+                _folderTreeView?.StopMonitoringFiles();
+            }
         }
 
         internal static Rect GetFullscreenBrowserRect()
@@ -90,7 +94,10 @@ namespace BrowserFolders.Hooks.KK
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
                     if (GUILayout.Button("Refresh thumbnails"))
+                    {
+                        _folderTreeView.ResetTreeCache();
                         OnFolderChanged();
+                    }
 
                     if (GUILayout.Button("Open current folder in explorer"))
                         Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);

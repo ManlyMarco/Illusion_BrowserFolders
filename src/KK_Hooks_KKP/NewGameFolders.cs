@@ -45,6 +45,10 @@ namespace BrowserFolders.Hooks.KKP
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 Utils.EatInputInRect(screenRect);
             }
+            else
+            {
+                _folderTreeView?.StopMonitoringFiles();
+            }
         }
 
         private static Rect GetFullscreenBrowserRect()
@@ -70,7 +74,10 @@ namespace BrowserFolders.Hooks.KKP
                         OnFolderChanged();
 
                     if (GUILayout.Button("Refresh thumbnails"))
+                    {
+                        _folderTreeView.ResetTreeCache();
                         OnFolderChanged();
+                    }
 
                     if (GUILayout.Button("Open current folder in explorer"))
                         Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);

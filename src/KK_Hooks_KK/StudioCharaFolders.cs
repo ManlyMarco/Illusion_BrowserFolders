@@ -14,6 +14,7 @@ namespace BrowserFolders.Hooks.KK
     {
         private static readonly Dictionary<string, CharaListEntry> _charaListEntries = new Dictionary<string, CharaListEntry>();
         private static bool _refilterOnly;
+        private static CharaListEntry _lastEntry;
 
         public StudioCharaFolders()
         {
@@ -23,7 +24,13 @@ namespace BrowserFolders.Hooks.KK
         public void OnGui()
         {
             var entry = _charaListEntries.Values.FirstOrDefault(x => x.isActiveAndEnabled);
+            if (_lastEntry != null && _lastEntry != entry)
+            {
+                _lastEntry.FolderTreeView?.StopMonitoringFiles();
+                _lastEntry = null;
+            }
             if (entry == null) return;
+            _lastEntry = entry;
             var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f), (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
             IMGUIUtils.DrawSolidBox(windowRect);
             GUILayout.Window(363, windowRect, id => TreeWindow(entry), "Select folder with cards to view");
@@ -118,7 +125,7 @@ namespace BrowserFolders.Hooks.KK
                     if (GUILayout.Button("Refresh characters"))
                     {
                         entry.InitCharaList(true);
-
+                        entry.FolderTreeView.ResetTreeCache();
                         entry.FolderTreeView.CurrentFolderChanged.Invoke();
                     }
                     GUILayout.Space(1);
