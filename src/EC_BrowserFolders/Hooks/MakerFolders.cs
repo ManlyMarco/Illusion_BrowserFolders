@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using BepInEx.Harmony;
 using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
+using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.EC
 {
-    [BrowserType(BrowserType.Maker)]
     public class MakerFolders : IFolderBrowser
     {
         private static Toggle _catToggle;
@@ -29,11 +28,37 @@ namespace BrowserFolders.Hooks.EC
 
         public MakerFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
+            _folderTreeView =
+                new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyWrapper.PatchAll(typeof(MakerFolders));
+            Harmony.CreateAndPatchAll(typeof(MakerFolders));
             MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
+        }
+
+        public void OnGui()
+        {
+            // Check the opened category
+
+            if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.Instance.AddSceneName)
+                // Check opened tab
+                if (_loadCharaToggle != null && _loadCharaToggle.isOn ||
+                    _saveCharaToggle != null && _saveCharaToggle.isOn)
+                    // Check if the character picture take screen is displayed
+                    if (_saveFront == null || !_saveFront.activeSelf)
+                    {
+                        if (_refreshList)
+                        {
+                            OnFolderChanged();
+                            _refreshList = false;
+                        }
+
+                        var screenRect = new Rect((int) (Screen.width * 0.004), (int) (Screen.height * 0.57f),
+                            (int) (Screen.width * 0.125), (int) (Screen.height * 0.35));
+                        IMGUIUtils.DrawSolidBox(screenRect);
+                        GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
+                        IMGUIUtils.EatInputInRect(screenRect);
+                    }
         }
 
         private static string DirectoryPathModifier(string currentDirectoryPath)
@@ -45,7 +70,7 @@ namespace BrowserFolders.Hooks.EC
         [HarmonyPatch(typeof(CustomCharaFile), "Start")]
         internal static void InitHook(CustomCharaFile __instance)
         {
-			Traverse.Create("ConvertChaFileScene").Method("Start").GetValue();
+            Traverse.Create("ConvertChaFileScene").Method("Start").GetValue();
             var instance = CustomBase.Instance;
             _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), instance.modeSex != 0 ? @"chara/female/" : "chara/male");
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
@@ -75,38 +100,13 @@ namespace BrowserFolders.Hooks.EC
                 {
                     //0x7E	ldsfld <field>	Push the value of the static field on the stack.
                     instruction.opcode = OpCodes.Ldsfld;
-                    instruction.operand = typeof(MakerFolders).GetField(nameof(_currentRelativeFolder), BindingFlags.NonPublic | BindingFlags.Static) ??
-                                  throw new MissingMethodException("could not find GetCurrentRelativeFolder");;
+                    instruction.operand = typeof(MakerFolders).GetField(nameof(_currentRelativeFolder),
+                                              BindingFlags.NonPublic | BindingFlags.Static) ??
+                                          throw new MissingMethodException("could not find GetCurrentRelativeFolder");
+                    ;
                 }
 
-                
                 yield return instruction;
-            }
-        }
-
-        public void OnGui()
-        {
-            // Check the opened category
-            
-            if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.Instance.AddSceneName)
-            {
-                // Check opened tab
-                if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
-                {
-                    // Check if the character picture take screen is displayed
-                    if (_saveFront == null || !_saveFront.activeSelf)
-                    {
-                        if (_refreshList)
-                        {
-                            OnFolderChanged();
-                            _refreshList = false;
-                        }
-
-                        var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
-                        Utils.DrawSolidWindowBackground(screenRect);
-                        GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-                    }
-                }
             }
         }
 

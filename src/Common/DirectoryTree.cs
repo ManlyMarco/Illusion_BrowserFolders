@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using KKAPI.Utilities;
 
 namespace BrowserFolders
 {
@@ -24,12 +25,10 @@ namespace BrowserFolders
             get
             {
                 if (_subDirs == null)
-                {
                     _subDirs = Info.GetDirectories()
-                        .OrderBy(x => x.Name, new Utils.WindowsStringComparer())
+                        .OrderBy(x => x.Name, new WindowsStringComparer())
                         .Select(x => new DirectoryTree(x))
                         .ToList();
-                }
 
                 return _subDirs;
             }

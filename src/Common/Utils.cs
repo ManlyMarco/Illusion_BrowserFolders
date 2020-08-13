@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace BrowserFolders
 {
@@ -35,6 +34,7 @@ namespace BrowserFolders
                 {
                     continue;
                 }
+
                 yield return result;
             }
         }
@@ -57,17 +57,6 @@ namespace BrowserFolders
                 AI_BrowserFolders.Logger.LogError(e);
                 AI_BrowserFolders.Logger.LogMessage("Failed to open the folder - " + e.Message);
 #endif
-            }
-        }
-
-        public class WindowsStringComparer : IComparer<string>
-        {
-            [DllImport("shlwapi.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
-            static extern int StrCmpLogicalW(String x, String y);
-
-            public int Compare(string x, string y)
-            {
-                return StrCmpLogicalW(x, y);
             }
         }
     }

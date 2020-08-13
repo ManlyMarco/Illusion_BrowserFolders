@@ -7,7 +7,7 @@
     <ProjectGuid>{30773058-5A9C-43A2-9E43-CE8B0B77140C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EC_BrowserFolders</RootNamespace>
+    <RootNamespace>BrowserFolders</RootNamespace>
     <AssemblyName>EC_BrowserFolders</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -15,20 +15,21 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>embedded</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>..\..\bin\BepInEx\plugins\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EC</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>embedded</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>..\..\bin\BepInEx\plugins\</OutputPath>
+    <DefineConstants>TRACE;EC</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -89,10 +90,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BrowserType.cs" />
-    <Compile Include="BrowserTypeAttribute.cs" />
     <Compile Include="EC_BrowserFolders.cs" />
-    <Compile Include="FolderTreeView.cs" />
     <Compile Include="Hooks\MakerFolders.cs" />
     <Compile Include="Hooks\MakerHPoseIKFolders.cs" />
     <Compile Include="Hooks\MakerMapFolders.cs" />
@@ -102,15 +100,13 @@
     <Compile Include="Hooks\MakerPoseSFolders.cs" />
     <Compile Include="Hooks\MakerSceneFolders.cs" />
     <Compile Include="Hooks\OutfitFolders.cs" />
-    <Compile Include="IFolderBrowser.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SceneFolders.cs" />
-    <Compile Include="StudioCharaFolders.cs" />
-    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
