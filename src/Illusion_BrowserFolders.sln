@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AIHS2", "AIHS2", "{28447449
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KK", "KK", "{9067BD3D-B6BE-4462-8F81-E1D996C8E7DA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EC_BrowserFolders", "EC_BrowserFolders\EC_BrowserFolders.csproj", "{30773058-5A9C-43A2-9E43-CE8B0B77140C}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Common_AIHS2\Common_AIHS2.projitems*{206d2e71-0933-4b96-b74d-d07521eb58db}*SharedItemsImports = 4
@@ -61,6 +63,12 @@ Global
 		{206D2E71-0933-4B96-B74D-D07521EB58DB}.Hello|Any CPU.Build.0 = Release|Any CPU
 		{206D2E71-0933-4B96-B74D-D07521EB58DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{206D2E71-0933-4B96-B74D-D07521EB58DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30773058-5A9C-43A2-9E43-CE8B0B77140C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30773058-5A9C-43A2-9E43-CE8B0B77140C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30773058-5A9C-43A2-9E43-CE8B0B77140C}.Hello|Any CPU.ActiveCfg = Release|Any CPU
+		{30773058-5A9C-43A2-9E43-CE8B0B77140C}.Hello|Any CPU.Build.0 = Release|Any CPU
+		{30773058-5A9C-43A2-9E43-CE8B0B77140C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30773058-5A9C-43A2-9E43-CE8B0B77140C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
