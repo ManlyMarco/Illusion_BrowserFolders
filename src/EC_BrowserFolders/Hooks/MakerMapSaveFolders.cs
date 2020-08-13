@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace BrowserFolders.Hooks.EC
 {
-    public class MakerMapSFolders : IFolderBrowser
+    public class MakerMapSaveFolders : IFolderBrowser
     {
         private static MapSaveScene _mapSaveScene;
 
@@ -21,13 +21,13 @@ namespace BrowserFolders.Hooks.EC
         private static bool _refreshList;
         private static string _targetScene;
 
-        public MakerMapSFolders()
+        public MakerMapSaveFolders()
         {
             _folderTreeView =
                 new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            Harmony.CreateAndPatchAll(typeof(MakerMapSFolders));
+            Harmony.CreateAndPatchAll(typeof(MakerMapSaveFolders));
         }
 
         public void OnGui()
@@ -78,7 +78,7 @@ namespace BrowserFolders.Hooks.EC
                 {
                     //0x7E	ldsfld <field>	Push the value of the static field on the stack.
                     instruction.opcode = OpCodes.Ldsfld;
-                    instruction.operand = typeof(MakerMapSFolders).GetField(nameof(_currentRelativeFolder),
+                    instruction.operand = typeof(MakerMapSaveFolders).GetField(nameof(_currentRelativeFolder),
                                               BindingFlags.NonPublic | BindingFlags.Static) ??
                                           throw new MissingMethodException("could not find GetCurrentRelativeFolder");
                 }

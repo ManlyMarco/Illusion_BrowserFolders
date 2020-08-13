@@ -49,12 +49,6 @@ namespace BrowserFolders.Hooks.EC
             }
         }
 
-        //todo no need to modify save dir?
-        private static string DirectoryPathModifier(string currentDirectoryPath)
-        {
-            return _folderTreeView != null ? _folderTreeView.CurrentFolder : currentDirectoryPath;
-        }
-
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MapLoadScene), "Awake")]
         internal static void InitHook(MapLoadScene __instance)

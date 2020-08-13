@@ -17,22 +17,18 @@ namespace BrowserFolders
         internal static new ManualLogSource Logger { get; private set; }
 
         private IFolderBrowser _makerOutfitFolders;
-        private IFolderBrowser _outfitFolders;
         private IFolderBrowser _makerFolders;
         private IFolderBrowser _makerPoseFolders;
-        private IFolderBrowser _makerPoseSFolders;
+        private IFolderBrowser _makerPoseSaveFolders;
         private IFolderBrowser _makerMapFolders;
-        private IFolderBrowser _makerMapSFolders;
+        private IFolderBrowser _makerMapSaveFolders;
         private IFolderBrowser _makerSceneFolders;
         private IFolderBrowser _makerHPoseIKFolders;
 
         public static ConfigEntry<bool> EnableMakerOutfit { get; private set; }
-        public static ConfigEntry<bool> EnableOutfit { get; private set; }
-        public static ConfigEntry<bool> EnableMaker { get; private set; }
+        public static ConfigEntry<bool> EnableMakerChara { get; private set; }
         public static ConfigEntry<bool> EnableMakerPose { get; private set; }
-        public static ConfigEntry<bool> EnableMakerPoseS { get; private set; }
         public static ConfigEntry<bool> EnableMakerMap { get; private set; }
-        public static ConfigEntry<bool> EnableMakerMapS { get; private set; }
         public static ConfigEntry<bool> EnableMakerScene { get; private set; }
         public static ConfigEntry<bool> EnableMakerHPoseIK { get; private set; }
 
@@ -40,34 +36,37 @@ namespace BrowserFolders
         {
             Logger = base.Logger;
 
-            EnableMaker = Config.Bind("Main game", "Enable folder browser in maker", true, "Changes take effect on game restart");
-            EnableMakerOutfit = Config.Bind("Main game", "Enable folder browser in maker for outfits", true, "Changes take effect on game restart");
-            EnableMakerPose = Config.Bind("Main game", "Enable folder browser in maker for pose", true, "Changes take effect on game restart");
-            EnableMakerPoseS = Config.Bind("Main game", "Enable folder browser in maker for posesave", true, "Changes take effect on game restart");
-            EnableMakerMap = Config.Bind("Main game", "Enable folder browser in maker for map", true, "Changes take effect on game restart");
-            EnableMakerMapS = Config.Bind("Main game", "Enable folder browser in maker for mapsave", true, "Changes take effect on game restart");
-            EnableMakerScene = Config.Bind("Main game", "Enable folder browser in maker for scene", true, "Changes take effect on game restart");
-            EnableMakerHPoseIK = Config.Bind("Main game", "Enable folder browser in maker for hik", true, "Changes take effect on game restart");
+            const string settingGroup = "Enable folder browser for";
+            const string restartNote = "Changes take effect on game restart";
+            EnableMakerChara = Config.Bind(settingGroup, "Characters", true, restartNote);
+            EnableMakerOutfit = Config.Bind(settingGroup, "Outfits", true, restartNote);
+            EnableMakerPose = Config.Bind(settingGroup, "Poses", true, restartNote);
+            EnableMakerMap = Config.Bind(settingGroup, "Maps", true, restartNote);
+            EnableMakerScene = Config.Bind(settingGroup, "Scenes", true, restartNote);
+            EnableMakerHPoseIK = Config.Bind(settingGroup, "H Pose IK", true, restartNote);
 
-            if (EnableMaker.Value) _makerFolders = new MakerFolders();
+            if (EnableMakerChara.Value) _makerFolders = new MakerCharaFolders();
             if (EnableMakerOutfit.Value) _makerOutfitFolders = new MakerOutfitFolders();
-            if (EnableMakerPose.Value) _makerPoseFolders = new MakerPoseFolders();
-            if (EnableMakerPoseS.Value) _makerPoseSFolders = new MakerPoseSFolders();
-            if (EnableMakerMap.Value) _makerMapFolders = new MakerMapFolders();
-            if (EnableMakerMapS.Value) _makerMapSFolders = new MakerMapSFolders();
+            if (EnableMakerPose.Value) { _makerPoseFolders = new MakerPoseFolders(); _makerPoseSaveFolders = new MakerPoseSaveFolders(); }
+            if (EnableMakerMap.Value) { _makerMapFolders = new MakerMapFolders(); _makerMapSaveFolders = new MakerMapSaveFolders(); }
             if (EnableMakerScene.Value) _makerSceneFolders = new MakerSceneFolders();
             if (EnableMakerHPoseIK.Value) _makerHPoseIKFolders = new MakerHPoseIKFolders();
         }
 
-        internal void OnGUI()
+        private void OnGUI()
         {
             _makerFolders?.OnGui();
             _makerOutfitFolders?.OnGui();
-            _makerPoseFolders?.OnGui();
-            _makerPoseSFolders?.OnGui();
-            _makerMapFolders?.OnGui();
-            _makerMapSFolders?.OnGui();
-            _outfitFolders?.OnGui();
+            if (_makerPoseFolders != null)
+            {
+                _makerPoseFolders.OnGui();
+                _makerPoseSaveFolders.OnGui();
+            }
+            if (_makerMapFolders != null)
+            {
+                _makerMapFolders.OnGui();
+                _makerMapSaveFolders.OnGui();
+            }
             _makerSceneFolders?.OnGui();
             _makerHPoseIKFolders?.OnGui();
         }

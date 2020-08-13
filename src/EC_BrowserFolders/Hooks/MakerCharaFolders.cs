@@ -13,7 +13,7 @@ using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.EC
 {
-    public class MakerFolders : IFolderBrowser
+    public class MakerCharaFolders : IFolderBrowser
     {
         private static Toggle _catToggle;
         private static CustomCharaFile _customCharaFile;
@@ -26,13 +26,13 @@ namespace BrowserFolders.Hooks.EC
         private static bool _refreshList;
         private static string _targetScene;
 
-        public MakerFolders()
+        public MakerCharaFolders()
         {
             _folderTreeView =
                 new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            Harmony.CreateAndPatchAll(typeof(MakerFolders));
+            Harmony.CreateAndPatchAll(typeof(MakerCharaFolders));
             MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
         }
 
@@ -100,7 +100,7 @@ namespace BrowserFolders.Hooks.EC
                 {
                     //0x7E	ldsfld <field>	Push the value of the static field on the stack.
                     instruction.opcode = OpCodes.Ldsfld;
-                    instruction.operand = typeof(MakerFolders).GetField(nameof(_currentRelativeFolder),
+                    instruction.operand = typeof(MakerCharaFolders).GetField(nameof(_currentRelativeFolder),
                                               BindingFlags.NonPublic | BindingFlags.Static) ??
                                           throw new MissingMethodException("could not find GetCurrentRelativeFolder");
                 }
