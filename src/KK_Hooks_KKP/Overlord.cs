@@ -18,7 +18,7 @@ namespace BrowserFolders.Hooks.KKP
             if (_wasInit) return;
             _wasInit = true;
 
-            HarmonyWrapper.PatchAll(typeof(Overlord));
+            Harmony.CreateAndPatchAll(typeof(Overlord));
         }
 
         [HarmonyPrefix]

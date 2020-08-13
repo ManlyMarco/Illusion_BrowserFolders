@@ -6,6 +6,7 @@ using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using Common;
 using KKAPI;
 using UnityEngine;
 
@@ -15,8 +16,8 @@ namespace BrowserFolders
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
     public class KK_BrowserFolders : BaseUnityPlugin
     {
-        public const string Guid = "marco.FolderBrowser";
-        public const string Version = "2.1";
+        public const string Guid = Constants.Guid;
+        public const string Version = Constants.Version;
 
         internal static new ManualLogSource Logger { get; private set; }
 

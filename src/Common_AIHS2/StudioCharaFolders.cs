@@ -18,7 +18,7 @@ namespace BrowserFolders
 
         public StudioCharaFolders()
         {
-            HarmonyWrapper.PatchAll(typeof(StudioCharaFolders));
+            Harmony.CreateAndPatchAll(typeof(StudioCharaFolders));
         }
 
         public void OnGui()
