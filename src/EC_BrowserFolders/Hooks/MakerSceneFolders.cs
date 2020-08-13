@@ -9,7 +9,7 @@ using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.EC
+namespace BrowserFolders.Hooks
 {
     public class MakerSceneFolders : IFolderBrowser
     {

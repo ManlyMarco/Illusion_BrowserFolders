@@ -11,7 +11,7 @@ using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BrowserFolders.Hooks.EC
+namespace BrowserFolders.Hooks
 {
     public class MakerCharaFolders : IFolderBrowser
     {

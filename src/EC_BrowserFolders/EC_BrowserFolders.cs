@@ -1,7 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using BrowserFolders.Hooks.EC;
+using BrowserFolders.Hooks;
 using Common;
 using KKAPI;
 

@@ -9,7 +9,7 @@ using Manager;
 using Pose;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.EC
+namespace BrowserFolders.Hooks
 {
     public class MakerPoseSaveFolders : IFolderBrowser
     {
