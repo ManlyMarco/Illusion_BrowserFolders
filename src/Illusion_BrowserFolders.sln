@@ -21,10 +21,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KK", "KK", "{9067BD3D-B6BE-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EC_BrowserFolders", "EC_BrowserFolders\EC_BrowserFolders.csproj", "{30773058-5A9C-43A2-9E43-CE8B0B77140C}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{9303FD5B-13ED-4BBE-9625-B1EAF4287802}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Common\Common.projitems*{206d2e71-0933-4b96-b74d-d07521eb58db}*SharedItemsImports = 4
 		Common_AIHS2\Common_AIHS2.projitems*{206d2e71-0933-4b96-b74d-d07521eb58db}*SharedItemsImports = 4
+		Common\Common.projitems*{74c2db86-55bb-47b4-9805-51b5b992ef35}*SharedItemsImports = 4
+		Common\Common.projitems*{9303fd5b-13ed-4bbe-9625-b1eaf4287802}*SharedItemsImports = 13
 		Common_AIHS2\Common_AIHS2.projitems*{9808ef6d-057e-46e4-99ac-f7bbf2c5a057}*SharedItemsImports = 13
+		Common\Common.projitems*{ebd219d5-7a7a-4a9b-bae6-460ec5cf8c43}*SharedItemsImports = 4
 		Common_AIHS2\Common_AIHS2.projitems*{ebd219d5-7a7a-4a9b-bae6-460ec5cf8c43}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

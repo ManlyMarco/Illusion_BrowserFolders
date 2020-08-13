@@ -32,7 +32,7 @@ namespace BrowserFolders
             _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath);
             _folderTreeView.CurrentFolderChanged = RefreshCurrentWindow;
 
-            HarmonyWrapper.PatchAll(typeof(MakerFolders));
+            Harmony.CreateAndPatchAll(typeof(MakerFolders));
             MakerCardSave.RegisterNewCardSavePathModifier(CardSavePathModifier, null);
         }
 

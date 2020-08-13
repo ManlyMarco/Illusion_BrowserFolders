@@ -18,7 +18,7 @@ namespace BrowserFolders.Hooks.KK
 
         public StudioCharaFolders()
         {
-            HarmonyWrapper.PatchAll(typeof(StudioCharaFolders));
+            Harmony.CreateAndPatchAll(typeof(StudioCharaFolders));
         }
 
         public void OnGui()
@@ -34,7 +34,7 @@ namespace BrowserFolders.Hooks.KK
             var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f), (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
             IMGUIUtils.DrawSolidBox(windowRect);
             GUILayout.Window(363, windowRect, id => TreeWindow(entry), "Select folder with cards to view");
-            Utils.EatInputInRect(windowRect);
+            IMGUIUtils.EatInputInRect(windowRect);
         }
 
         [HarmonyPostfix]

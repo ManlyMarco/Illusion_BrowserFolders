@@ -26,7 +26,7 @@ namespace BrowserFolders.Hooks.KKP
 
             Overlord.Init();
 
-            HarmonyWrapper.PatchAll(typeof(ClassroomFolders));
+            Harmony.CreateAndPatchAll(typeof(ClassroomFolders));
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace BrowserFolders.Hooks.KKP
                 var screenRect = GetFullscreenBrowserRect();
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-                Utils.EatInputInRect(screenRect);
+                IMGUIUtils.EatInputInRect(screenRect);
             }
             else
             {

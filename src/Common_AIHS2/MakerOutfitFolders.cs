@@ -29,7 +29,7 @@ namespace BrowserFolders
             _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath);
             _folderTreeView.CurrentFolderChanged = RefreshCurrentWindow;
 
-            HarmonyWrapper.PatchAll(typeof(MakerOutfitFolders));
+            Harmony.CreateAndPatchAll(typeof(MakerOutfitFolders));
         }
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ChaFileCoordinate), "SaveFile")]

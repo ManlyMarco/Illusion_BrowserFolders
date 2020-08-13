@@ -25,7 +25,7 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/male/"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyWrapper.PatchAll(typeof(NewGameFolders));
+            Harmony.CreateAndPatchAll(typeof(NewGameFolders));
         }
 
         [HarmonyPrefix]
@@ -63,7 +63,7 @@ namespace BrowserFolders.Hooks.KK
                 var screenRect = GetFullscreenBrowserRect();
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-                Utils.EatInputInRect(screenRect);
+                IMGUIUtils.EatInputInRect(screenRect);
             }
             else
             {

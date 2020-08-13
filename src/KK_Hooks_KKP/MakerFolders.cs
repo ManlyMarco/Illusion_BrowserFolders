@@ -30,7 +30,7 @@ namespace BrowserFolders.Hooks.KKP
             _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyWrapper.PatchAll(typeof(MakerFolders));
+            Harmony.CreateAndPatchAll(typeof(MakerFolders));
 
             MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
 
@@ -85,7 +85,7 @@ namespace BrowserFolders.Hooks.KKP
                         var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                         IMGUIUtils.DrawSolidBox(screenRect);
                         GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-                        Utils.EatInputInRect(screenRect);
+                        IMGUIUtils.EatInputInRect(screenRect);
                         guiShown = true;
                     }
                 }

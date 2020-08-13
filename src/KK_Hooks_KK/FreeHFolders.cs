@@ -30,7 +30,7 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyWrapper.PatchAll(typeof(FreeHFolders));
+            Harmony.CreateAndPatchAll(typeof(FreeHFolders));
         }
 
         [HarmonyPrefix]
@@ -124,7 +124,7 @@ namespace BrowserFolders.Hooks.KK
                 var screenRect = ClassroomFolders.GetFullscreenBrowserRect();
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-                Utils.EatInputInRect(screenRect);
+                IMGUIUtils.EatInputInRect(screenRect);
             }
             else
             {

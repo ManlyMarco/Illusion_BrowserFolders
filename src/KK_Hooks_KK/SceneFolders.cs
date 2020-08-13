@@ -22,7 +22,7 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), @"studio\scene"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyWrapper.PatchAll(typeof(SceneFolders));
+            Harmony.CreateAndPatchAll(typeof(SceneFolders));
         }
 
         public void OnGui()
@@ -32,7 +32,7 @@ namespace BrowserFolders.Hooks.KK
                 var screenRect = new Rect((int)(Screen.width / 11.3f), (int)(Screen.height / 90f), (int)(Screen.width / 2.5f), (int)(Screen.height / 5f));
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select folder with scenes to view");
-                Utils.EatInputInRect(screenRect);
+                IMGUIUtils.EatInputInRect(screenRect);
             }
             else
             {

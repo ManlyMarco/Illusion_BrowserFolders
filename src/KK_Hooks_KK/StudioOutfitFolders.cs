@@ -44,7 +44,7 @@ namespace BrowserFolders.Hooks.KK
                         (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
                     IMGUIUtils.DrawSolidBox(windowRect);
                     GUILayout.Window(363, windowRect, id => TreeWindow(), "Folder with outfits to view");
-                    Utils.EatInputInRect(windowRect);
+                    IMGUIUtils.EatInputInRect(windowRect);
                 }
                 else
                 {

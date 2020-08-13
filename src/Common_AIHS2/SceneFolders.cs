@@ -22,7 +22,7 @@ namespace BrowserFolders
             _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, Path.Combine(AI_BrowserFolders.UserDataPath, @"studio\scene"));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
-            HarmonyWrapper.PatchAll(typeof(SceneFolders));
+            Harmony.CreateAndPatchAll(typeof(SceneFolders));
         }
 
         public void OnGui()

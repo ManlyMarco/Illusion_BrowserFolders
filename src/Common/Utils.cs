@@ -5,19 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using UnityEngine;
 
 namespace BrowserFolders
 {
     public static class Utils
     {
-        // todo use version in kkapi
-        public static void EatInputInRect(Rect eatRect)
-        {
-            if (eatRect.Contains(new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y)))
-                Input.ResetInputAxes();
-        }
-
         public static string NormalizePath(string path)
         {
             return Path.GetFullPath(path).Replace('/', '\\').TrimEnd('\\').ToLower();
@@ -30,7 +22,7 @@ namespace BrowserFolders
             catch { return Enumerable.Empty<Type>(); }
         }
 
-        public static IEnumerable<T2> Attempt<T, T2>(this IEnumerable<T> items, Func<T,T2> action)
+        public static IEnumerable<T2> Attempt<T, T2>(this IEnumerable<T> items, Func<T, T2> action)
         {
             foreach (var item in items)
             {
@@ -55,8 +47,16 @@ namespace BrowserFolders
             }
             catch (Exception e)
             {
+#if KK
                 KK_BrowserFolders.Logger.LogError(e);
                 KK_BrowserFolders.Logger.LogMessage("Failed to open the folder - " + e.Message);
+#elif EC
+                EC_BrowserFolders.Logger.LogError(e);
+                EC_BrowserFolders.Logger.LogMessage("Failed to open the folder - " + e.Message);
+#else
+                AI_BrowserFolders.Logger.LogError(e);
+                AI_BrowserFolders.Logger.LogMessage("Failed to open the folder - " + e.Message);
+#endif
             }
         }
 
