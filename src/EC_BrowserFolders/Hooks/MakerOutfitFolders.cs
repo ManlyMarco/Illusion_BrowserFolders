@@ -20,7 +20,6 @@ namespace BrowserFolders.Hooks.EC
         private static Toggle _saveOutfitToggle;
         private static Toggle _loadOutfitToggle;
         private static GameObject _saveFront;
-        private static ChaFileCoordinate _ChaFileCoordinate;
 
         private static string _currentRelativeFolder;
         private static bool _refreshList;
@@ -28,36 +27,29 @@ namespace BrowserFolders.Hooks.EC
 
         public MakerOutfitFolders()
         {
-            _folderTreeView =
-                new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
 
             Harmony.CreateAndPatchAll(typeof(MakerOutfitFolders));
-            //MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
         }
 
         public void OnGui()
         {
-            // Check the opened category
-            if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.Instance.AddSceneName)
-                // Check opened tab
-                if (_saveOutfitToggle != null && _saveOutfitToggle.isOn ||
-                    _loadOutfitToggle != null && _loadOutfitToggle.isOn)
-                    // Check if the character picture take screen is displayed
-                    if (_saveFront == null || !_saveFront.activeSelf)
-                    {
-                        if (_refreshList)
-                        {
-                            OnFolderChanged();
-                            _refreshList = false;
-                        }
+            if (_catToggle == null || !_catToggle.isOn || _targetScene != Scene.Instance.AddSceneName) return;
+            if ((_saveOutfitToggle == null || !_saveOutfitToggle.isOn) && (_loadOutfitToggle == null || !_loadOutfitToggle.isOn)) return;
+            if (_saveFront != null && _saveFront.activeSelf) return;
 
-                        var screenRect = new Rect((int) (Screen.width * 0.004), (int) (Screen.height * 0.57f),
-                            (int) (Screen.width * 0.125), (int) (Screen.height * 0.35));
-                        IMGUIUtils.DrawSolidBox(screenRect);
-                        GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
-                        IMGUIUtils.EatInputInRect(screenRect);
-                    }
+            if (_refreshList)
+            {
+                OnFolderChanged();
+                _refreshList = false;
+            }
+
+            var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f),
+                (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
+            IMGUIUtils.DrawSolidBox(screenRect);
+            GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
+            IMGUIUtils.EatInputInRect(screenRect);
         }
 
         private static string DirectoryPathModifier(string currentDirectoryPath)
@@ -106,13 +98,6 @@ namespace BrowserFolders.Hooks.EC
             }
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ChaFileCoordinate), "SaveFile")]
-        internal static void SaveFilePatch1(ChaFileCoordinate _ChaFileCoordinate)
-        {
-            Traverse.Create("ConvertChaFileScene").Method("Convert").GetValue();
-        }
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ChaFileCoordinate), "SaveFile")]
         internal static void SaveFilePatch(ref string path)
@@ -130,9 +115,7 @@ namespace BrowserFolders.Hooks.EC
 
             if (_customCoordinateFile == null) return;
 
-            if (_saveOutfitToggle != null && _saveOutfitToggle.isOn ||
-                _loadOutfitToggle != null && _loadOutfitToggle.isOn)
-                // private bool Initialize()                
+            if (_saveOutfitToggle != null && _saveOutfitToggle.isOn || _loadOutfitToggle != null && _loadOutfitToggle.isOn)
                 Traverse.Create(_customCoordinateFile).Method("Initialize").GetValue();
         }
 

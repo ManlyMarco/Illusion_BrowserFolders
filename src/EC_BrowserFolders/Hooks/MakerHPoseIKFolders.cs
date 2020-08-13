@@ -13,15 +13,13 @@ namespace BrowserFolders.Hooks.EC
 {
     public class MakerHPoseIKFolders : IFolderBrowser
     {
-        private static MotionIKUI _MotionIKUI;
+        private static MotionIKUI _motionIKUI;
+        private static string _targetScene;
 
         private static FolderTreeView _folderTreeView;
 
-        private static GameObject _loadikToggle;
-
         private static string _currentRelativeFolder;
         private static bool _refreshList;
-        private static string _targetScene;
 
         public MakerHPoseIKFolders()
         {
@@ -34,20 +32,19 @@ namespace BrowserFolders.Hooks.EC
 
         public void OnGui()
         {
-            // Check the opened category
-
-            if (_MotionIKUI != null)
+            if (_motionIKUI != null && _targetScene == Scene.Instance.AddSceneName)
             {
                 if (_refreshList) _refreshList = false;
 
-                var screenRect = new Rect((int) (Screen.width * 0.004), (int) (Screen.height * 0.57f),
-                    (int) (Screen.width * 0.125), (int) (Screen.height * 0.35));
+                var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f),
+                    (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select hik folder");
                 IMGUIUtils.EatInputInRect(screenRect);
             }
         }
 
+        //todo no need to modify save dir?
         private static string DirectoryPathModifier(string currentDirectoryPath)
         {
             return _folderTreeView != null ? _folderTreeView.CurrentFolder : currentDirectoryPath;
@@ -56,15 +53,11 @@ namespace BrowserFolders.Hooks.EC
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MotionIKUI), "Start")]
         internal static void InitHook(MotionIKUI __instance)
-
         {
             _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), "edit/ik");
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
-            _MotionIKUI = __instance;
-
-            _loadikToggle = GameObject.Find("HEditIndividualLoadWindow");
-
+            _motionIKUI = __instance;
             _targetScene = Scene.Instance.AddSceneName;
         }
 
@@ -82,34 +75,21 @@ namespace BrowserFolders.Hooks.EC
                     instruction.operand = typeof(MakerHPoseIKFolders).GetField(nameof(_currentRelativeFolder),
                                               BindingFlags.NonPublic | BindingFlags.Static) ??
                                           throw new MissingMethodException("could not find GetCurrentRelativeFolder");
-                    ;
                 }
 
                 yield return instruction;
             }
         }
 
-        internal static Rect GetFullscreenBrowserRect()
-        {
-            return new Rect((int) (Screen.width * 0.015), (int) (Screen.height * 0.35f), (int) (Screen.width * 0.16),
-                (int) (Screen.height * 0.4));
-        }
-
         private static void OnFolderChanged()
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 
-            if (_MotionIKUI == null) return;
+            if (_motionIKUI == null) return;
 
-            var ccf = Traverse.Create(_MotionIKUI);
+            var ccf = Traverse.Create(_motionIKUI);
 
             ccf.Method("Init").GetValue();
-
-            // private bool Initialize()
-
-            // Fix add info toggle breaking
-
-            // Fix add info toggle breaking
         }
 
         private static void TreeWindow(int id)
@@ -117,7 +97,7 @@ namespace BrowserFolders.Hooks.EC
             GUILayout.BeginVertical();
             {
                 _folderTreeView.DrawDirectoryTree();
-                Debug.Log(_folderTreeView);
+
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
                     if (GUILayout.Button("Refresh thumbnails"))

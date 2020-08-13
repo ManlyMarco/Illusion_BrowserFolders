@@ -16,7 +16,6 @@ namespace BrowserFolders
 
         internal static new ManualLogSource Logger { get; private set; }
 
-
         private IFolderBrowser _makerOutfitFolders;
         private IFolderBrowser _outfitFolders;
         private IFolderBrowser _makerFolders;
@@ -43,7 +42,6 @@ namespace BrowserFolders
 
             EnableMaker = Config.Bind("Main game", "Enable folder browser in maker", true, "Changes take effect on game restart");
             EnableMakerOutfit = Config.Bind("Main game", "Enable folder browser in maker for outfits", true, "Changes take effect on game restart");
-            EnableOutfit = Config.Bind("Main game", "Enable folder browser in maker for scene outfits", true, "Changes take effect on game restart");
             EnableMakerPose = Config.Bind("Main game", "Enable folder browser in maker for pose", true, "Changes take effect on game restart");
             EnableMakerPoseS = Config.Bind("Main game", "Enable folder browser in maker for posesave", true, "Changes take effect on game restart");
             EnableMakerMap = Config.Bind("Main game", "Enable folder browser in maker for map", true, "Changes take effect on game restart");
@@ -53,7 +51,6 @@ namespace BrowserFolders
 
             if (EnableMaker.Value) _makerFolders = new MakerFolders();
             if (EnableMakerOutfit.Value) _makerOutfitFolders = new MakerOutfitFolders();
-            if (EnableOutfit.Value) _outfitFolders = new OutfitFolders();
             if (EnableMakerPose.Value) _makerPoseFolders = new MakerPoseFolders();
             if (EnableMakerPoseS.Value) _makerPoseSFolders = new MakerPoseSFolders();
             if (EnableMakerMap.Value) _makerMapFolders = new MakerMapFolders();

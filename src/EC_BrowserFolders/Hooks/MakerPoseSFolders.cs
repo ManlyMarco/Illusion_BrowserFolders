@@ -41,8 +41,8 @@ namespace BrowserFolders.Hooks.EC
                     _refreshList = false;
                 }
 
-                var screenRect = new Rect((int) (Screen.width * 0.004), (int) (Screen.height * 0.55f),
-                    (int) (Screen.width * 0.125), (int) (Screen.height * 0.35));
+                var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.55f),
+                    (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select pose folder");
                 IMGUIUtils.EatInputInRect(screenRect);
@@ -57,7 +57,6 @@ namespace BrowserFolders.Hooks.EC
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PoseSaveScene), "Awake")]
         internal static void InitHook(PoseSaveScene __instance)
-
         {
             _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), "pose/data");
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
@@ -81,7 +80,6 @@ namespace BrowserFolders.Hooks.EC
                     instruction.operand = typeof(MakerPoseSFolders).GetField(nameof(_currentRelativeFolder),
                                               BindingFlags.NonPublic | BindingFlags.Static) ??
                                           throw new MissingMethodException("could not find GetCurrentRelativeFolder");
-                    ;
                 }
 
                 yield return instruction;
@@ -99,12 +97,6 @@ namespace BrowserFolders.Hooks.EC
             _refreshList = true;
         }
 
-        internal static Rect GetFullscreenBrowserRect()
-        {
-            return new Rect((int) (Screen.width * 0.015), (int) (Screen.height * 0.35f), (int) (Screen.width * 0.16),
-                (int) (Screen.height * 0.4));
-        }
-
         private static void OnFolderChanged()
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
@@ -115,12 +107,6 @@ namespace BrowserFolders.Hooks.EC
 
             ccf.Method("CreateList").GetValue();
             ccf.Method("RecreateScrollerList").GetValue();
-
-            // private bool Initialize()
-
-            // Fix add info toggle breaking
-
-            // Fix add info toggle breaking
         }
 
         private static void TreeWindow(int id)
@@ -128,7 +114,7 @@ namespace BrowserFolders.Hooks.EC
             GUILayout.BeginVertical();
             {
                 _folderTreeView.DrawDirectoryTree();
-                Debug.Log(_folderTreeView);
+
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
                     if (GUILayout.Button("Refresh thumbnails"))

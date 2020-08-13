@@ -103,7 +103,6 @@ namespace BrowserFolders.Hooks.EC
                     instruction.operand = typeof(MakerFolders).GetField(nameof(_currentRelativeFolder),
                                               BindingFlags.NonPublic | BindingFlags.Static) ??
                                           throw new MissingMethodException("could not find GetCurrentRelativeFolder");
-                    ;
                 }
 
                 yield return instruction;
@@ -118,7 +117,6 @@ namespace BrowserFolders.Hooks.EC
 
             if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
             {
-                // private bool Initialize()
                 var ccf = Traverse.Create(_customCharaFile);
                 ccf.Method("Initialize").GetValue();
 
@@ -137,7 +135,7 @@ namespace BrowserFolders.Hooks.EC
             GUILayout.BeginVertical();
             {
                 _folderTreeView.DrawDirectoryTree();
-                Debug.Log(_folderTreeView);
+
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
                     if (GUILayout.Button("Refresh thumbnails"))

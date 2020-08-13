@@ -49,6 +49,7 @@ namespace BrowserFolders.Hooks.EC
             }
         }
 
+        //todo no need to modify save dir?
         private static string DirectoryPathModifier(string currentDirectoryPath)
         {
             return _folderTreeView != null ? _folderTreeView.CurrentFolder : currentDirectoryPath;
@@ -81,17 +82,10 @@ namespace BrowserFolders.Hooks.EC
                     instruction.operand = typeof(MakerPoseFolders).GetField(nameof(_currentRelativeFolder),
                                               BindingFlags.NonPublic | BindingFlags.Static) ??
                                           throw new MissingMethodException("could not find GetCurrentRelativeFolder");
-                    ;
                 }
 
                 yield return instruction;
             }
-        }
-
-        internal static Rect GetFullscreenBrowserRect()
-        {
-            return new Rect((int) (Screen.width * 0.015), (int) (Screen.height * 0.35f), (int) (Screen.width * 0.16),
-                (int) (Screen.height * 0.4));
         }
 
         private static void OnFolderChanged()
@@ -104,12 +98,6 @@ namespace BrowserFolders.Hooks.EC
 
             ccf.Method("CreateList").GetValue();
             ccf.Method("RecreateScrollerList").GetValue();
-
-            // private bool Initialize()
-
-            // Fix add info toggle breaking
-
-            // Fix add info toggle breaking
         }
 
         private static void TreeWindow(int id)
@@ -117,7 +105,7 @@ namespace BrowserFolders.Hooks.EC
             GUILayout.BeginVertical();
             {
                 _folderTreeView.DrawDirectoryTree();
-                Debug.Log(_folderTreeView);
+
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
                     if (GUILayout.Button("Refresh thumbnails"))
