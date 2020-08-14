@@ -8,7 +8,10 @@ namespace BrowserFolders
     public class FolderTreeView
     {
         private bool _scrollTreeToSelected;
+        private int _lastRefreshed = 0;
+        private int _refreshRequested = 0;
         private FileSystemWatcher _fileSystemWatcher;
+        
 
         public void ScrollListToSelected()
         {
@@ -102,7 +105,7 @@ namespace BrowserFolders
 
         private void HandleFileSystemEvent(object sender, FileSystemEventArgs e)
         {
-            ResetTreeCache();
+            ResetTreeCache(false);
         }
 
         public void StopMonitoringFiles()
@@ -120,19 +123,39 @@ namespace BrowserFolders
                 _fileSystemWatcher = null;
             }
         }
-        public void ResetTreeCache()
+        public void ResetTreeCache(bool force=true)
         {
-            DefaultPathTree.Reset();
+            _refreshRequested = Time.frameCount + 1;
+            if (force) _lastRefreshed = 0;
         }
+
+        private void UpdateTreeCache()
+        {
+            if (_lastRefreshed != 0 &&
+                (_refreshRequested <= _lastRefreshed || _refreshRequested >= Time.frameCount)) return;
+            DefaultPathTree.Reset();
+            _lastRefreshed = Time.frameCount;
+        } 
         
         private void ExpandToCurrentFolder()
         {
             if (!Directory.Exists(CurrentFolder))
             {
-                // folder deleted out from under us, go back to the top.
+                // folder deleted out from under us, refresh immediately and go up to first existing parent
                 ResetTreeCache();
-                CurrentFolder = DefaultPath;
+                var parent = CurrentFolder;
+                try
+                {
+                    while (!Directory.Exists(parent)) parent = Path.GetDirectoryName(parent);
+                    CurrentFolder = parent;
+                }
+                catch
+                {
+                    CurrentFolder = DefaultPath;
+                }
             }
+
+            UpdateTreeCache();
 
             var path = CurrentFolder;
             var defaultPath = DefaultPath;
