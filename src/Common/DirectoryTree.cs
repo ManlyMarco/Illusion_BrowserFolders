@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using KKAPI.Utilities;
+using System.Security;
 
 namespace BrowserFolders
 {
@@ -25,10 +27,20 @@ namespace BrowserFolders
             get
             {
                 if (_subDirs == null)
-                    _subDirs = Info.GetDirectories()
-                        .OrderBy(x => x.Name, new WindowsStringComparer())
-                        .Select(x => new DirectoryTree(x))
-                        .ToList();
+                {
+                    try
+                    {
+                        _subDirs = Info.GetDirectories()
+                            .OrderBy(x => x.Name, new WindowsStringComparer())
+                            .Select(x => new DirectoryTree(x))
+                            .ToList();
+                    }
+                    catch (DirectoryNotFoundException) { }
+                    catch (SecurityException) { }
+                    catch (UnauthorizedAccessException) { }
+
+                    if (_subDirs == null) _subDirs = new List<DirectoryTree>();
+                }
 
                 return _subDirs;
             }
