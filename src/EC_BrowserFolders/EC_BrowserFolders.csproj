@@ -78,7 +78,7 @@
   <ItemGroup>
     <Compile Include="EC_BrowserFolders.cs" />
     <Compile Include="Hooks\MakerCharaFolders.cs" />
-    <Compile Include="Hooks\MakerHPoseIKFolders.cs" />
+    <None Include="Hooks\MakerHPoseIKFolders.cs" />
     <Compile Include="Hooks\MakerMapFolders.cs" />
     <Compile Include="Hooks\MakerMapSaveFolders.cs" />
     <Compile Include="Hooks\MakerOutfitFolders.cs" />

@@ -23,14 +23,14 @@ namespace BrowserFolders
         private IFolderBrowser _makerMapFolders;
         private IFolderBrowser _makerMapSaveFolders;
         private IFolderBrowser _makerSceneFolders;
-        private IFolderBrowser _makerHPoseIKFolders;
+        //private IFolderBrowser _makerHPoseIKFolders;
 
         public static ConfigEntry<bool> EnableMakerOutfit { get; private set; }
         public static ConfigEntry<bool> EnableMakerChara { get; private set; }
         public static ConfigEntry<bool> EnableMakerPose { get; private set; }
         public static ConfigEntry<bool> EnableMakerMap { get; private set; }
         public static ConfigEntry<bool> EnableMakerScene { get; private set; }
-        public static ConfigEntry<bool> EnableMakerHPoseIK { get; private set; }
+        //public static ConfigEntry<bool> EnableMakerHPoseIK { get; private set; }
 
         private void Awake()
         {
@@ -43,14 +43,14 @@ namespace BrowserFolders
             EnableMakerPose = Config.Bind(settingGroup, "Poses", true, restartNote);
             EnableMakerMap = Config.Bind(settingGroup, "Maps", true, restartNote);
             EnableMakerScene = Config.Bind(settingGroup, "Scenes", true, restartNote);
-            EnableMakerHPoseIK = Config.Bind(settingGroup, "H Pose IK", true, restartNote);
+            //EnableMakerHPoseIK = Config.Bind(settingGroup, "H Pose IK", true, restartNote);
 
             if (EnableMakerChara.Value) _makerFolders = new MakerCharaFolders();
             if (EnableMakerOutfit.Value) _makerOutfitFolders = new MakerOutfitFolders();
             if (EnableMakerPose.Value) { _makerPoseFolders = new MakerPoseFolders(); _makerPoseSaveFolders = new MakerPoseSaveFolders(); }
             if (EnableMakerMap.Value) { _makerMapFolders = new MakerMapFolders(); _makerMapSaveFolders = new MakerMapSaveFolders(); }
             if (EnableMakerScene.Value) _makerSceneFolders = new MakerSceneFolders();
-            if (EnableMakerHPoseIK.Value) _makerHPoseIKFolders = new MakerHPoseIKFolders();
+            //if (EnableMakerHPoseIK.Value) _makerHPoseIKFolders = new MakerHPoseIKFolders();
         }
 
         private void OnGUI()
@@ -68,7 +68,7 @@ namespace BrowserFolders
                 _makerMapSaveFolders.OnGui();
             }
             _makerSceneFolders?.OnGui();
-            _makerHPoseIKFolders?.OnGui();
+            //_makerHPoseIKFolders?.OnGui();
         }
     }
 }
