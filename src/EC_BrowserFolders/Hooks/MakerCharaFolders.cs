@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using ChaCustom;
@@ -53,8 +54,8 @@ namespace BrowserFolders.Hooks
                             _refreshList = false;
                         }
 
-                        var screenRect = new Rect((int) (Screen.width * 0.004), (int) (Screen.height * 0.57f),
-                            (int) (Screen.width * 0.125), (int) (Screen.height * 0.35));
+                        var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f),
+                            (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                         IMGUIUtils.DrawSolidBox(screenRect);
                         GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                         IMGUIUtils.EatInputInRect(screenRect);
@@ -115,13 +116,27 @@ namespace BrowserFolders.Hooks
 
             if (_customCharaFile == null) return;
 
-            if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
+            var isLoad = _loadCharaToggle != null && _loadCharaToggle.isOn;
+            var isSave = _saveCharaToggle != null && _saveCharaToggle.isOn;
+            if (isLoad || isSave)
             {
-                var ccf = Traverse.Create(_customCharaFile);
-                ccf.Method("Initialize").GetValue();
+                var ccfTrav = Traverse.Create(_customCharaFile);
+                ccfTrav.Method("Initialize").GetValue();
+
+                // Fix default cards being shown when refreshing in this way
+                var lctrlTrav = ccfTrav.Field("listCtrl");
+                if (isSave)
+                {
+                    var lst = lctrlTrav.Field("lstFileInfo").GetValue<List<CustomFileInfo>>();
+                    foreach (var customFileInfo in lst.Where(x => x.category != 1)) customFileInfo.fic.Disvisible(true);
+                }
+                else
+                {
+                    lctrlTrav.Method("UpdateCategory").GetValue();
+                }
 
                 // Fix add info toggle breaking
-                var tglField = ccf.Field("listCtrl").Field("tglAddInfo");
+                var tglField = lctrlTrav.Field("tglAddInfo");
                 if (tglField.FieldExists())
                 {
                     var tglInfo = tglField.GetValue<Toggle>();

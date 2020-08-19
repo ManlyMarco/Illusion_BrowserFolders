@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using ChaCustom;
@@ -129,8 +130,27 @@ namespace BrowserFolders.Hooks
 
             if (_customCoordinateFile == null) return;
 
-            if (_saveOutfitToggle != null && _saveOutfitToggle.isOn || _loadOutfitToggle != null && _loadOutfitToggle.isOn)
-                Traverse.Create(_customCoordinateFile).Method("Initialize").GetValue();
+            var isLoad = _loadOutfitToggle != null && _loadOutfitToggle.isOn;
+            var isSave = _saveOutfitToggle != null && _saveOutfitToggle.isOn;
+            if (isLoad || isSave)
+            {
+                var ccfTrav = Traverse.Create(_customCoordinateFile);
+                ccfTrav.Method("Initialize").GetValue();
+
+                // Fix default cards being shown when refreshing in this way
+                var lctrlTrav = ccfTrav.Field("listCtrl");
+                if (isSave)
+                {
+                    var lst = lctrlTrav.Field("lstFileInfo").GetValue<List<CustomFileInfo>>();
+                    var dis = lctrlTrav.Field("cfWindow").Field("forceHideCategoryNo").GetValue<int>();
+                    if (dis != -1)
+                        foreach (var customFileInfo in lst.Where(x => x.category == dis)) customFileInfo.fic.Disvisible(true);
+                }
+                else
+                {
+                    lctrlTrav.Method("UpdateCategory").GetValue();
+                }
+            }
         }
 
         private static void TreeWindow(int id)
