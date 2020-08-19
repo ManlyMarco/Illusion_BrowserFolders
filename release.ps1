@@ -5,7 +5,7 @@ else {
     $dir = $PSScriptRoot + "\bin\"
 }
 
-$array = @("KK", "AI", "HS2")
+$array = @("KK", "AI", "HS2", "EC")
 
 $copy = $dir + "\copy\BepInEx" 
 

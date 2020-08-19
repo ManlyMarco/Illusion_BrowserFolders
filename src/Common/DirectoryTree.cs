@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using KKAPI.Utilities;
 using System.Security;
 
 namespace BrowserFolders
@@ -30,7 +31,7 @@ namespace BrowserFolders
                     try
                     {
                         _subDirs = Info.GetDirectories()
-                            .OrderBy(x => x.Name, new Utils.WindowsStringComparer())
+                            .OrderBy(x => x.Name, new WindowsStringComparer())
                             .Select(x => new DirectoryTree(x))
                             .ToList();
                     }
