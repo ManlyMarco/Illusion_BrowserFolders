@@ -33,11 +33,23 @@ namespace BrowserFolders.Hooks
             Harmony.CreateAndPatchAll(typeof(MakerOutfitFolders));
         }
 
+        private static bool IsVisible()
+        {
+            if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.Instance.AddSceneName)
+            {
+                if (_saveOutfitToggle != null && _saveOutfitToggle.isOn ||
+                    _loadOutfitToggle != null && _loadOutfitToggle.isOn)
+                {
+                    if (_saveFront == null || !_saveFront.activeSelf)
+                        return true;
+                }
+            }
+            return false;
+        }
+
         public void OnGui()
         {
-            if (_catToggle == null || !_catToggle.isOn || _targetScene != Scene.Instance.AddSceneName) return;
-            if ((_saveOutfitToggle == null || !_saveOutfitToggle.isOn) && (_loadOutfitToggle == null || !_loadOutfitToggle.isOn)) return;
-            if (_saveFront != null && _saveFront.activeSelf) return;
+            if (!IsVisible()) return;
 
             if (_refreshList)
             {
@@ -102,6 +114,8 @@ namespace BrowserFolders.Hooks
         [HarmonyPatch(typeof(ChaFileCoordinate), "SaveFile")]
         internal static void SaveFilePatch(ref string path)
         {
+            if (!IsVisible()) return;
+
             var name = Path.GetFileName(path);
 
             path = Path.Combine(DirectoryPathModifier(path), name);
