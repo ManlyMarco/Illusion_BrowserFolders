@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -74,7 +75,6 @@ namespace BrowserFolders.Hooks
         [HarmonyPatch(typeof(CustomCoordinateFile), "Start")]
         internal static void InitHook(CustomCoordinateFile __instance)
         {
-            Traverse.Create("ConvertChaFileScene").Method("Start").GetValue();
             var instance = CustomBase.Instance;
             _folderTreeView.DefaultPath = Path.Combine(UserData.Path,
                 instance.chaCtrl.sex != 0 ? @"coordinate/female" : "coordinate/male");
@@ -95,23 +95,24 @@ namespace BrowserFolders.Hooks
         }
 
         [HarmonyTranspiler]
-        [HarmonyPatch(typeof(HEditIndividualLoadWindow), "Create")]
+        [HarmonyPatch(typeof(CustomCoordinateFile), "Initialize")]
         internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
         {
             foreach (var instruction in instructions)
             {
-                yield return instruction;
-                if (instruction.opcode == OpCodes.Ldelem_Ref)
+                if (string.Equals(instruction.operand as string, "coordinate/female/", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(instruction.operand as string, "coordinate/male/", StringComparison.OrdinalIgnoreCase))
                 {
-                    yield return new CodeInstruction(OpCodes.Pop);
-                    yield return new CodeInstruction(OpCodes.Ldsfld,
-                        typeof(MakerHPoseIKFolders).GetField(nameof(_currentRelativeFolder),
-                            BindingFlags.NonPublic | BindingFlags.Static));
+                    //0x7E	ldsfld <field>	Push the value of the static field on the stack.
+                    instruction.opcode = OpCodes.Ldsfld;
+                    instruction.operand = typeof(MakerOutfitFolders).GetField(nameof(_currentRelativeFolder), BindingFlags.NonPublic | BindingFlags.Static);
                 }
+
+                yield return instruction;
             }
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(ChaFileCoordinate), "SaveFile")]
         internal static void SaveFilePatch(ref string path)
         {
