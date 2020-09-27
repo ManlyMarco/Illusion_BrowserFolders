@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using BepInEx;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -11,7 +12,7 @@ namespace BrowserFolders
         private int _lastRefreshed = 0;
         private int _refreshRequested = 0;
         private FileSystemWatcher _fileSystemWatcher;
-        
+
 
         public void ScrollListToSelected()
         {
@@ -41,26 +42,31 @@ namespace BrowserFolders
                 if (string.IsNullOrEmpty(value))
                     value = DefaultPath;
 
-                var lowVal = Path.GetFullPath(value.TrimEnd('\\')).ToLower() + "/";
-                if (_currentFolder == lowVal) return;
+                var newPath = NormalizePath(value);
+                if (_currentFolder == newPath) return;
 
-                _currentFolder = lowVal;
+                _currentFolder = newPath;
                 CurrentRelativeFolder = _currentFolder.Length > _topmostPath.Length ? _currentFolder.Substring(_topmostPath.Length) : "/";
 
                 CurrentFolderChanged?.Invoke();
             }
         }
 
+        internal static string NormalizePath(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return string.Empty;
+            return Path.GetFullPath(value).Replace('\\', '/').TrimEnd('/').ToLower() + "/";
+        }
+
         public string CurrentRelativeFolder { get; private set; }
 
         public string DefaultPath
         {
-            get { return _defaultPath; }
+            get => _defaultPath;
             set
             {
                 _defaultPathTree = null;
-                if (value != null) _defaultPath = Path.GetFullPath(value.TrimEnd('\\'));
-                else _defaultPath = null;
+                _defaultPath = NormalizePath(value);
             }
         }
 
@@ -97,15 +103,11 @@ namespace BrowserFolders
             {
                 Path = Path.GetFullPath(DefaultPath),
                 NotifyFilter = NotifyFilters.DirectoryName,
-                IncludeSubdirectories = true
+                IncludeSubdirectories = true,
+                SynchronizingObject = ThreadingHelper.SynchronizingObject
             };
-            _fileSystemWatcher.Created += HandleFileSystemEvent;
-            _fileSystemWatcher.Deleted += HandleFileSystemEvent;
-        }
-
-        private void HandleFileSystemEvent(object sender, FileSystemEventArgs e)
-        {
-            ResetTreeCache(false);
+            _fileSystemWatcher.Created += (sender, e) => ResetTreeCache(false);
+            _fileSystemWatcher.Deleted += (sender, e) => ResetTreeCache(false);
         }
 
         public void StopMonitoringFiles()
@@ -123,7 +125,7 @@ namespace BrowserFolders
                 _fileSystemWatcher = null;
             }
         }
-        public void ResetTreeCache(bool force=true)
+        public void ResetTreeCache(bool force = true)
         {
             _refreshRequested = Time.frameCount + 1;
             if (force) _lastRefreshed = 0;
@@ -135,8 +137,8 @@ namespace BrowserFolders
                 (_refreshRequested <= _lastRefreshed || _refreshRequested >= Time.frameCount)) return;
             DefaultPathTree.Reset();
             _lastRefreshed = Time.frameCount;
-        } 
-        
+        }
+
         private void ExpandToCurrentFolder()
         {
             if (!Directory.Exists(CurrentFolder))
@@ -159,18 +161,19 @@ namespace BrowserFolders
 
             var path = CurrentFolder;
             var defaultPath = DefaultPath;
-            _openedObjects.Clear();
-            _openedObjects.Add(defaultPath.ToLowerInvariant());
+            _openedObjects.Add(defaultPath);
             while (!string.IsNullOrEmpty(path) && path.Length > defaultPath.Length)
             {
-                _openedObjects.Add(path.ToLowerInvariant());
-                path = Path.GetDirectoryName(path)?.TrimEnd('\\');
+                if (_openedObjects.Add(path))
+                    path = NormalizePath(Path.GetDirectoryName(path));
+                else
+                    break;
             }
         }
 
         private void DisplayObjectTreeHelper(DirectoryTree dir, int indent)
         {
-            var fullNameLower = dir.FullName.ToLower();
+            var dirFullName = dir.FullName;
             var subDirs = dir.SubDirs;
 
             if (indent == 0 && subDirs.Count == 0)
@@ -190,7 +193,7 @@ namespace BrowserFolders
                 GUILayout.Space(indent * 20f);
 
                 var c = GUI.color;
-                if (fullNameLower.TrimEnd('/', '\\') == CurrentFolder.TrimEnd('/'))
+                if (dirFullName == CurrentFolder)
                 {
                     GUI.color = Color.cyan;
                     if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
@@ -204,10 +207,10 @@ namespace BrowserFolders
                 {
                     if (subDirs.Count > 0)
                     {
-                        if (GUILayout.Toggle(_openedObjects.Contains(fullNameLower), "", GUILayout.ExpandWidth(false)))
-                            _openedObjects.Add(fullNameLower);
+                        if (GUILayout.Toggle(_openedObjects.Contains(dirFullName), "", GUILayout.ExpandWidth(false)))
+                            _openedObjects.Add(dirFullName);
                         else
-                            _openedObjects.Remove(fullNameLower);
+                            _openedObjects.Remove(dirFullName);
                     }
                     else
                     {
@@ -216,14 +219,14 @@ namespace BrowserFolders
 
                     if (GUILayout.Button(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
                     {
-                        if (string.Equals(CurrentFolder, fullNameLower, StringComparison.OrdinalIgnoreCase))
+                        if (string.Equals(CurrentFolder, dirFullName, StringComparison.OrdinalIgnoreCase))
                         {
-                            if (_openedObjects.Contains(fullNameLower) == false)
-                                _openedObjects.Add(fullNameLower);
+                            if (_openedObjects.Contains(dirFullName) == false)
+                                _openedObjects.Add(dirFullName);
                             else
-                                _openedObjects.Remove(fullNameLower);
+                                _openedObjects.Remove(dirFullName);
                         }
-                        CurrentFolder = fullNameLower;
+                        CurrentFolder = dirFullName;
                     }
                 }
                 GUILayout.EndHorizontal();
@@ -232,7 +235,7 @@ namespace BrowserFolders
             }
             GUILayout.EndHorizontal();
 
-            if (_openedObjects.Contains(fullNameLower))
+            if (_openedObjects.Contains(dirFullName))
             {
                 foreach (var subDir in subDirs)
                     DisplayObjectTreeHelper(subDir, indent + 1);

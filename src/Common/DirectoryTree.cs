@@ -14,13 +14,15 @@ namespace BrowserFolders
         public DirectoryTree(DirectoryInfo info)
         {
             Info = info;
+            Name = Info.Name;
+            FullName = FolderTreeView.NormalizePath(Info.FullName);
             Reset();
         }
 
         public DirectoryInfo Info { get; }
 
-        public string Name => Info.Name;
-        public string FullName => Info.FullName;
+        public string Name { get; }
+        public string FullName { get; }
 
         public List<DirectoryTree> SubDirs
         {
