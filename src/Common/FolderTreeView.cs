@@ -78,7 +78,7 @@ namespace BrowserFolders
 
         public void DrawDirectoryTree()
         {
-            StartMonitoringFiles();
+            StopMonitoringFiles(); // stop monitoring while drawing
             ExpandToCurrentFolder();
 
             _treeScrollPosition = GUILayout.BeginScrollView(
@@ -88,12 +88,23 @@ namespace BrowserFolders
                 DisplayObjectTreeHelper(DefaultPathTree, 0);
             }
             GUILayout.EndScrollView();
+            try
+            {
+               StartMonitoringFiles();
+            }
+            catch (InvalidOperationException)
+            {
+               // stop monitoring and trigger refresh
+               StopMonitoringFiles();
+               ResetTreeCache();
+            }
         }
 
         private void StartMonitoringFiles()
         {
-            InitFileSystemWatcher();
-            _fileSystemWatcher.EnableRaisingEvents = true;
+           if (_fileSystemWatcher !=null && _fileSystemWatcher.EnableRaisingEvents) return;
+           InitFileSystemWatcher();
+           _fileSystemWatcher.EnableRaisingEvents = true;
         }
 
         private void InitFileSystemWatcher()
@@ -108,11 +119,12 @@ namespace BrowserFolders
             };
             _fileSystemWatcher.Created += (sender, e) => ResetTreeCache(false);
             _fileSystemWatcher.Deleted += (sender, e) => ResetTreeCache(false);
+            _fileSystemWatcher.Renamed += (sender, e) => ResetTreeCache(false);
         }
 
         public void StopMonitoringFiles()
         {
-            if (_fileSystemWatcher == null) return;
+            if (_fileSystemWatcher == null || !_fileSystemWatcher.EnableRaisingEvents) return;
             _fileSystemWatcher.EnableRaisingEvents = false;
         }
 
