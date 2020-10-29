@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using BepInEx;
 using UnityEngine;
 
@@ -9,8 +10,10 @@ namespace BrowserFolders
     public class FolderTreeView
     {
         private bool _scrollTreeToSelected;
-        private int _lastRefreshed = 0;
-        private int _refreshRequested = 0;
+        private float _lastRefreshedTime = 0f;
+        private float _refreshRequestedTime = 0f;
+        private long _lastRefreshedFrame = 0;
+        private long _refreshRequestedFrame = 0;
         private FileSystemWatcher _fileSystemWatcher;
 
 
@@ -78,7 +81,6 @@ namespace BrowserFolders
 
         public void DrawDirectoryTree()
         {
-            StopMonitoringFiles(); // stop monitoring while drawing
             ExpandToCurrentFolder();
 
             _treeScrollPosition = GUILayout.BeginScrollView(
@@ -102,9 +104,9 @@ namespace BrowserFolders
 
         private void StartMonitoringFiles()
         {
-           if (_fileSystemWatcher !=null && _fileSystemWatcher.EnableRaisingEvents) return;
-           InitFileSystemWatcher();
-           _fileSystemWatcher.EnableRaisingEvents = true;
+            if (_fileSystemWatcher !=null && _fileSystemWatcher.EnableRaisingEvents) return;
+            InitFileSystemWatcher();
+            _fileSystemWatcher.EnableRaisingEvents = true;
         }
 
         private void InitFileSystemWatcher()
@@ -139,16 +141,32 @@ namespace BrowserFolders
         }
         public void ResetTreeCache(bool force = true)
         {
-            _refreshRequested = Time.frameCount + 1;
-            if (force) _lastRefreshed = 0;
+            // request refresh after 2 seconds / 10 frames
+            Interlocked.Exchange(ref _refreshRequestedTime, Mathf.Ceil(Time.realtimeSinceStartup + 2f));
+            Interlocked.Exchange(ref _refreshRequestedFrame, Time.frameCount + 10);
+            if (!force) return;
+            Interlocked.Exchange(ref _lastRefreshedTime, 0f);
+            Interlocked.Exchange(ref _lastRefreshedFrame, 0);
+        }
+
+        private bool TreeNeedsUpdate()
+        {
+            // don't refresh twice in same second
+            if (Time.realtimeSinceStartup < _refreshRequestedTime || _refreshRequestedTime <= (_lastRefreshedTime + 1f)) return false;
+
+            var lastRefreshedFrame = Interlocked.Read(ref _lastRefreshedFrame);
+            var refreshRequestedFrame = Interlocked.Read(ref _refreshRequestedFrame);
+
+            // don't refresh twice in same frame
+            return (Time.frameCount > refreshRequestedFrame && refreshRequestedFrame > (lastRefreshedFrame + 1));
         }
 
         private void UpdateTreeCache()
         {
-            if (_lastRefreshed != 0 &&
-                (_refreshRequested <= _lastRefreshed || _refreshRequested >= Time.frameCount)) return;
+            if (!TreeNeedsUpdate()) return;
             DefaultPathTree.Reset();
-            _lastRefreshed = Time.frameCount;
+            Interlocked.Exchange(ref _lastRefreshedFrame, Time.frameCount);
+            Interlocked.Exchange(ref _lastRefreshedTime, Mathf.Ceil(Time.realtimeSinceStartup));
         }
 
         private void ExpandToCurrentFolder()
