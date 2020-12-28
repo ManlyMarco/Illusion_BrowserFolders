@@ -128,7 +128,9 @@ namespace BrowserFolders.Hooks
                 if (isSave)
                 {
                     var lst = lctrlTrav.Field("lstFileInfo").GetValue<List<CustomFileInfo>>();
-                    foreach (var customFileInfo in lst) customFileInfo.fic.Disvisible(customFileInfo.category > 1); // Show user created and downloaded cards but no default cards
+                    // Show user created and downloaded cards but no default cards (sitri needs special handling)
+                    foreach (var fileInfo in lst)
+                        fileInfo.fic.Disvisible(fileInfo.category > 1 || fileInfo.FullPath.EndsWith("DefaultData/chara/sitri/sitri.png", StringComparison.OrdinalIgnoreCase));
                 }
                 else
                 {
