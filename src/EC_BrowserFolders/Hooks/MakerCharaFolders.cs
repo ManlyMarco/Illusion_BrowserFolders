@@ -71,7 +71,7 @@ namespace BrowserFolders.Hooks
         [HarmonyPatch(typeof(CustomCharaFile), "Start")]
         internal static void InitHook(CustomCharaFile __instance)
         {
-            Traverse.Create("ConvertChaFileScene").Method("Start").GetValue();
+            Traverse.Create("ConvertChaFileScene").Method("Start").GetValue(); //todo is this necessary? doesn't seem to find the Start method even
             var instance = CustomBase.Instance;
             _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), instance.modeSex != 0 ? @"chara/female/" : "chara/male");
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
@@ -128,7 +128,7 @@ namespace BrowserFolders.Hooks
                 if (isSave)
                 {
                     var lst = lctrlTrav.Field("lstFileInfo").GetValue<List<CustomFileInfo>>();
-                    foreach (var customFileInfo in lst.Where(x => x.category != 1)) customFileInfo.fic.Disvisible(true);
+                    foreach (var customFileInfo in lst) customFileInfo.fic.Disvisible(customFileInfo.category > 1); // Show user created and downloaded cards but no default cards
                 }
                 else
                 {
