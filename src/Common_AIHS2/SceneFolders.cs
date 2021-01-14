@@ -75,6 +75,9 @@ namespace BrowserFolders
             {
                 if (AI_BrowserFolders.StudioSaveOverride.Value && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
                 {
+                    // Compatibility with autosave plugin
+                    if (_path.Contains("/_autosave")) return;
+
                     var name = Path.GetFileName(_path);
                     if (!string.IsNullOrEmpty(name) &&
                         // Play nice with other mods if they want to save outside
