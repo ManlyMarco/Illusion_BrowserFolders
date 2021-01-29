@@ -86,6 +86,13 @@ namespace BrowserFolders.Hooks.KKP
                     if (!string.IsNullOrEmpty(overridePath))
                         path = overridePath;
                 }
+                var HOutfit = Object.FindObjectOfType<clothesFileControl>();
+                if (HOutfit != null)
+                {
+                    var overridePath = HOutfitFolders.CurrentRelativeFolder;
+                    if (!string.IsNullOrEmpty(overridePath))
+                        path = overridePath;
+                }
             }
         }
 

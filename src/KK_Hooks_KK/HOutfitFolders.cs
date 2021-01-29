@@ -21,7 +21,6 @@ namespace BrowserFolders.Hooks.KK
 
         private static string _currentRelativeFolder;
         private static bool _refreshList;
-        private static bool _hToggle; //an actual toggle would be better, but I can only get activeSelf from clothsfilecontrol
 
         public HOutfitFolders()
         {
@@ -67,8 +66,7 @@ namespace BrowserFolders.Hooks.KK
         {
             var guiShown = false;
             
-            ActiveCheck();
-            if (_hToggle) //if preset is active draw file select
+            if (GameObject.Find("Canvas/clothesFileWindow").activeSelf) //if preset window is active draw file select
             {
                 if (_refreshList)
                 {
@@ -123,18 +121,5 @@ namespace BrowserFolders.Hooks.KK
             }
             GUILayout.EndVertical();
         }
-        private static void ActiveCheck() //Check if preset window is active
-        {
-            if (GameObject.Find("Canvas/clothesFileWindow") != null)
-            {
-                _hToggle = GameObject.Find("Canvas/clothesFileWindow").activeSelf;
-            }
-            else
-            {
-                _hToggle = false;
-            }
-        }
-
     }
-
 }

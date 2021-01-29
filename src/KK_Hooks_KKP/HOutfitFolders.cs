@@ -17,7 +17,6 @@ namespace BrowserFolders.Hooks.KKP
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
         private static bool _refreshList;
-        private static bool _hToggle;
 
         public HOutfitFolders()
         {
@@ -46,7 +45,7 @@ namespace BrowserFolders.Hooks.KKP
         {
             bool guiShown = false;
             //
-            if (_hToggle)
+            if (GameObject.Find("Canvas/clothesFileWindow").activeSelf)
             {
                 if (_refreshList)
                 {
@@ -55,7 +54,7 @@ namespace BrowserFolders.Hooks.KKP
                     _refreshList = false;
                 }
 
-                var screenRect = new Rect((int)(Screen.width * 0.650), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.15), (int)(Screen.height * 0.35));
+                var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(36, screenRect, TreeWindow, "Select outfit folder");
                 IMGUIUtils.EatInputInRect(screenRect);
