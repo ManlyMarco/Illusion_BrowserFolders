@@ -32,13 +32,14 @@ namespace BrowserFolders
         private IFolderBrowser _studioCharaFolders;
         private IFolderBrowser _makerOutfitFolders;
         private IFolderBrowser _studioOutfitFolders;
+        private IFolderBrowser _hOutfitFolders;
 
-        
         public static ConfigEntry<bool> EnableMaker { get; private set; }
 
         public static ConfigEntry<bool> EnableMakerOutfit { get; private set; }
         public static ConfigEntry<bool> EnableClassroom { get; private set; }
         public static ConfigEntry<bool> EnableFreeH { get; private set; }
+        public static ConfigEntry<bool> EnableHOutfit { get; private set; }
 
         public static ConfigEntry<bool> EnableStudio { get; private set; }
         public static ConfigEntry<bool> EnableStudioChara { get; private set; }
@@ -63,6 +64,7 @@ namespace BrowserFolders
                 _freeHFolders?.OnGui();
                 _newGameFolders?.OnGui();
                 _makerOutfitFolders?.OnGui();
+                _hOutfitFolders?.OnGui();
             }
         }
 
@@ -81,6 +83,7 @@ namespace BrowserFolders
             var newGame = browsers.FirstOrDefault(x => x.Key == BrowserType.NewGame).Value;
             var freeH = browsers.FirstOrDefault(x => x.Key == BrowserType.FreeH).Value;
             var scene = browsers.FirstOrDefault(x => x.Key == BrowserType.Scene).Value;
+            var hOutfit = browsers.FirstOrDefault(x => x.Key == BrowserType.HOutfit).Value;
             var studioChara = browsers.FirstOrDefault(x => x.Key == BrowserType.StudioChara).Value;
             var studioOutfit = browsers.FirstOrDefault(x => x.Key == BrowserType.StudioOutfit).Value;
 
@@ -98,7 +101,10 @@ namespace BrowserFolders
 
             if (freeH != null)
                 EnableFreeH = Config.Bind("Main game", "Enable folder browser in Free H browser", true, "Changes take effect on game restart");
-
+            
+            if (hOutfit != null)
+                EnableHOutfit = Config.Bind("Main game", "Enable folder browser in H preset browser", true, "Changes take effect on game restart");
+            
             if (scene != null || studioChara != null || studioOutfit != null)
             {
                 EnableStudio = Config.Bind("Chara Studio", "Enable folder browser in scene browser", true, "Changes take effect on game restart");
@@ -128,6 +134,9 @@ namespace BrowserFolders
 
                 if (makerOutfit != null && EnableMakerOutfit.Value)
                     _makerOutfitFolders = (IFolderBrowser)Activator.CreateInstance(makerOutfit);
+
+                if (hOutfit != null && EnableHOutfit.Value)
+                    _hOutfitFolders = (IFolderBrowser)Activator.CreateInstance(hOutfit);
 
                 if (EnableClassroom != null && EnableClassroom.Value)
                 {
