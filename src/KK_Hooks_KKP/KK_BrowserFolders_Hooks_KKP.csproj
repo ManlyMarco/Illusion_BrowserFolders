@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="ClassroomFolders.cs" />
     <Compile Include="FreeHFolders.cs" />
+    <Compile Include="HOutfitFolders.cs" />
     <Compile Include="MakerOutfitFolder.cs" />
     <Compile Include="MakerFolders.cs" />
     <Compile Include="NewGameFolders.cs" />

@@ -5,6 +5,7 @@
         NewGame,
         FreeH,
         Classroom,
+        HOutfit,
         Maker,
         Scene,
         StudioChara,
