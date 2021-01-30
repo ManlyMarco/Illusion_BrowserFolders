@@ -103,7 +103,7 @@ namespace BrowserFolders
                 EnableFreeH = Config.Bind("Main game", "Enable folder browser in Free H browser", true, "Changes take effect on game restart");
             
             if (hOutfit != null)
-                EnableHOutfit = Config.Bind("Main game", "Enable folder browser in H preset browser", true, "Changes take effect on game restart");
+                EnableHOutfit = Config.Bind("Main game", "Enable folder browser in H preset browser", true, "Changes take effect on game restart.\n Kplug doesn't support this and will restore previous outfit when not main or out of H.");
             
             if (scene != null || studioChara != null || studioOutfit != null)
             {
