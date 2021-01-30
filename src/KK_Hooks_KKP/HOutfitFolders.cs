@@ -16,6 +16,7 @@ namespace BrowserFolders.Hooks.KKP
         private static FolderTreeView _folderTreeView;
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
+        private static GameObject ht;
 
         public HOutfitFolders()
         {
@@ -38,20 +39,20 @@ namespace BrowserFolders.Hooks.KKP
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
             _customCoordinateFile = __instance;
+            ht = GameObject.Find("Canvas/clothesFileWindow");
+
         }
 
         public void OnGui()
         {
             bool guiShown = false;
-            //
-            if (GameObject.Find("Canvas/clothesFileWindow").activeSelf)
+            if (ht != null && ht.activeSelf)
             {
                 var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(36, screenRect, TreeWindow, "Select outfit folder");
                 IMGUIUtils.EatInputInRect(screenRect);
                 guiShown = true;
-
             }
             if (!guiShown) _folderTreeView?.StopMonitoringFiles();
         }

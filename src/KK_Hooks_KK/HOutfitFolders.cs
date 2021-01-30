@@ -20,6 +20,8 @@ namespace BrowserFolders.Hooks.KK
         private static FolderTreeView _folderTreeView;
 
         private static string _currentRelativeFolder;
+        private static GameObject ht;
+
 
         public HOutfitFolders()
         {
@@ -42,6 +44,8 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
             _customCoordinateFile = __instance;
+            ht = GameObject.Find("Canvas/clothesFileWindow");
+
         }
 
         [HarmonyTranspiler]
@@ -64,8 +68,7 @@ namespace BrowserFolders.Hooks.KK
         public void OnGui()
         {
             var guiShown = false;
-            
-            if (GameObject.Find("Canvas/clothesFileWindow").activeSelf) //if preset window is active draw file select
+            if (ht != null && ht.activeSelf) //if preset window is active draw file select
             {
                 var screenRect = new Rect((int)(Screen.width * 0.04), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);
