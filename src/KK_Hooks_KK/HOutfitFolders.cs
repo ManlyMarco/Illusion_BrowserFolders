@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using BepInEx.Harmony;
 using ChaCustom;
 using HarmonyLib;
 using KKAPI.Utilities;
-using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,11 +26,6 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
             
             Harmony.CreateAndPatchAll(typeof(HOutfitFolders));
-        }
-
-        private static string DirectoryPathModifier(string currentDirectoryPath)
-        {
-            return _folderTreeView != null ? _folderTreeView.CurrentFolder : currentDirectoryPath;
         }
 
         [HarmonyPrefix]
@@ -91,7 +84,6 @@ namespace BrowserFolders.Hooks.KK
 
             if (_customCoordinateFile == null) return; //if failed not initializing in "start"
 
-            // private bool Initialize()                
             Traverse.Create(_customCoordinateFile).Method("Initialize").GetValue();
         }
 
