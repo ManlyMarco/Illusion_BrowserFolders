@@ -20,7 +20,6 @@ namespace BrowserFolders.Hooks.KK
         private static FolderTreeView _folderTreeView;
 
         private static string _currentRelativeFolder;
-        private static bool _refreshList;
 
         public HOutfitFolders()
         {
@@ -68,12 +67,6 @@ namespace BrowserFolders.Hooks.KK
             
             if (GameObject.Find("Canvas/clothesFileWindow").activeSelf) //if preset window is active draw file select
             {
-                if (_refreshList)
-                {
-                    OnFolderChanged();
-                    _refreshList = false;
-                }
-
                 var screenRect = new Rect((int)(Screen.width * 0.04), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
