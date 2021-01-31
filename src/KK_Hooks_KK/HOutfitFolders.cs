@@ -67,6 +67,7 @@ namespace BrowserFolders.Hooks.KK
             {
                 if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.F1))//if right click or F1 close
                 {
+                    GameObject.Find("Canvas/clothesFileWindow").SetActive(false);
                     DisablePreset();
                 }
                 var screenRect = new Rect((int)(Screen.width * 0.04), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
