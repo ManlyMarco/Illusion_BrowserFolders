@@ -14,7 +14,7 @@ namespace BrowserFolders.Hooks.KKP
         private static FolderTreeView _folderTreeView;
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
-        private static bool _hToggle;//doesn't initialize to true at start or at least in "public HOutfitFolders()" as true as it crashes the game on startup
+        private static bool _hToggle;//doesn't initialize to true here and at least in "public HOutfitFolders()" as true as it crashes the game on startup
 
         public HOutfitFolders()
         {
