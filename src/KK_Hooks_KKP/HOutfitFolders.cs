@@ -44,7 +44,7 @@ namespace BrowserFolders.Hooks.KKP
             bool guiShown = false;
             if (_hToggle)
             {
-                if (Input.GetMouseButtonDown(1))//if right click close
+                if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.F1))//if right click click or F1 close
                 {
                     DisablePreset();
                 }

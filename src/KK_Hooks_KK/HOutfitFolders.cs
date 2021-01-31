@@ -65,7 +65,7 @@ namespace BrowserFolders.Hooks.KK
             var guiShown = false;
             if (_hToggle) //if preset window is active draw file select
             {
-                if (Input.GetMouseButtonDown(1))//if right click close
+                if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.F1))//if right click or F1 close
                 {
                     DisablePreset();
                 }
