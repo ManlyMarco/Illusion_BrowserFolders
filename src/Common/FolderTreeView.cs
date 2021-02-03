@@ -79,32 +79,43 @@ namespace BrowserFolders
         private readonly string _topmostPath;
         private string _defaultPath;
 
+        private string _searchString = "";
+
         public void DrawDirectoryTree()
         {
             ExpandToCurrentFolder();
 
-            _treeScrollPosition = GUILayout.BeginScrollView(
-                _treeScrollPosition, GUI.skin.box,
-                GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
             {
-                DisplayObjectTreeHelper(DefaultPathTree, 0);
+                _treeScrollPosition = GUILayout.BeginScrollView(_treeScrollPosition, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                {
+                    DisplayObjectTreeHelper(DefaultPathTree, 0);
+                }
+                GUILayout.EndScrollView();
+
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label("Search: ", GUILayout.ExpandWidth(false));
+                    _searchString = GUILayout.TextField(_searchString);
+                }
+                GUILayout.EndHorizontal();
             }
-            GUILayout.EndScrollView();
+            GUILayout.EndVertical();
             try
             {
-               StartMonitoringFiles();
+                StartMonitoringFiles();
             }
             catch (InvalidOperationException)
             {
-               // stop monitoring and trigger refresh
-               StopMonitoringFiles();
-               ResetTreeCache();
+                // stop monitoring and trigger refresh
+                StopMonitoringFiles();
+                ResetTreeCache();
             }
         }
 
         private void StartMonitoringFiles()
         {
-            if (_fileSystemWatcher !=null && _fileSystemWatcher.EnableRaisingEvents) return;
+            if (_fileSystemWatcher != null && _fileSystemWatcher.EnableRaisingEvents) return;
             InitFileSystemWatcher();
             _fileSystemWatcher.EnableRaisingEvents = true;
         }
@@ -218,52 +229,55 @@ namespace BrowserFolders
                 return;
             }
 
-            GUILayout.BeginHorizontal();
+            if (string.IsNullOrEmpty(_searchString) || dirFullName.IndexOf(_searchString, DefaultPath.Length, StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                GUILayout.Space(indent * 20f);
-
-                var c = GUI.color;
-                if (dirFullName == CurrentFolder)
-                {
-                    GUI.color = Color.cyan;
-                    if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
-                    {
-                        _scrollTreeToSelected = false;
-                        _treeScrollPosition.y = GUILayoutUtility.GetLastRect().y - 50;
-                    }
-                }
-
                 GUILayout.BeginHorizontal();
                 {
-                    if (subDirs.Count > 0)
+                    GUILayout.Space(indent * 20f);
+
+                    var c = GUI.color;
+                    if (dirFullName == CurrentFolder)
                     {
-                        if (GUILayout.Toggle(_openedObjects.Contains(dirFullName), "", GUILayout.ExpandWidth(false)))
-                            _openedObjects.Add(dirFullName);
-                        else
-                            _openedObjects.Remove(dirFullName);
-                    }
-                    else
-                    {
-                        GUILayout.Space(20f);
+                        GUI.color = Color.cyan;
+                        if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
+                        {
+                            _scrollTreeToSelected = false;
+                            _treeScrollPosition.y = GUILayoutUtility.GetLastRect().y - 50;
+                        }
                     }
 
-                    if (GUILayout.Button(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
+                    GUILayout.BeginHorizontal();
                     {
-                        if (string.Equals(CurrentFolder, dirFullName, StringComparison.OrdinalIgnoreCase))
+                        if (subDirs.Count > 0)
                         {
-                            if (_openedObjects.Contains(dirFullName) == false)
+                            if (GUILayout.Toggle(_openedObjects.Contains(dirFullName), "", GUILayout.ExpandWidth(false)))
                                 _openedObjects.Add(dirFullName);
                             else
                                 _openedObjects.Remove(dirFullName);
                         }
-                        CurrentFolder = dirFullName;
+                        else
+                        {
+                            GUILayout.Space(20f);
+                        }
+
+                        if (GUILayout.Button(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
+                        {
+                            if (string.Equals(CurrentFolder, dirFullName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (_openedObjects.Contains(dirFullName) == false)
+                                    _openedObjects.Add(dirFullName);
+                                else
+                                    _openedObjects.Remove(dirFullName);
+                            }
+                            CurrentFolder = dirFullName;
+                        }
                     }
+                    GUILayout.EndHorizontal();
+
+                    GUI.color = c;
                 }
                 GUILayout.EndHorizontal();
-
-                GUI.color = c;
             }
-            GUILayout.EndHorizontal();
 
             if (_openedObjects.Contains(dirFullName))
             {
