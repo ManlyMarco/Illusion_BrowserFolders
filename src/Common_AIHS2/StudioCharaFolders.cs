@@ -130,13 +130,10 @@ namespace BrowserFolders
                     }
                     GUILayout.Space(1);
 
-                    GUILayout.Label("Open in explorer...");
                     if (GUILayout.Button("Current folder"))
                         Utils.OpenDirInExplorer(entry.CurrentFolder);
-
                     if (GUILayout.Button("Screenshot folder"))
                         Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "cap"));
-
                     if (GUILayout.Button("Main game folder"))
                         Utils.OpenDirInExplorer(Paths.GameRootPath);
                 }

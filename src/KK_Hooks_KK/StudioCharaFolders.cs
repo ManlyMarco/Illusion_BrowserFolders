@@ -130,13 +130,10 @@ namespace BrowserFolders.Hooks.KK
                     }
                     GUILayout.Space(1);
 
-                    GUILayout.Label("Open in explorer...");
                     if (GUILayout.Button("Current folder"))
                         Utils.OpenDirInExplorer(entry.CurrentFolder);
-
                     if (GUILayout.Button("Screenshot folder"))
                         Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-
                     if (GUILayout.Button("Main game folder"))
                         Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
                 }

@@ -118,7 +118,6 @@ namespace BrowserFolders.Hooks.KKP
 
                     GUILayout.Space(1);
 
-                    GUILayout.Label("Open in explorer...");
                     if (GUILayout.Button("Current folder"))
                         Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
                     if (GUILayout.Button("Screenshot folder"))
