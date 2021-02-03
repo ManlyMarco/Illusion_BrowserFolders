@@ -16,9 +16,9 @@ namespace BrowserFolders
         private long _refreshRequestedFrame = 0;
         private FileSystemWatcher _fileSystemWatcher;
 
-
         public void ScrollListToSelected()
         {
+            _searchString = "";
             _scrollTreeToSelected = true;
         }
 
@@ -80,6 +80,8 @@ namespace BrowserFolders
         private string _defaultPath;
 
         private string _searchString = "";
+        private int _itemHeight;
+        private int _scrollviewHeight;
 
         public void DrawDirectoryTree()
         {
@@ -89,9 +91,13 @@ namespace BrowserFolders
             {
                 _treeScrollPosition = GUILayout.BeginScrollView(_treeScrollPosition, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
                 {
-                    DisplayObjectTreeHelper(DefaultPathTree, 0);
+                    var itemsDrawn = 0;
+                    DisplayObjectTreeHelper(DefaultPathTree, 0, ref itemsDrawn);
                 }
                 GUILayout.EndScrollView();
+
+                if (_scrollviewHeight == 0 && Event.current.type == EventType.Repaint)
+                    _scrollviewHeight = (int)GUILayoutUtility.GetLastRect().height;
 
                 GUILayout.BeginHorizontal();
                 {
@@ -212,7 +218,7 @@ namespace BrowserFolders
             }
         }
 
-        private void DisplayObjectTreeHelper(DirectoryTree dir, int indent)
+        private void DisplayObjectTreeHelper(DirectoryTree dir, int indent, ref int itemsDrawn)
         {
             var dirFullName = dir.FullName;
             var subDirs = dir.SubDirs;
@@ -231,58 +237,76 @@ namespace BrowserFolders
 
             if (string.IsNullOrEmpty(_searchString) || dirFullName.IndexOf(_searchString, DefaultPath.Length, StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                GUILayout.BeginHorizontal();
+                var drawnItemTotalHeight = itemsDrawn * _itemHeight;
+
+                if (_scrollTreeToSelected || 
+                    _itemHeight == 0 || _scrollviewHeight == 0 ||
+                    // Only draw items that are visible at current scroll position
+                    drawnItemTotalHeight >= _treeScrollPosition.y - _itemHeight &&
+                    drawnItemTotalHeight <= _treeScrollPosition.y + _scrollviewHeight + _itemHeight)
                 {
-                    GUILayout.Space(indent * 20f);
-
-                    var c = GUI.color;
-                    if (dirFullName == CurrentFolder)
-                    {
-                        GUI.color = Color.cyan;
-                        if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
-                        {
-                            _scrollTreeToSelected = false;
-                            _treeScrollPosition.y = GUILayoutUtility.GetLastRect().y - 50;
-                        }
-                    }
-
                     GUILayout.BeginHorizontal();
                     {
-                        if (subDirs.Count > 0)
+                        GUILayout.Space(indent * 20f);
+
+                        var c = GUI.color;
+                        if (dirFullName == CurrentFolder)
                         {
-                            if (GUILayout.Toggle(_openedObjects.Contains(dirFullName), "", GUILayout.ExpandWidth(false)))
-                                _openedObjects.Add(dirFullName);
-                            else
-                                _openedObjects.Remove(dirFullName);
-                        }
-                        else
-                        {
-                            GUILayout.Space(20f);
+                            GUI.color = Color.cyan;
+                            if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
+                            {
+                                _scrollTreeToSelected = false;
+                                _treeScrollPosition.y = Mathf.Max(0, drawnItemTotalHeight - (_scrollviewHeight - _itemHeight) / 2);
+                            }
                         }
 
-                        if (GUILayout.Button(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
+                        GUILayout.BeginHorizontal();
                         {
-                            if (string.Equals(CurrentFolder, dirFullName, StringComparison.OrdinalIgnoreCase))
+                            if (subDirs.Count > 0)
                             {
-                                if (_openedObjects.Contains(dirFullName) == false)
+                                if (GUILayout.Toggle(_openedObjects.Contains(dirFullName), "", GUILayout.ExpandWidth(false)))
                                     _openedObjects.Add(dirFullName);
                                 else
                                     _openedObjects.Remove(dirFullName);
                             }
-                            CurrentFolder = dirFullName;
+                            else
+                            {
+                                GUILayout.Space(20f);
+                            }
+
+                            if (GUILayout.Button(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
+                            {
+                                if (string.Equals(CurrentFolder, dirFullName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (_openedObjects.Contains(dirFullName) == false)
+                                        _openedObjects.Add(dirFullName);
+                                    else
+                                        _openedObjects.Remove(dirFullName);
+                                }
+                                CurrentFolder = dirFullName;
+                            }
                         }
+                        GUILayout.EndHorizontal();
+
+                        GUI.color = c;
                     }
                     GUILayout.EndHorizontal();
 
-                    GUI.color = c;
+                    if (_itemHeight == 0 && Event.current.type == EventType.Repaint)
+                        _itemHeight = (int)GUILayoutUtility.GetLastRect().height;
                 }
-                GUILayout.EndHorizontal();
+                else
+                {
+                    GUILayout.Space(_itemHeight);
+                }
+
+                itemsDrawn++;
             }
 
             if (_openedObjects.Contains(dirFullName))
             {
                 foreach (var subDir in subDirs)
-                    DisplayObjectTreeHelper(subDir, indent + 1);
+                    DisplayObjectTreeHelper(subDir, indent + 1, ref itemsDrawn);
             }
         }
     }
