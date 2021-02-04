@@ -102,7 +102,7 @@ namespace BrowserFolders
                 GUILayout.BeginHorizontal();
                 {
                     GUILayout.Label("Search: ", GUILayout.ExpandWidth(false));
-                    _searchString = GUILayout.TextField(_searchString);
+                    _searchString = GUILayout.TextField(_searchString).Replace('\\', '/');
                 }
                 GUILayout.EndHorizontal();
             }
@@ -235,11 +235,12 @@ namespace BrowserFolders
                 return;
             }
 
-            if (string.IsNullOrEmpty(_searchString) || dirFullName.IndexOf(_searchString, DefaultPath.Length, StringComparison.OrdinalIgnoreCase) >= 0)
+            var isSearching = !string.IsNullOrEmpty(_searchString);
+            if (!isSearching || dirFullName.IndexOf(_searchString, DefaultPath.Length, StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 var drawnItemTotalHeight = itemsDrawn * _itemHeight;
 
-                if (_scrollTreeToSelected || 
+                if (_scrollTreeToSelected ||
                     _itemHeight == 0 || _scrollviewHeight == 0 ||
                     // Only draw items that are visible at current scroll position
                     drawnItemTotalHeight >= _treeScrollPosition.y - _itemHeight &&
@@ -303,7 +304,7 @@ namespace BrowserFolders
                 itemsDrawn++;
             }
 
-            if (_openedObjects.Contains(dirFullName))
+            if (isSearching || _openedObjects.Contains(dirFullName))
             {
                 foreach (var subDir in subDirs)
                     DisplayObjectTreeHelper(subDir, indent + 1, ref itemsDrawn);
