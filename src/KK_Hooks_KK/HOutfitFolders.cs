@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ChaCustom;
+using HarmonyLib;
+using KKAPI.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using ChaCustom;
-using HarmonyLib;
-using KKAPI.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,7 +16,7 @@ namespace BrowserFolders.Hooks.KK
     {
         private static clothesFileControl _customCoordinateFile;
         private static FolderTreeView _folderTreeView;
-
+        private static bool RecursiveSearchBool = false;
         private static string _currentRelativeFolder;
         private static bool _hToggle;//doesn't initialize to true at start or at least in "public HOutfitFolders()" as true as it crashes the game on startup
 
@@ -24,7 +24,7 @@ namespace BrowserFolders.Hooks.KK
         {
             _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
             _folderTreeView.CurrentFolderChanged = OnFolderChanged;
-            
+
             Harmony.CreateAndPatchAll(typeof(HOutfitFolders));
         }
 
@@ -59,6 +59,31 @@ namespace BrowserFolders.Hooks.KK
                 yield return instruction;
             }
         }
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FolderAssist), "CreateFolderInfoEx")]
+        internal static void RecursiveSearch(FolderAssist __instance)
+        {
+            string coordinatepath = new DirectoryInfo(UserData.Path).FullName;
+            if (!Directory.Exists(coordinatepath + _currentRelativeFolder) || !RecursiveSearchBool)//make sure Recursive search is off by default or it will leak into other stuff that uses folder assist
+            {
+                return;
+            }
+            string[] folders = Directory.GetDirectories(coordinatepath + _currentRelativeFolder, "*", System.IO.SearchOption.AllDirectories); //grab child folders
+            foreach (var Subfolder in folders)
+            {
+                var Subfiles = Directory.GetFiles(Subfolder, "*.png");
+                foreach (var text in Subfiles)
+                {
+                    FolderAssist.FileInfo fileInfo = new FolderAssist.FileInfo
+                    {
+                        FullPath = text,
+                        FileName = Path.GetFileNameWithoutExtension(text),
+                        time = File.GetLastWriteTime(text)
+                    };
+                    __instance.lstFile.Add(fileInfo);
+                }
+            }
+        }
 
         public void OnGui()
         {
@@ -76,7 +101,11 @@ namespace BrowserFolders.Hooks.KK
                 IMGUIUtils.EatInputInRect(screenRect);
                 guiShown = true;
             }
-            if (!guiShown) _folderTreeView?.StopMonitoringFiles();
+            if (!guiShown)
+            {
+                _folderTreeView?.StopMonitoringFiles();
+                RecursiveSearchBool = false;//turn off recursive when gui is gone to be safe
+            }
         }
 
         private static void OnFolderChanged()
@@ -102,6 +131,7 @@ namespace BrowserFolders.Hooks.KK
                         OnFolderChanged();
                     }
 
+                    RecursiveSearchBool = GUILayout.Toggle(RecursiveSearchBool, "Recursive Search");
                     GUILayout.Space(1);
 
                     if (GUILayout.Button("Current folder"))
