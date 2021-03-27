@@ -20,21 +20,15 @@ using UnityEngine;
 
 namespace BrowserFolders
 {
+
     using Debug = UnityEngine.Debug;
     [BepInProcess("HoneySelect2")]
     public partial class AI_BrowserFolders : BaseUnityPlugin
     {
-        GameState currentGameState = GameState.None;
-        GameState previousGameState = GameState.None;
+
         private IFolderBrowser _hs2MainGameFolders;
-        private Harmony harmonyInstance;
+
         public static ConfigEntry<bool> EnableMainGame { get; private set; }
-        private enum GameState
-        {
-            None,
-            MainGame,
-            Maker
-        }
 
 
     }
@@ -53,9 +47,10 @@ namespace BrowserFolders
             string pathDefault = Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female");
             _folderTreeView = new FolderTreeView(pathDefault, pathDefault);
             _folderTreeView.CurrentFolderChanged = RefreshCurrentWindow;
-
+            Harmony.CreateAndPatchAll(typeof(HS2_MainGamePatch));
             Harmony.CreateAndPatchAll(typeof(HS2_MainGameFolders));
         }
+
 
         private static string GetCurrentRelativeFolder(string defaultPath)
         {
@@ -81,6 +76,7 @@ namespace BrowserFolders
                         var method = typeof(GameCharaFileInfoAssist).GetMethod("AddList", BindingFlags.Static | BindingFlags.NonPublic);
                         byte b = 1;
                         method.Invoke(obj: null, parameters: new object[] { list, _folderTreeView.CurrentFolder, 0, b, true, true, false, false, true, false });
+                        list.ForEach(charaFileInfo => { charaFileInfo.FileName = Path.GetRelativePath(UserData.Path, charaFileInfo.FileName); });
                         tra.Field<List<GameCharaFileInfo>>("charaLists").Value = list;
                         _charaLoad.ReDrawListView();
 
@@ -196,6 +192,10 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(GroupListUI), "AddList")]
         public static bool AddList(List<GameCharaFileInfo> _list, List<string> _lstFileName)
         {
+            if (!KKAPI.KoikatuAPI.GetCurrentGameMode().Equals(KKAPI.GameMode.MainGame))
+            {
+                return true;
+            }
             GroupListUI someVariable = new GroupListUI();
             int num = 0;
             int i;
@@ -203,11 +203,11 @@ namespace BrowserFolders
             {
                 ChaFileControl chaFileControl = new ChaFileControl();
 
-                string[] source = Directory.GetFiles(UserData.Path + "chara/female/", _lstFileName[i] + ".png", SearchOption.AllDirectories).ToArray<string>();
-                if (source.Any<string>())
+                string source = Path.Combine(UserData.Path + "chara/female/", _lstFileName[i]);
+                if (File.Exists(source))
                 {
 
-                    StringBuilder stringBuilder = new StringBuilder(source[0]);
+                    StringBuilder stringBuilder = new StringBuilder(source);
 
                     if (!chaFileControl.LoadCharaFile(stringBuilder.ToString(), 255, false, true))
                     {
@@ -277,7 +277,10 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(STRCharaFileInfoAssist), "AddList")]
         private static bool AddList2(List<STRCharaFileInfo> _list, List<string> _lstFileName, int _state)
         {
-
+            if (!KKAPI.KoikatuAPI.GetCurrentGameMode().Equals(KKAPI.GameMode.MainGame))
+            {
+                return true;
+            }
             string userUUID = Singleton<GameSystem>.Instance.UserUUID;
             SaveData saveData = Singleton<Game>.Instance.saveData;
             int num = 0;
@@ -286,11 +289,11 @@ namespace BrowserFolders
             {
                 ChaFileControl chaFileControl = new ChaFileControl();
 
-                string[] source = Directory.GetFiles(UserData.Path + "chara/female/", _lstFileName[i] + ".png", SearchOption.AllDirectories).ToArray<string>();
-                if (source.Any<string>())
+                string source = Path.Combine(UserData.Path + "chara/female/", _lstFileName[i]);
+                if (File.Exists(source))
                 {
 
-                    StringBuilder stringBuilder = new StringBuilder(source[0]);
+                    StringBuilder stringBuilder = new StringBuilder(source);
                     if (!chaFileControl.LoadCharaFile(stringBuilder.ToString(), 255, false, true))
                     {
                         chaFileControl.GetLastErrorCode();
@@ -324,7 +327,10 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(STRCharaFileInfoAssist1), "AddList")]
         private static bool AddList3(List<STRCharaFileInfo1> _list, List<string> _lstFileName, int _state)
         {
-
+            if (!KKAPI.KoikatuAPI.GetCurrentGameMode().Equals(KKAPI.GameMode.MainGame))
+            {
+                return true;
+            }
             string userUUID = Singleton<GameSystem>.Instance.UserUUID;
             SaveData saveData = Singleton<Game>.Instance.saveData;
             string value = UserData.Path + "chara/female/";
@@ -332,11 +338,11 @@ namespace BrowserFolders
             for (int i = 0; i < _lstFileName.Count; i++)
             {
                 ChaFileControl chaFileControl = new ChaFileControl();
-                string[] source = Directory.GetFiles(UserData.Path + "chara/female/", _lstFileName[i] + ".png", SearchOption.AllDirectories).ToArray<string>();
-                if (source.Any<string>())
+                string source = Path.Combine(UserData.Path + "chara/female/", _lstFileName[i]);
+                if (File.Exists(source))
                 {
 
-                    StringBuilder stringBuilder = new StringBuilder(source[0]);
+                    StringBuilder stringBuilder = new StringBuilder(source);
                     if (!chaFileControl.LoadCharaFile(stringBuilder.ToString(), 255, false, true))
                     {
                         chaFileControl.GetLastErrorCode();
@@ -370,15 +376,19 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(SaveData), "RoomListCharaExists")]
         public static bool RoomListCharaExists(ref SaveData __instance)
         {
+            if (!KKAPI.KoikatuAPI.GetCurrentGameMode().Equals(KKAPI.GameMode.MainGame))
+            {
+                return true;
+            }
             foreach (List<string> list in __instance.roomList)
             {
                 List<string> list2 = new List<string>(list);
                 for (int j = 0; j < list2.Count; j++)
                 {
-                    string[] source = Directory.GetFiles(UserData.Path + "chara/female/", list2[j] + ".png", SearchOption.AllDirectories).ToArray<string>();
-                    if (source.Any<string>())
+                    string source = Path.Combine(UserData.Path + "chara/female/", list2[j]);
+                    if (File.Exists(source))
                     {
-                        StringBuilder stringBuilder = new StringBuilder(source[0]);
+                        StringBuilder stringBuilder = new StringBuilder(source);
                         if (!File.Exists(stringBuilder.ToString()))
                         {
                             list.Remove(list2[j]);
@@ -390,8 +400,8 @@ namespace BrowserFolders
             {
                 foreach (KeyValuePair<string, ClothPngInfo> keyValuePair in new Dictionary<string, ClothPngInfo>(__instance.dicCloths[k]))
                 {
-                    string[] source = Directory.GetFiles(UserData.Path + "chara/female/", keyValuePair.Key + ".png", SearchOption.AllDirectories).ToArray<string>();
-                    if (source.Any<string>())
+                    string source = Path.Combine(UserData.Path + "chara/female/", keyValuePair.Key);
+                    if (File.Exists(source))
                     {
                         StringBuilder stringBuilder2 = new StringBuilder(source[0]);
                         if (!File.Exists(stringBuilder2.ToString()))
@@ -408,6 +418,10 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(ChaFileControl), "ConvertCharaFilePath")]
         public static bool ConvertCharaFilePath(ref ChaFileControl __instance, ref string __result, string path, byte _sex, bool newFile = false)
         {
+            if (!KKAPI.KoikatuAPI.GetCurrentGameMode().Equals(KKAPI.GameMode.MainGame))
+            {
+                return true;
+            }
             byte b = (byte.MaxValue == _sex) ? __instance.parameter.sex : _sex;
             if (path == "")
             {
@@ -419,10 +433,10 @@ namespace BrowserFolders
             {
                 return true;
             }
-            string[] source = Directory.GetFiles(UserData.Path + "chara/female/", searchPath, SearchOption.AllDirectories).ToArray<string>();
-            if (source.Any<string>())
+            string source = Path.Combine(UserData.Path + "chara/female/", path);
+            if (File.Exists(source))
             {
-                __result = source[0].ToString();
+                __result = source;
                 return false;
             }
             else
@@ -430,11 +444,15 @@ namespace BrowserFolders
                 return true;
             }
         }
-
+        /*
         [HarmonyPrefix]
         [HarmonyPatch(typeof(FilePath), "GetFiles")]
         public static bool GetFiles(ref List<FilePath> __result, string _path)
         {
+            if (!KKAPI.KoikatuAPI.GetCurrentGameMode().Equals(KKAPI.GameMode.MainGame))
+            {
+                return true;
+            }
             List<KeyValuePair<DateTime, string>> list = (from s in Directory.GetFiles(_path, "*.png", SearchOption.AllDirectories)
                                                          select new KeyValuePair<DateTime, string>(File.GetLastWriteTime(s), s)).ToList<KeyValuePair<DateTime, string>>();
             using (new GameSystem.CultureScope())
@@ -445,22 +463,27 @@ namespace BrowserFolders
                         select new FilePath(v.Value, v.Key, FilePath.KindEN.Preset)).ToList<FilePath>();
             return false;
         }
-
+        */
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(MapSelectUI), "MapSelecCursorEnter")]
         private static void updateImage(ref MapSelectUI __instance)
         {
-            Traverse tra = Traverse.Create(__instance);
-            string[] source = Directory.GetFiles(UserData.Path + "chara/female/", tra.Field("firstCharaFile").GetValue().ToString() + ".png", SearchOption.AllDirectories).ToArray<string>();
-            if (source.Any<string>())
+            if (!KKAPI.KoikatuAPI.GetCurrentGameMode().Equals(KKAPI.GameMode.MainGame))
             {
-                tra.Field("firstCharaThumbnailUI").Field("rawimg").Field("texture").SetValue(PngAssist.ChangeTextureFromByte(PngFile.LoadPngBytes(source[0]), 0, 0, TextureFormat.ARGB32, false));
+                return;
             }
-            string[] source2 = Directory.GetFiles(UserData.Path + "chara/female/", tra.Field("secondCharaFile").GetValue().ToString() + ".png", SearchOption.AllDirectories).ToArray<string>();
-            if (source2.Any<string>())
+            Traverse tra = Traverse.Create(__instance);
+            
+            string source = Path.Combine(UserData.Path + "chara/female/", tra.Field("firstCharaFile").GetValue().ToString() + ".png");
+            if (File.Exists(source))
             {
-                tra.Field("secondCharaThumbnailUI").Field("rawimg").Field("texture").SetValue(PngAssist.ChangeTextureFromByte(PngFile.LoadPngBytes(source2[0]), 0, 0, TextureFormat.ARGB32, false));
+                tra.Field("firstCharaThumbnailUI").Field("rawimg").Field("texture").SetValue(PngAssist.ChangeTextureFromByte(PngFile.LoadPngBytes(source), 0, 0, TextureFormat.ARGB32, false));
+            }
+            string source2 = Path.Combine(UserData.Path + "chara/female/", tra.Field("secondCharaFile").GetValue().ToString() + ".png");
+            if (File.Exists(source2))
+            {
+                tra.Field("secondCharaThumbnailUI").Field("rawimg").Field("texture").SetValue(PngAssist.ChangeTextureFromByte(PngFile.LoadPngBytes(source2), 0, 0, TextureFormat.ARGB32, false));
             }
 
         }
