@@ -47,7 +47,7 @@ namespace BrowserFolders
             string pathDefault = Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female");
             _folderTreeView = new FolderTreeView(pathDefault, pathDefault);
             _folderTreeView.CurrentFolderChanged = RefreshCurrentWindow;
-            Harmony.CreateAndPatchAll(typeof(HS2_MainGamePatch));
+            //Harmony.CreateAndPatchAll(typeof(HS2_MainGamePatch));
             Harmony.CreateAndPatchAll(typeof(HS2_MainGameFolders));
         }
 
@@ -76,7 +76,7 @@ namespace BrowserFolders
                         var method = typeof(GameCharaFileInfoAssist).GetMethod("AddList", BindingFlags.Static | BindingFlags.NonPublic);
                         byte b = 1;
                         method.Invoke(obj: null, parameters: new object[] { list, _folderTreeView.CurrentFolder, 0, b, true, true, false, false, true, false });
-                        list.ForEach(charaFileInfo => { charaFileInfo.FileName = Path.GetRelativePath(UserData.Path, charaFileInfo.FileName); });
+                        list.ForEach(charaFileInfo => { charaFileInfo.FileName = Path.GetRelativePath(UserData.Path, _folderTreeView.CurrentFolder)+charaFileInfo.FileName; });//the filename has to have no .png extension in it, that is why we get the relative path from the folder and then add the name
                         tra.Field<List<GameCharaFileInfo>>("charaLists").Value = list;
                         _charaLoad.ReDrawListView();
 
@@ -188,6 +188,7 @@ namespace BrowserFolders
     public class HS2_MainGamePatch
     {
 
+        /*
         [HarmonyPrefix]
         [HarmonyPatch(typeof(GroupListUI), "AddList")]
         public static bool AddList(List<GameCharaFileInfo> _list, List<string> _lstFileName)
@@ -444,26 +445,6 @@ namespace BrowserFolders
                 return true;
             }
         }
-        /*
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(FilePath), "GetFiles")]
-        public static bool GetFiles(ref List<FilePath> __result, string _path)
-        {
-            if (!KKAPI.KoikatuAPI.GetCurrentGameMode().Equals(KKAPI.GameMode.MainGame))
-            {
-                return true;
-            }
-            List<KeyValuePair<DateTime, string>> list = (from s in Directory.GetFiles(_path, "*.png", SearchOption.AllDirectories)
-                                                         select new KeyValuePair<DateTime, string>(File.GetLastWriteTime(s), s)).ToList<KeyValuePair<DateTime, string>>();
-            using (new GameSystem.CultureScope())
-            {
-                list.Sort((KeyValuePair<DateTime, string> a, KeyValuePair<DateTime, string> b) => b.Key.CompareTo(a.Key));
-            }
-            __result = (from v in list
-                        select new FilePath(v.Value, v.Key, FilePath.KindEN.Preset)).ToList<FilePath>();
-            return false;
-        }
-        */
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(MapSelectUI), "MapSelecCursorEnter")]
@@ -487,5 +468,6 @@ namespace BrowserFolders
             }
 
         }
+        */
     }
 }
