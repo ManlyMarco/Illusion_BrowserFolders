@@ -4,6 +4,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using Common;
 using KKAPI;
+using KKAPI.Maker;
 using KKAPI.Studio;
 
 namespace BrowserFolders
@@ -21,6 +22,7 @@ namespace BrowserFolders
         private IFolderBrowser _studioCharaFolders;
         private IFolderBrowser _makerCharaFolders;
         private IFolderBrowser _makerClothesFolders;
+        
 
         public static ConfigEntry<bool> EnableMaker { get; private set; }
         public static ConfigEntry<bool> EnableMakerCoord { get; private set; }
@@ -37,6 +39,10 @@ namespace BrowserFolders
 
             EnableMakerCoord = Config.Bind("Main game", "Enable clothes folder browser in maker", true, "Changes take effect on game restart");
             if (!StudioAPI.InsideStudio && EnableMakerCoord.Value) _makerClothesFolders = new MakerOutfitFolders();
+#if HS2
+            EnableMainGame = Config.Bind("Main game", "Enable character folder browser in main game", true, "Changes take effect on game restart");
+            if (!StudioAPI.InsideStudio && EnableMainGame.Value) _hs2MainGameFolders = new HS2_MainGameFolders();
+#endif
 
             EnableStudio = Config.Bind("Chara Studio", "Enable folder browser in scene browser", true, "Changes take effect on game restart");
             if (StudioAPI.InsideStudio && EnableStudio.Value) _sceneFolders = new SceneFolders();
@@ -54,11 +60,18 @@ namespace BrowserFolders
                 _sceneFolders?.OnGui();
                 _studioCharaFolders?.OnGui();
             }
-            else
+            else if (MakerAPI.InsideMaker)
             {
                 _makerCharaFolders?.OnGui();
                 _makerClothesFolders?.OnGui();
             }
+#if HS2
+            else
+            {
+                _hs2MainGameFolders?.OnGui();
+            }       
+#endif
+            
         }
 
         internal static string UserDataPath { get; } = Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")); // UserData.Path
