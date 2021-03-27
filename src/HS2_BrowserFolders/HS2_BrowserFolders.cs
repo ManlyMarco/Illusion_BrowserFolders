@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 
@@ -76,7 +77,11 @@ namespace BrowserFolders
                         var method = typeof(GameCharaFileInfoAssist).GetMethod("AddList", BindingFlags.Static | BindingFlags.NonPublic);
                         byte b = 1;
                         method.Invoke(obj: null, parameters: new object[] { list, _folderTreeView.CurrentFolder, 0, b, true, true, false, false, true, false });
-                        list.ForEach(charaFileInfo => { charaFileInfo.FileName = Path.GetRelativePath(UserData.Path, _folderTreeView.CurrentFolder)+charaFileInfo.FileName; });//the filename has to have no .png extension in it, that is why we get the relative path from the folder and then add the name
+                        list.ForEach(charaFileInfo => { 
+                            charaFileInfo.FileName = GetRelativePath(Path.Combine(_folderTreeView.CurrentFolder, charaFileInfo.FileName + ".png"), UserData.Path + "chara/female/");
+                            charaFileInfo.FileName = charaFileInfo.FileName.Remove(charaFileInfo.FileName.Length - 4);
+                            Debug.Log(charaFileInfo.FileName);
+                        });
                         tra.Field<List<GameCharaFileInfo>>("charaLists").Value = list;
                         _charaLoad.ReDrawListView();
 
@@ -181,6 +186,17 @@ namespace BrowserFolders
             _charaLoadVisible = __instance.gameObject.transform.Find("Group")?.GetComponent<CanvasGroup>();
             Traverse tra = Traverse.Create(__instance);
             _charaLoad = tra.Field<GroupCharaSelectUI>("groupCharaSelectUI").Value;
+        }
+
+        public static string GetRelativePath(string fromFile, string toFolder)
+        {
+            Uri pathUri = new Uri(fromFile);
+            if (!toFolder.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            {
+                toFolder += Path.DirectorySeparatorChar;
+            }
+            Uri folderUri = new Uri(toFolder);
+            return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString()).Remove(0,3);
         }
 
     }
