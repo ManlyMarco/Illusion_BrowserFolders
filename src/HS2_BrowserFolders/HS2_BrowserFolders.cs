@@ -101,10 +101,10 @@ namespace BrowserFolders
 
         internal static Rect GetDisplayRect()
         {
-            const float x = 0.52f;
-            const float y = 0.17f;
-            const float w = 0.125f;
-            const float h = 0.4f;
+            const float x = 0.02f;
+            const float y = 0.59f;
+            const float w = 0.200f;
+            const float h = 0.35f;
 
             return new Rect((int)(Screen.width * x), (int)(Screen.height * y),
                 (int)(Screen.width * w), (int)(Screen.height * h));
