@@ -24,15 +24,24 @@ namespace BrowserFolders
     [BepInProcess("HoneySelect2")]
     public partial class AI_BrowserFolders : BaseUnityPlugin
     {
+        GameState currentGameState = GameState.None;
+        GameState previousGameState = GameState.None;
         private IFolderBrowser _hs2MainGameFolders;
+        private Harmony harmonyInstance;
         public static ConfigEntry<bool> EnableMainGame { get; private set; }
+        private enum GameState
+        {
+            None,
+            MainGame,
+            Maker
+        }
 
 
     }
 
     public class HS2_MainGameFolders : IFolderBrowser
     {
-        Harmony harmonyInstance;
+        
         private static CanvasGroup _charaLoadVisible;
         private static GameObject _bookCanvas;
         private static GroupCharaSelectUI _charaLoad;
@@ -41,17 +50,13 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
         public HS2_MainGameFolders()
         {
-            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath);
+            string pathDefault = Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female");
+            _folderTreeView = new FolderTreeView(pathDefault, pathDefault);
             _folderTreeView.CurrentFolderChanged = RefreshCurrentWindow;
 
-            //Todo : If in main game
-            //harmonyInstance = Harmony.CreateAndPatchAll(typeof(HS2_MainGamePatch));
-            //Todo :If Leaving main game
-            //harmonyInstance.UnpatchAll();
-            //////
-            Debug.LogWarning("Patching !!!");
             Harmony.CreateAndPatchAll(typeof(HS2_MainGameFolders));
         }
+
         private static string GetCurrentRelativeFolder(string defaultPath)
         {
             if (IsVisible() == VisibleWindow.None) return defaultPath;
@@ -60,11 +65,11 @@ namespace BrowserFolders
 
         private static void RefreshCurrentWindow()
         {
-            
+
             var visibleWindow = IsVisible();
             _lastRefreshed = visibleWindow;
             var resetTree = false;
-            
+
             switch (visibleWindow)
             {
                 case VisibleWindow.Load:
@@ -77,7 +82,8 @@ namespace BrowserFolders
                         byte b = 1;
                         method.Invoke(obj: null, parameters: new object[] { list, _folderTreeView.CurrentFolder, 0, b, true, true, false, false, true, false });
                         tra.Field<List<GameCharaFileInfo>>("charaLists").Value = list;
-                        Debug.Log("RefreshCurrentWindow.load");
+                        _charaLoad.ReDrawListView();
+
                         resetTree = true;
                     }
                     break;
@@ -86,16 +92,16 @@ namespace BrowserFolders
             // clear tree cache
             if (resetTree)
             {
-                Debug.Log("RefreshCurrentWindow.resetTree");
+
                 _folderTreeView.ResetTreeCache();
-                Debug.Log("RefreshCurrentWindow.resetTree(2)");
+
             }
 
         }
 
         internal static Rect GetDisplayRect()
         {
-            const float x = 0.623f;
+            const float x = 0.52f;
             const float y = 0.17f;
             const float w = 0.125f;
             const float h = 0.4f;
@@ -115,21 +121,19 @@ namespace BrowserFolders
             }
 
             if (_lastRefreshed != visibleWindow) RefreshCurrentWindow();
-            Debug.Log("Ongui(1)");
             var screenRect = GetDisplayRect();
             IMGUIUtils.DrawSolidBox(screenRect);
             GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
             IMGUIUtils.EatInputInRect(screenRect);
-            Debug.Log("Ongui(2)");
         }
 
         private static void TreeWindow(int id)
         {
             GUILayout.BeginVertical();
             {
-                Debug.Log("TreeWindow(1)");
+
                 _folderTreeView.DrawDirectoryTree();
-                Debug.Log("TreeWindow(2)");
+
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
                     if (GUILayout.Button("Refresh thumbnails"))
@@ -151,17 +155,18 @@ namespace BrowserFolders
 
         private static VisibleWindow IsVisible()
         {
-            Debug.Log("IsVisible()");
+
             if (_bookCanvas == null) return VisibleWindow.None;
             if (!_bookCanvas.activeSelf) return VisibleWindow.None;
-            Debug.Log("IsVisible(2)");
+
             if (IsLoadVisible()) return VisibleWindow.Load;
-            Debug.Log("IsVisible(3)");
+
             return VisibleWindow.None;
 
             bool IsLoadVisible()
             {
-                return _charaLoad != null && _charaLoadVisible.interactable;
+
+                return _charaLoad != null && (_charaLoadVisible.alpha == 1);
             }
         }
         private enum VisibleWindow
@@ -174,15 +179,12 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(CharaEditUI), "Start")]
         private static void BookOpenHook(ref CharaEditUI __instance)
         {
-            Debug.LogWarning("Hook !!");
-            _bookCanvas = __instance.gameObject.transform.parent.parent.gameObject;
+            _bookCanvas = __instance.gameObject.transform.Find("Group")?.gameObject;
             //Todo : Improve by getting canvas group of the child groupedit.
-            _charaLoadVisible = __instance.gameObject.GetComponent<CanvasGroup>();
+
+            _charaLoadVisible = __instance.gameObject.transform.Find("Group")?.GetComponent<CanvasGroup>();
             Traverse tra = Traverse.Create(__instance);
             _charaLoad = tra.Field<GroupCharaSelectUI>("groupCharaSelectUI").Value;
-            Debug.LogWarning(_bookCanvas);
-            Debug.LogWarning(_charaLoadVisible);
-            Debug.LogWarning(_charaLoad);
         }
 
     }

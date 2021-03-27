@@ -3,6 +3,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using Common;
+using HarmonyLib;
 using KKAPI;
 using KKAPI.Maker;
 using KKAPI.Studio;
@@ -62,17 +63,36 @@ namespace BrowserFolders
             }
             else if (MakerAPI.InsideMaker)
             {
+#if HS2
+                previousGameState = currentGameState;
+                currentGameState = GameState.Maker;
+#endif
                 _makerCharaFolders?.OnGui();
                 _makerClothesFolders?.OnGui();
             }
 #if HS2
             else
             {
+                previousGameState = currentGameState;
+                currentGameState = GameState.MainGame;
                 _hs2MainGameFolders?.OnGui();
-            }       
+            }
+            if (!previousGameState.Equals(currentGameState))
+            {
+                if((previousGameState.Equals(GameState.Maker)&& currentGameState.Equals(GameState.MainGame))|| (previousGameState.Equals(GameState.None) && currentGameState.Equals(GameState.MainGame)))
+                {
+                    harmonyInstance = Harmony.CreateAndPatchAll(typeof(HS2_MainGamePatch));
+                }
+                else if(previousGameState.Equals(GameState.MainGame) && currentGameState.Equals(GameState.Maker))
+                {
+                    harmonyInstance.UnpatchAll();
+                }
+            }
 #endif
-            
+
         }
+
+
 
         internal static string UserDataPath { get; } = Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")); // UserData.Path
     }
