@@ -3,7 +3,6 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using Common;
-using HarmonyLib;
 using KKAPI;
 using KKAPI.Maker;
 using KKAPI.Studio;
@@ -24,7 +23,6 @@ namespace BrowserFolders
         private IFolderBrowser _makerCharaFolders;
         private IFolderBrowser _makerClothesFolders;
         
-
         public static ConfigEntry<bool> EnableMaker { get; private set; }
         public static ConfigEntry<bool> EnableMakerCoord { get; private set; }
         public static ConfigEntry<bool> EnableStudio { get; private set; }
@@ -40,10 +38,6 @@ namespace BrowserFolders
 
             EnableMakerCoord = Config.Bind("Main game", "Enable clothes folder browser in maker", true, "Changes take effect on game restart");
             if (!StudioAPI.InsideStudio && EnableMakerCoord.Value) _makerClothesFolders = new MakerOutfitFolders();
-#if HS2
-            EnableMainGame = Config.Bind("Main game", "Enable character folder browser in main game", true, "Changes take effect on game restart");
-            if (!StudioAPI.InsideStudio && EnableMainGame.Value) _hs2MainGameFolders = new HS2_MainGameFolders();
-#endif
 
             EnableStudio = Config.Bind("Chara Studio", "Enable folder browser in scene browser", true, "Changes take effect on game restart");
             if (StudioAPI.InsideStudio && EnableStudio.Value) _sceneFolders = new SceneFolders();
@@ -52,6 +46,8 @@ namespace BrowserFolders
             if (StudioAPI.InsideStudio && EnableStudioChara.Value) _studioCharaFolders = new StudioCharaFolders();
 
             StudioSaveOverride = Config.Bind("Chara Studio", "Save scenes to current folder", false, "When you select a custom folder to load a scene from, newly saved scenes will be saved to this folder.\nIf disabled, scenes are always saved to default folder (studio/scene).");
+
+            GameSpecificAwake();
         }
 
         private void OnGUI()
@@ -63,21 +59,12 @@ namespace BrowserFolders
             }
             else if (MakerAPI.InsideMaker)
             {
-
                 _makerCharaFolders?.OnGui();
                 _makerClothesFolders?.OnGui();
             }
-#if HS2
-            else
-            {
 
-                _hs2MainGameFolders?.OnGui();
-            }
-
-#endif
+            GameSpecificOnGui();
         }
-
-
 
         internal static string UserDataPath { get; } = Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")); // UserData.Path
     }
