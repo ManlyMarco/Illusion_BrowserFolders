@@ -35,6 +35,7 @@ namespace BrowserFolders
             DefaultPath = defaultPath;
             _topmostPath = Path.GetFullPath(topmostPath.ToLowerInvariant().TrimEnd('\\'));
             _fileSystemWatcher = null;
+            this.CurrentFolder = null;//Will init it to defaultPath
         }
 
         public string CurrentFolder

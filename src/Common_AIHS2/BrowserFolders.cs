@@ -4,6 +4,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using Common;
 using KKAPI;
+using KKAPI.Maker;
 using KKAPI.Studio;
 
 namespace BrowserFolders
@@ -21,7 +22,7 @@ namespace BrowserFolders
         private IFolderBrowser _studioCharaFolders;
         private IFolderBrowser _makerCharaFolders;
         private IFolderBrowser _makerClothesFolders;
-
+        
         public static ConfigEntry<bool> EnableMaker { get; private set; }
         public static ConfigEntry<bool> EnableMakerCoord { get; private set; }
         public static ConfigEntry<bool> EnableStudio { get; private set; }
@@ -45,6 +46,8 @@ namespace BrowserFolders
             if (StudioAPI.InsideStudio && EnableStudioChara.Value) _studioCharaFolders = new StudioCharaFolders();
 
             StudioSaveOverride = Config.Bind("Chara Studio", "Save scenes to current folder", false, "When you select a custom folder to load a scene from, newly saved scenes will be saved to this folder.\nIf disabled, scenes are always saved to default folder (studio/scene).");
+
+            GameSpecificAwake();
         }
 
         private void OnGUI()
@@ -54,11 +57,13 @@ namespace BrowserFolders
                 _sceneFolders?.OnGui();
                 _studioCharaFolders?.OnGui();
             }
-            else
+            else if (MakerAPI.InsideMaker)
             {
                 _makerCharaFolders?.OnGui();
                 _makerClothesFolders?.OnGui();
             }
+
+            GameSpecificOnGui();
         }
 
         internal static string UserDataPath { get; } = Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")); // UserData.Path
