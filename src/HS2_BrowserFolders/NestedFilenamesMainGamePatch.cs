@@ -13,7 +13,7 @@ namespace BrowserFolders
         public static bool GetFileNamePatch(ref string __result, string path)
         {
             // Should only work during main game
-            if (KoikatuAPI.GetCurrentGameMode() != GameMode.MainGame) return true;
+            if (!((KoikatuAPI.GetCurrentGameMode() == GameMode.MainGame)|| (KoikatuAPI.GetCurrentGameMode() == GameMode.Maker))) return true;
 
             try
             {
@@ -44,7 +44,7 @@ namespace BrowserFolders
         public static bool ConvertCharaFilePath(ref ChaFileControl __instance, ref string __result, string path)
         {
             // Should only work during main game
-            if (KoikatuAPI.GetCurrentGameMode() != GameMode.MainGame) return true;
+            if (!((KoikatuAPI.GetCurrentGameMode() == GameMode.MainGame) || (KoikatuAPI.GetCurrentGameMode() == GameMode.Maker))) return true;
             if (path == null) return true;
 
             if (!path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
