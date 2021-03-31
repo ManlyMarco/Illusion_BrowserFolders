@@ -18,17 +18,17 @@ namespace BrowserFolders
 
             try
             {
-                var basePathForChara = new Uri(UserData.Path + "chara/female/");
-                var lookedAtPath = new Uri(path);
-                if (basePathForChara.IsBaseOf(lookedAtPath))
-                {
-                    __result = MainGameFolders.GetRelativePath(path, UserData.Path + "chara/female/");
-                    return false;
-                }
-
                 if (File.Exists(UserData.Path + "chara/female/" + path))
                 {
                     __result = path;
+                    return false;
+                }
+
+                var lookedAtPath = new Uri(path);
+                var basePathForChara = new Uri(UserData.Path + "chara/female/");
+                if (basePathForChara.IsBaseOf(lookedAtPath))
+                {
+                    __result = MainGameFolders.GetRelativePath(path, UserData.Path + "chara/female/");
                     return false;
                 }
 
