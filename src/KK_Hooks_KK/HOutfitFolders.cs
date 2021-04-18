@@ -61,14 +61,14 @@ namespace BrowserFolders.Hooks.KK
         }
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FolderAssist), "CreateFolderInfoEx")]
-        internal static void RecursiveSearch(FolderAssist __instance)
+        internal static void RecursiveSearch(FolderAssist __instance, string folder)
         {
-            string coordinatepath = new DirectoryInfo(UserData.Path).FullName;
-            if (!Directory.Exists(coordinatepath + _currentRelativeFolder) || !RecursiveSearchBool)//make sure Recursive search is off by default or it will leak into other stuff that uses folder assist
+            //string coordinatepath = new DirectoryInfo(UserData.Path).FullName;
+            if (!Directory.Exists(folder) || !RecursiveSearchBool)//make sure Recursive search is off by default or it will leak into other stuff that uses folder assist
             {
-                return;
+                return;//known issue character cards doubling
             }
-            string[] folders = Directory.GetDirectories(coordinatepath + _currentRelativeFolder, "*", System.IO.SearchOption.AllDirectories); //grab child folders
+            string[] folders = Directory.GetDirectories(folder, "*", System.IO.SearchOption.AllDirectories); //grab child folders
             foreach (var Subfolder in folders)
             {
                 var Subfiles = Directory.GetFiles(Subfolder, "*.png");
