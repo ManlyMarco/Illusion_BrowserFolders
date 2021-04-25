@@ -7,18 +7,19 @@ using ChaCustom;
 using HarmonyLib;
 using KKAPI.Utilities;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KK
 {
+    // Handles both h scene outfits and dance mode
     [BrowserType(BrowserType.HOutfit)]
     public class HOutfitFolders : IFolderBrowser
     {
         private static clothesFileControl _customCoordinateFile;
         private static FolderTreeView _folderTreeView;
+        private static GameObject _uiObject;
+        private static string _sceneName;
 
         private static string _currentRelativeFolder;
-        private static bool _hToggle;//doesn't initialize to true at start or at least in "public HOutfitFolders()" as true as it crashes the game on startup
 
         public HOutfitFolders()
         {
@@ -36,11 +37,8 @@ namespace BrowserFolders.Hooks.KK
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
             _customCoordinateFile = __instance;
-
-            _hToggle = true; //weirdly enough required so file system would open the first time you use the preset per encounter
-            GameObject.Find("Canvas/SubMenu/DressCategory/ClothChange").GetComponent<Button>().onClick.AddListener(EnablePreset);
-            GameObject.Find("Canvas/clothesFileWindow/Window/WinRect/Load/btnCancel").GetComponent<Button>().onClick.AddListener(DisablePreset);
-            GameObject.Find("Canvas/clothesFileWindow/Window/BasePanel/MenuTitle/btnClose").GetComponent<Button>().onClick.AddListener(DisablePreset);
+            _uiObject = __instance.gameObject;
+            _sceneName = Manager.Scene.Instance.AddSceneName;
         }
 
         [HarmonyTranspiler]
@@ -62,21 +60,17 @@ namespace BrowserFolders.Hooks.KK
 
         public void OnGui()
         {
-            var guiShown = false;
-            if (_hToggle) //if preset window is active draw file select
+            if (_uiObject && _uiObject.activeSelf && _sceneName == Manager.Scene.Instance.AddSceneName)
             {
-                if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.F1))//if right click or F1 close
-                {
-                    GameObject.Find("Canvas/clothesFileWindow").SetActive(false);
-                    DisablePreset();
-                }
                 var screenRect = new Rect((int)(Screen.width * 0.04), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
                 IMGUIUtils.EatInputInRect(screenRect);
-                guiShown = true;
             }
-            if (!guiShown) _folderTreeView?.StopMonitoringFiles();
+            else
+            {
+                _folderTreeView?.StopMonitoringFiles();
+            }
         }
 
         private static void OnFolderChanged()
@@ -114,16 +108,6 @@ namespace BrowserFolders.Hooks.KK
                 GUILayout.EndVertical();
             }
             GUILayout.EndVertical();
-        }
-
-        private static void EnablePreset()//listen to preset button
-        {
-            _hToggle = true;
-        }
-
-        private static void DisablePreset()//exit if either close button is clicked or right click
-        {
-            _hToggle = false;
         }
     }
 }
