@@ -23,6 +23,7 @@ namespace BrowserFolders
         {
             var pathDefault = Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female");
             _folderTreeView = new FolderTreeView(pathDefault, pathDefault);
+            _folderTreeView.CurrentFolder = pathDefault;
             _folderTreeView.CurrentFolderChanged = RefreshCurrentWindow;
 
             Harmony.CreateAndPatchAll(typeof(MainGameFolders));
