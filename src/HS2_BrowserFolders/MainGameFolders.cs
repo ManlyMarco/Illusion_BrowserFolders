@@ -114,7 +114,7 @@ namespace BrowserFolders
             if (_bookCanvas != null && _bookCanvas.activeSelf)
             {
                 var isLoadVisible = _charaLoad != null && _charaLoadVisible.alpha > 0.99;
-                if (isLoadVisible) return VisibleWindow.Load;
+                if (isLoadVisible && !Manager.Scene.IsFadeNow) return VisibleWindow.Load;
             }
             return VisibleWindow.None;
         }
