@@ -4,7 +4,6 @@ using KKAPI.Utilities;
 using Manager;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -13,8 +12,6 @@ using UnityEngine;
 namespace BrowserFolders.Hooks.KK
 {
     [BrowserType(BrowserType.FreeH)]
-    [SuppressMessage("KK.Compatibility", "KKANAL04:Type is missing in KK Party.", Justification = "Library not used in KKP")]
-    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library not used in KKP")]
     public class FreeHFolders : IFolderBrowser
     {
         private static FreeHClassRoomCharaFile _freeHFile;

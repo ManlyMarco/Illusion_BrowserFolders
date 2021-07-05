@@ -205,7 +205,7 @@ namespace BrowserFolders.Hooks.KK
 
             private List<CharaFileInfo> GetCharaFileInfos()
             {
-                return _charaList.charaFileSort.cfiList;
+                return _charaList?.charaFileSort?.cfiList;
             }
 
             private int GetSex()

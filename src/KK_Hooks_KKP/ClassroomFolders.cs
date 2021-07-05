@@ -3,7 +3,6 @@ using HarmonyLib;
 using Illusion.Extensions;
 using KKAPI.Utilities;
 using Manager;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -11,7 +10,6 @@ using UnityEngine;
 namespace BrowserFolders.Hooks.KKP
 {
     [BrowserType(BrowserType.Classroom)]
-    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library only used in KKP")]
     public class ClassroomFolders : IFolderBrowser
     {
         private static FolderTreeView _folderTreeView;

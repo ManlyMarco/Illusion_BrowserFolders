@@ -56,7 +56,8 @@ namespace BrowserFolders.Hooks.KKP
 
         private static void OnFolderChanged()
         {
-            _customCoordinateFile.SafeProc(ccf => ccf.Initialize());
+            if (_customCoordinateFile == null) return;
+            _customCoordinateFile.Initialize();
         }
 
         private static void TreeWindow(int id)

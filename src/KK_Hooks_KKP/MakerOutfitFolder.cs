@@ -2,7 +2,6 @@
 using HarmonyLib;
 using KKAPI.Utilities;
 using Manager;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +9,6 @@ using UnityEngine.UI;
 namespace BrowserFolders.Hooks.KKP
 {
     [BrowserType(BrowserType.MakerOutfit)]
-    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library only used in KKP")]
     public class MakerOutfitFolders : IFolderBrowser
     {
         private static Toggle _catToggle;

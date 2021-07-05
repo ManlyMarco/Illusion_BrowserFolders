@@ -206,9 +206,7 @@ namespace BrowserFolders
 
             private List<CharaFileInfo> GetCharaFileInfos()
             {
-                List<CharaFileInfo> result = null;
-                _charaList.SafeProc(cl => cl.charaFileSort.SafeProc(cfs => result = cfs.cfiList));
-                return result;
+                return _charaList?.charaFileSort?.cfiList;
             }
 
             private int GetSex()

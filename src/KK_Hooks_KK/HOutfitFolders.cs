@@ -83,8 +83,9 @@ namespace BrowserFolders.Hooks.KK
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 
-            //_customCoordinateFile == null if failed not initializing in "start"
-            _customCoordinateFile.SafeProc(ccf => ccf.Initialize());
+            if (_customCoordinateFile == null) return; //if failed not initializing in "start"
+
+            _customCoordinateFile.Initialize();
         }
 
         private static void TreeWindow(int id)

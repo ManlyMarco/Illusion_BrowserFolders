@@ -87,9 +87,7 @@ namespace BrowserFolders.Hooks
 
             if (_motionIKUI == null) return;
 
-            var ccf = Traverse.Create(_motionIKUI);
-
-            ccf.Method("Init").GetValue();
+            _motionIKUI.Init();
         }
 
         private static void TreeWindow(int id)

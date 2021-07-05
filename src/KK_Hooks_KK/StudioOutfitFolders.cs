@@ -19,15 +19,15 @@ namespace BrowserFolders.Hooks.KK
             //CostumeInfo is a private nested class            
             Harmony harmony = new Harmony(KK_BrowserFolders.Guid);
 
-            var type = typeof(MPCharCtrl).GetNestedType("CostumeInfo", AccessTools.all);
+            var type = typeof(MPCharCtrl.CostumeInfo);
             {
-                var target = AccessTools.Method(type, "InitList");
+                var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitList));
                 var prefix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitCostumeListPrefix));
                 var postfix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitCostumeListPostfix));
                 harmony.Patch(target, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
             }
             {
-                var target = AccessTools.Method(type, "InitFileList");
+                var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitFileList));
                 var prefix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitListPrefix));
                 var postfix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitListPostfix));
                 harmony.Patch(target, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
@@ -57,7 +57,7 @@ namespace BrowserFolders.Hooks.KK
             }
         }
 
-        internal static void InitCostumeListPostfix(object __instance, ref int ___sex, ref int __state)
+        internal static void InitCostumeListPostfix(MPCharCtrl.CostumeInfo __instance, ref int ___sex, ref int __state)
         {
             ___sex = __state;
             if (_costumeInfoEntry != null)
@@ -65,7 +65,7 @@ namespace BrowserFolders.Hooks.KK
             _refilterOnly = false;
         }
 
-        internal static void InitCostumeListPrefix(object __instance, int _sex, ref int ___sex, ref int __state)
+        internal static void InitCostumeListPrefix(MPCharCtrl.CostumeInfo __instance, int _sex, ref int ___sex, ref int __state)
         {
             //If the CostumeInfo.sex field is equal to the parameter _sex, the method doesn't do anything
             __state = _sex;
@@ -133,7 +133,7 @@ namespace BrowserFolders.Hooks.KK
 
         private class CostumeInfoEntry
         {
-            private readonly object _costumeInfo;
+            private readonly MPCharCtrl.CostumeInfo _costumeInfo;
             public bool RefilterInProgress;
             private List<CharaFileInfo> _backupFileInfos;
             private string _currentFolder;
@@ -141,7 +141,7 @@ namespace BrowserFolders.Hooks.KK
             private int _sex = -1;
             private readonly GameObject _clothesRoot;
 
-            public CostumeInfoEntry(object costumeInfo)
+            public CostumeInfoEntry(MPCharCtrl.CostumeInfo costumeInfo)
             {
                 _costumeInfo = costumeInfo;
                 _clothesRoot = (GameObject)costumeInfo.GetType().GetField("objRoot", AccessTools.all).GetValue(costumeInfo);
@@ -176,8 +176,7 @@ namespace BrowserFolders.Hooks.KK
 
             public void InitOutfitList()
             {
-                //_charaList.InitCharaList(force);                 
-                Traverse.Create(_costumeInfo).Method("InitList", new object[] { GetSex() })?.GetValue();
+                _costumeInfo.InitList(GetSex());
             }
 
             public void RestoreUnfiltered()
@@ -196,12 +195,12 @@ namespace BrowserFolders.Hooks.KK
             }
             private List<CharaFileInfo> GetCharaFileInfos()
             {
-                return Traverse.Create(_costumeInfo)?.Field<CharaFileSort>("fileSort")?.Value?.cfiList;
+                return _costumeInfo?.fileSort?.cfiList;
             }
             private int GetSex()
             {
                 if (_sex == -1)
-                    _sex = Traverse.Create(_costumeInfo).Field<int>("sex").Value;
+                    _sex = _costumeInfo.sex;
                 return _sex;
             }
             private void OnFolderChanged()

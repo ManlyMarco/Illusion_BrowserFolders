@@ -140,17 +140,17 @@ namespace BrowserFolders.Hooks
                 _customCoordinateFile.Initialize();
 
                 // Fix default cards being shown when refreshing in this way
-                var listCtrl = _customCoordinateFile.listCtrl;
+                var lctrlTrav = _customCoordinateFile.listCtrl;
                 if (isSave)
                 {
-                    var lst = listCtrl.lstFileInfo;
-                    var dis = listCtrl.cfWindow.forceHideCategoryNo;
+                    var lst = lctrlTrav.lstFileInfo;
+                    var dis = lctrlTrav.cfWindow.forceHideCategoryNo;
                     if (dis != -1)
                         foreach (var customFileInfo in lst.Where(x => x.category == dis)) customFileInfo.fic.Disvisible(true);
                 }
                 else
                 {
-                    listCtrl.UpdateCategory();
+                    lctrlTrav.UpdateCategory();
                 }
             }
         }

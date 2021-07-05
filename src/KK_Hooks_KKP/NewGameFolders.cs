@@ -59,7 +59,8 @@ namespace BrowserFolders.Hooks.KKP
 
         private static void OnFolderChanged()
         {
-            _newGame.SafeProc(ng => ng.CreateMaleList());
+            if (_newGame != null)
+                _newGame.CreateMaleList();
         }
 
         private static void TreeWindow(int id)

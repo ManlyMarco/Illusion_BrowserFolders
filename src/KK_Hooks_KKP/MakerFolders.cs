@@ -11,7 +11,6 @@ using UnityEngine.UI;
 namespace BrowserFolders.Hooks.KKP
 {
     [BrowserType(BrowserType.Maker)]
-    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library only used in KKP")]
     public class MakerFolders : IFolderBrowser
     {
         private static Toggle _catToggle;

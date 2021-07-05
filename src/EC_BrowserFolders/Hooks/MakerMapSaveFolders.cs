@@ -104,11 +104,10 @@ namespace BrowserFolders.Hooks
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 
-            _mapSaveScene.SafeProc(mss =>
-            {
-                mss.CreateList();
-                mss.RecreateScrollerList();
-            });
+            if (_mapSaveScene == null) return;
+
+            _mapSaveScene.CreateList();
+            _mapSaveScene.RecreateScrollerList();
         }
 
         private static void TreeWindow(int id)

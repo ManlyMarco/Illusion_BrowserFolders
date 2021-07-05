@@ -10,13 +10,10 @@ using Illusion.Extensions;
 using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BrowserFolders.Hooks.KK
 {
     [BrowserType(BrowserType.Classroom)]
-    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library not used in KKP")]
-    [SuppressMessage("KK.Compatibility", "KKANAL04:Type is missing in KK Party.", Justification = "Library not used in KKP")]
     public class ClassroomFolders : IFolderBrowser
     {
         private static string _currentRelativeFolder;
@@ -131,8 +128,8 @@ namespace BrowserFolders.Hooks.KK
             _customCharaFile.InitializeList();
 
             // Fix add info toggle breaking
-            var tglAddInfo = _customCharaFile.listCtrl.tglAddInfo;
-            tglAddInfo.onValueChanged.Invoke(tglAddInfo.isOn);
+            var tglInfo = _customCharaFile.listCtrl.tglAddInfo;
+            tglInfo.onValueChanged.Invoke(tglInfo.isOn);
         }
 
         private static void TreeWindow(int id)

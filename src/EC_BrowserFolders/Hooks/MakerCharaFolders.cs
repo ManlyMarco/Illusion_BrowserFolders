@@ -72,7 +72,6 @@ namespace BrowserFolders.Hooks
         [HarmonyPatch(typeof(CustomCharaFile), "Start")]
         internal static void InitHook(CustomCharaFile __instance)
         {
-            Traverse.Create("ConvertChaFileScene").Method("Start").GetValue(); //todo is this necessary? doesn't seem to find the Start method even
             var instance = CustomBase.Instance;
             _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), instance.modeSex != 0 ? @"chara/female/" : "chara/male");
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
@@ -124,21 +123,22 @@ namespace BrowserFolders.Hooks
                 _customCharaFile.Initialize();
 
                 // Fix default cards being shown when refreshing in this way
+                var lctrlTrav = _customCharaFile.listCtrl;
                 if (isSave)
                 {
-                    var lst = _customCharaFile.listCtrl.lstFileInfo;
+                    var lst = lctrlTrav.lstFileInfo;
                     // Show user created and downloaded cards but no default cards (sitri needs special handling)
                     foreach (var fileInfo in lst)
                         fileInfo.fic.Disvisible(fileInfo.category > 1 || fileInfo.FullPath.EndsWith("DefaultData/chara/sitri/sitri.png", StringComparison.OrdinalIgnoreCase));
                 }
                 else
                 {
-                    _customCharaFile.listCtrl.UpdateCategory();
+                    lctrlTrav.UpdateCategory();
                 }
 
                 // Fix add info toggle breaking
-                var tglAddInfo = _customCharaFile.listCtrl.tglAddInfo;
-                tglAddInfo.onValueChanged.Invoke(tglAddInfo.isOn);
+                var tglField = lctrlTrav.tglAddInfo;
+                tglField.onValueChanged.Invoke(tglField.isOn);
             }
         }
 

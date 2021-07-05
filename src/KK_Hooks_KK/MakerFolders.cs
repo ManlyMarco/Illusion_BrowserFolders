@@ -5,7 +5,6 @@ using KKAPI.Utilities;
 using Manager;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -15,7 +14,6 @@ using UnityEngine.UI;
 namespace BrowserFolders.Hooks.KK
 {
     [BrowserType(BrowserType.Maker)]
-    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library not used in KKP")]
     public class MakerFolders : IFolderBrowser
     {
         private static Toggle _catToggle;
@@ -133,8 +131,8 @@ namespace BrowserFolders.Hooks.KK
                 _customCharaFile.Initialize();
 
                 // Fix add info toggle breaking
-                var tglAddInfo = _customCharaFile.listCtrl.tglAddInfo;
-                tglAddInfo.onValueChanged.Invoke(tglAddInfo.isOn);
+                var tglInfo = _customCharaFile.listCtrl.tglAddInfo;
+                tglInfo.onValueChanged.Invoke(tglInfo.isOn);
             }
         }
 

@@ -98,11 +98,10 @@ namespace BrowserFolders.Hooks
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 
-            _hEditLoadSceneWindow.SafeProc(sw =>
-            {
-                sw.Create();
-                sw.CreateListFilter();
-            });
+            if (_hEditLoadSceneWindow == null) return;
+
+            _hEditLoadSceneWindow.Create();
+            _hEditLoadSceneWindow.CreateListFilter();
         }
 
         private static void TreeWindow(int id)
