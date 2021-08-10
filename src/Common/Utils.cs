@@ -4,11 +4,36 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using BepInEx.Logging;
 
 namespace BrowserFolders
 {
     public static class Utils
     {
+        private static readonly Dictionary<string, string> _normalizedDirectoryNames = new Dictionary<string, string>();
+
+
+        public static string GetNormalizedDirectoryName(string filePath)
+        {
+            if (_normalizedDirectoryNames.TryGetValue(filePath, out var result)) return result;
+
+            var dir = Path.GetDirectoryName(filePath);
+            if (!dir.IsNullOrEmpty())
+            {
+                if (!_normalizedDirectoryNames.TryGetValue(dir, out result))
+                {
+                    _normalizedDirectoryNames[dir] = result = NormalizePath(dir);
+                }
+            }
+            else
+            {
+                result = string.Empty;
+            }
+
+            _normalizedDirectoryNames[filePath] = result;
+            return result;
+        }
+
         public static string NormalizePath(string path)
         {
             return Path.GetFullPath(path).Replace('/', '\\').TrimEnd('\\').ToLower();
@@ -39,6 +64,21 @@ namespace BrowserFolders
             }
         }
 
+        public static ManualLogSource Logger
+        {
+            get
+            {
+#if KK
+                return KK_BrowserFolders.Logger;
+#elif EC
+                return EC_BrowserFolders.Logger;
+#else
+                return AI_BrowserFolders.Logger;
+#endif
+            }
+
+        }
+
         public static void OpenDirInExplorer(string path)
         {
             try
@@ -47,16 +87,8 @@ namespace BrowserFolders
             }
             catch (Exception e)
             {
-#if KK
-                KK_BrowserFolders.Logger.LogError(e);
-                KK_BrowserFolders.Logger.LogMessage("Failed to open the folder - " + e.Message);
-#elif EC
-                EC_BrowserFolders.Logger.LogError(e);
-                EC_BrowserFolders.Logger.LogMessage("Failed to open the folder - " + e.Message);
-#else
-                AI_BrowserFolders.Logger.LogError(e);
-                AI_BrowserFolders.Logger.LogMessage("Failed to open the folder - " + e.Message);
-#endif
+                Logger.LogError(e);
+                Logger.LogMessage("Failed to open the folder - " + e.Message);
             }
         }
     }

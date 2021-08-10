@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Reflection.Emit;
-using BepInEx.Harmony;
-using ChaCustom;
+﻿using ChaCustom;
 using HarmonyLib;
 using KKAPI.Utilities;
 using Manager;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KK
 {
     [BrowserType(BrowserType.MakerOutfit)]
+    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library not used in KKP")]
     public class MakerOutfitFolders : IFolderBrowser
     {
         private static Toggle _catToggle;
@@ -29,8 +30,10 @@ namespace BrowserFolders.Hooks.KK
 
         public MakerOutfitFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(MakerOutfitFolders));
             //MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
@@ -90,6 +93,8 @@ namespace BrowserFolders.Hooks.KK
             _refreshList = true;
         }
 
+        private bool _guiActive;
+
         public void OnGui()
         {
             var guiShown = false;
@@ -112,11 +117,16 @@ namespace BrowserFolders.Hooks.KK
                         IMGUIUtils.DrawSolidBox(screenRect);
                         GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
                         IMGUIUtils.EatInputInRect(screenRect);
-                        guiShown = true;
+                        _guiActive = guiShown = true;
                     }
                 }
             }
-            if (!guiShown) _folderTreeView?.StopMonitoringFiles();
+
+            if (!guiShown && _guiActive)
+            {
+                _folderTreeView?.StopMonitoringFiles();
+                _guiActive = false;
+            }
         }
 
         private static void OnFolderChanged()
@@ -127,8 +137,7 @@ namespace BrowserFolders.Hooks.KK
 
             if (_saveOutfitToggle != null && _saveOutfitToggle.isOn || _loadOutfitToggle != null && _loadOutfitToggle.isOn)
             {
-                // private bool Initialize()                
-                Traverse.Create(_customCoordinateFile).Method("Initialize").GetValue();
+                _customCoordinateFile.Initialize();
             }
         }
 

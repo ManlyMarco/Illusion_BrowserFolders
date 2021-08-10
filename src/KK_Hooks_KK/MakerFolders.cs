@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Reflection.Emit;
-using BepInEx.Harmony;
-using ChaCustom;
+﻿using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
 using KKAPI.Utilities;
 using Manager;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KK
 {
     [BrowserType(BrowserType.Maker)]
+    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library not used in KKP")]
     public class MakerFolders : IFolderBrowser
     {
         private static Toggle _catToggle;
@@ -30,8 +31,10 @@ namespace BrowserFolders.Hooks.KK
 
         public MakerFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(MakerFolders));
             MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
@@ -82,6 +85,8 @@ namespace BrowserFolders.Hooks.KK
             }
         }
 
+        private bool _guiActive;
+
         public void OnGui()
         {
             var guiShown = false;
@@ -105,11 +110,16 @@ namespace BrowserFolders.Hooks.KK
                         IMGUIUtils.DrawSolidBox(screenRect);
                         GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                         IMGUIUtils.EatInputInRect(screenRect);
-                        guiShown = true;
+                        _guiActive = guiShown = true;
                     }
                 }
             }
-            if (!guiShown) _folderTreeView?.StopMonitoringFiles();
+
+            if (!guiShown && _guiActive)
+            {
+                _folderTreeView?.StopMonitoringFiles();
+                _guiActive = false;
+            }
         }
 
         private static void OnFolderChanged()
@@ -120,17 +130,11 @@ namespace BrowserFolders.Hooks.KK
 
             if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
             {
-                // private bool Initialize()
-                var ccf = Traverse.Create(_customCharaFile);
-                ccf.Method("Initialize").GetValue();
+                _customCharaFile.Initialize();
 
                 // Fix add info toggle breaking
-                var tglField = ccf.Field("listCtrl").Field("tglAddInfo");
-                if (tglField.FieldExists())
-                {
-                    var tglInfo = tglField.GetValue<Toggle>();
-                    tglInfo.onValueChanged.Invoke(tglInfo.isOn);
-                }
+                var tglAddInfo = _customCharaFile.listCtrl.tglAddInfo;
+                tglAddInfo.onValueChanged.Invoke(tglAddInfo.isOn);
             }
         }
 

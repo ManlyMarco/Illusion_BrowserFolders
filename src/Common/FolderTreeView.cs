@@ -119,11 +119,31 @@ namespace BrowserFolders
             }
         }
 
+        private void SetFileSystemWatcherEvents(bool enabled)
+        {
+            // changing EnableRaisingEvents on the main thread can be extremely slow, so don't
+            Action Worker()
+            {
+                try
+                {
+                    if (_fileSystemWatcher != null && _fileSystemWatcher.EnableRaisingEvents != enabled)
+                    {
+                        _fileSystemWatcher.EnableRaisingEvents = enabled;
+                    }
+                }
+                catch (InvalidOperationException) { }
+
+                return null;
+            }
+
+            ThreadingHelper.Instance.StartAsyncInvoke(Worker);
+        }
+
         private void StartMonitoringFiles()
         {
             if (_fileSystemWatcher != null && _fileSystemWatcher.EnableRaisingEvents) return;
             InitFileSystemWatcher();
-            _fileSystemWatcher.EnableRaisingEvents = true;
+            SetFileSystemWatcherEvents(true);
         }
 
         private void InitFileSystemWatcher()
@@ -139,12 +159,13 @@ namespace BrowserFolders
             _fileSystemWatcher.Created += (sender, e) => ResetTreeCache(false);
             _fileSystemWatcher.Deleted += (sender, e) => ResetTreeCache(false);
             _fileSystemWatcher.Renamed += (sender, e) => ResetTreeCache(false);
+            _fileSystemWatcher.Changed += (sender, e) => ResetTreeCache(false);
         }
 
         public void StopMonitoringFiles()
         {
             if (_fileSystemWatcher == null || !_fileSystemWatcher.EnableRaisingEvents) return;
-            _fileSystemWatcher.EnableRaisingEvents = false;
+            SetFileSystemWatcherEvents(false);
         }
 
         internal void OnDestroy()
@@ -202,8 +223,7 @@ namespace BrowserFolders
                 {
                     CurrentFolder = DefaultPath;
                 }
-            }
-
+            } 
             UpdateTreeCache();
 
             var path = CurrentFolder;

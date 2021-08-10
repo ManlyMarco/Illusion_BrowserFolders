@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using KKAPI.Utilities;
+﻿using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 
@@ -18,8 +17,10 @@ namespace BrowserFolders.Hooks.KKP
 
         public NewGameFolders()
         {
-            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Overlord.Init();
         }
@@ -58,8 +59,7 @@ namespace BrowserFolders.Hooks.KKP
 
         private static void OnFolderChanged()
         {
-            if (_newGame != null)
-                Traverse.Create(_newGame).Method("CreateMaleList").GetValue();
+            _newGame.SafeProc(ng => ng.CreateMaleList());
         }
 
         private static void TreeWindow(int id)

@@ -1,13 +1,12 @@
-﻿using System;
+﻿using BepInEx;
+using HarmonyLib;
+using KKAPI.Utilities;
+using Studio;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using BepInEx;
-using BepInEx.Harmony;
-using HarmonyLib;
-using KKAPI.Utilities;
-using Studio;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -17,10 +16,14 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
         private static SceneLoadScene _studioInitObject;
 
+        private bool _guiActive;
+
         public SceneFolders()
         {
-            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, Path.Combine(AI_BrowserFolders.UserDataPath, @"studio\scene"));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, Path.Combine(AI_BrowserFolders.UserDataPath, @"studio\scene"))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(SceneFolders));
         }
@@ -29,14 +32,16 @@ namespace BrowserFolders
         {
             if (_studioInitObject != null)
             {
+                _guiActive = true;
                 var screenRect = new Rect((int)(Screen.width / 11.3f), (int)(Screen.height / 90f), (int)(Screen.width / 2.5f), (int)(Screen.height / 5f));
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select folder with scenes to view");
                 IMGUIUtils.EatInputInRect(screenRect);
             }
-            else
+            else if (_guiActive)
             {
                 _folderTreeView?.StopMonitoringFiles();
+                _guiActive = false;
             }
         }
 
@@ -99,12 +104,12 @@ namespace BrowserFolders
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 
-            if (_studioInitObject == null) return;
-
-            var sls = typeof(SceneLoadScene);
-            sls.GetMethod("OnClickCancel", AccessTools.all)?.Invoke(_studioInitObject, null);
-            sls.GetMethod("InitInfo", AccessTools.all)?.Invoke(_studioInitObject, null);
-            sls.GetMethod("SetPage", AccessTools.all)?.Invoke(_studioInitObject, new object[] { SceneLoadScene.page });
+            _studioInitObject.SafeProc(sls =>
+            {
+                sls.OnClickCancel();
+                sls.InitInfo();
+                sls.SetPage(SceneLoadScene.page);
+            });
         }
 
         private static void TreeWindow(int id)

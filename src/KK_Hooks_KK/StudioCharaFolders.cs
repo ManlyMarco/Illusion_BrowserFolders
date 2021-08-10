@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using BepInEx.Harmony;
-using HarmonyLib;
+﻿using HarmonyLib;
 using KKAPI.Utilities;
 using Studio;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KK
@@ -29,6 +28,7 @@ namespace BrowserFolders.Hooks.KK
                 _lastEntry.FolderTreeView?.StopMonitoringFiles();
                 _lastEntry = null;
             }
+
             if (entry == null) return;
             _lastEntry = entry;
             var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f), (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
@@ -179,7 +179,8 @@ namespace BrowserFolders.Hooks.KK
 
             public void ApplyFilter()
             {
-                GetCharaFileInfos().RemoveAll(cfi => Utils.NormalizePath(Path.GetDirectoryName(cfi.file)) != CurrentFolder);
+                var currentFolder = CurrentFolder;
+                GetCharaFileInfos().RemoveAll(cfi => Utils.GetNormalizedDirectoryName(cfi.file) != currentFolder);
             }
 
             public void InitCharaList(bool force)
@@ -204,13 +205,13 @@ namespace BrowserFolders.Hooks.KK
 
             private List<CharaFileInfo> GetCharaFileInfos()
             {
-                return Traverse.Create(_charaList)?.Field<CharaFileSort>("charaFileSort")?.Value?.cfiList;
+                return _charaList.charaFileSort.cfiList;
             }
 
             private int GetSex()
             {
                 if (_sex == -1)
-                    _sex = Traverse.Create(_charaList).Field<int>("sex").Value;
+                    _sex = _charaList.sex;
                 return _sex;
             }
 

@@ -5,17 +5,18 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using ActionGame;
-using BepInEx.Harmony;
 using HarmonyLib;
 using Illusion.Extensions;
 using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
-using UnityEngine.UI;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BrowserFolders.Hooks.KK
 {
     [BrowserType(BrowserType.Classroom)]
+    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library not used in KKP")]
+    [SuppressMessage("KK.Compatibility", "KKANAL04:Type is missing in KK Party.", Justification = "Library not used in KKP")]
     public class ClassroomFolders : IFolderBrowser
     {
         private static string _currentRelativeFolder;
@@ -27,8 +28,10 @@ namespace BrowserFolders.Hooks.KK
 
         public ClassroomFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female/"));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female/"))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(ClassroomFolders));
         }
@@ -95,18 +98,22 @@ namespace BrowserFolders.Hooks.KK
             return false;
         }
 
+        private bool _guiActive;
+
         public void OnGui()
         {
             if (_canvas != null && _canvas.enabled && _targetScene == Scene.Instance.AddSceneName)
             {
+                _guiActive = true;
                 var screenRect = GetFullscreenBrowserRect();
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 IMGUIUtils.EatInputInRect(screenRect);
             }
-            else
+            else if (_guiActive)
             {
                 _folderTreeView?.StopMonitoringFiles();
+                _guiActive = false;
             }
         }
 
@@ -124,12 +131,8 @@ namespace BrowserFolders.Hooks.KK
             _customCharaFile.InitializeList();
 
             // Fix add info toggle breaking
-            var tglField = Traverse.Create(_customCharaFile).Field("listCtrl").Field("tglAddInfo");
-            if (tglField.FieldExists())
-            {
-                var tglInfo = tglField.GetValue<Toggle>();
-                tglInfo.onValueChanged.Invoke(tglInfo.isOn);
-            }
+            var tglAddInfo = _customCharaFile.listCtrl.tglAddInfo;
+            tglAddInfo.onValueChanged.Invoke(tglAddInfo.isOn);
         }
 
         private static void TreeWindow(int id)

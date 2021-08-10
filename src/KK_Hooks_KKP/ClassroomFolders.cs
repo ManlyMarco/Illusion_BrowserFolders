@@ -1,16 +1,17 @@
-﻿using System.IO;
-using System.Linq;
-using ActionGame;
-using BepInEx.Harmony;
+﻿using ActionGame;
 using HarmonyLib;
 using Illusion.Extensions;
 using KKAPI.Utilities;
 using Manager;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KKP
 {
     [BrowserType(BrowserType.Classroom)]
+    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library only used in KKP")]
     public class ClassroomFolders : IFolderBrowser
     {
         private static FolderTreeView _folderTreeView;
@@ -21,8 +22,10 @@ namespace BrowserFolders.Hooks.KKP
 
         public ClassroomFolders()
         {
-            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Overlord.Init();
 
@@ -96,7 +99,7 @@ namespace BrowserFolders.Hooks.KKP
 
         private static void OnFolderChanged()
         {
-            _customCharaFile?.CharFile?.Initialize();
+            _customCharaFile.SafeProc(ccf => ccf.CharFile.SafeProc(cf => cf.Initialize()));
         }
 
         private static void TreeWindow(int id)

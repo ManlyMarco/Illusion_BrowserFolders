@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Reflection.Emit;
-using ActionGame;
-using BepInEx.Harmony;
-using FreeH;
+﻿using FreeH;
 using HarmonyLib;
 using KKAPI.Utilities;
 using Manager;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KK
 {
     [BrowserType(BrowserType.FreeH)]
+    [SuppressMessage("KK.Compatibility", "KKANAL04:Type is missing in KK Party.", Justification = "Library not used in KKP")]
+    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library not used in KKP")]
     public class FreeHFolders : IFolderBrowser
     {
         private static FreeHClassRoomCharaFile _freeHFile;
@@ -27,14 +27,17 @@ namespace BrowserFolders.Hooks.KK
 
         public FreeHFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(FreeHFolders));
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(FreeHClassRoomCharaFile), "Start")]
+        
         internal static void InitHook(FreeHClassRoomCharaFile __instance)
         {
             if (_refreshing) return;
@@ -100,16 +103,14 @@ namespace BrowserFolders.Hooks.KK
                 _refreshing = true;
 
                 //Everything is put into Start and some vars we need to change are locals, so we need to clean state and run start again
-                var listCtrl = (ClassRoomFileListCtrl)AccessTools.Field(typeof(FreeHClassRoomCharaFile), "listCtrl").GetValue(_freeHFile);
-                ClearEventInvocations(listCtrl, "OnPointerClick");
-                var enterButton = (Button)AccessTools.Field(typeof(FreeHClassRoomCharaFile), "enterButton").GetValue(_freeHFile);
-                enterButton.onClick.RemoveAllListeners();
-
-                AccessTools.Method(typeof(FreeHClassRoomCharaFile), "Start").Invoke(_freeHFile, null);
+                var listCtrl = _freeHFile.listCtrl;
+                ClearEventInvocations(listCtrl, nameof(listCtrl.OnPointerClick));
+                _freeHFile.enterButton.onClick.RemoveAllListeners();
+                _freeHFile.Start();
 
                 // Fix add info toggle breaking
-                var tglInfo = (Toggle)AccessTools.Field(typeof(ClassRoomFileListCtrl), "tglAddInfo").GetValue(listCtrl);
-                tglInfo.onValueChanged.Invoke(tglInfo.isOn);
+                var tglAddInfo = listCtrl.tglAddInfo;
+                tglAddInfo.onValueChanged.Invoke(tglAddInfo.isOn);
             }
             finally
             {
@@ -117,18 +118,22 @@ namespace BrowserFolders.Hooks.KK
             }
         }
 
+        private bool _guiActive;
+
         public void OnGui()
         {
             if (_freeHFile != null && !_isLive && _targetScene == Scene.Instance.AddSceneName)
             {
+                _guiActive = true;
                 var screenRect = ClassroomFolders.GetFullscreenBrowserRect();
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 IMGUIUtils.EatInputInRect(screenRect);
             }
-            else
+            else if (_guiActive)
             {
                 _folderTreeView?.StopMonitoringFiles();
+                _guiActive = false;
             }
         }
 

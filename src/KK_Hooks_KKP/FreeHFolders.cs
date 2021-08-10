@@ -20,8 +20,10 @@ namespace BrowserFolders.Hooks.KKP
 
         public FreeHFolders()
         {
-            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Overlord.Init();
         }

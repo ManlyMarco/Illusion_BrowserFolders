@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using BepInEx;
-using BepInEx.Harmony;
+﻿using BepInEx;
 using HarmonyLib;
 using KKAPI.Utilities;
 using Studio;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -27,8 +26,10 @@ namespace BrowserFolders
             if (_lastEntry != null && _lastEntry != entry)
             {
                 _lastEntry.FolderTreeView?.StopMonitoringFiles();
+
                 _lastEntry = null;
             }
+
             if (entry == null) return;
             _lastEntry = entry;
             var windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
@@ -179,7 +180,8 @@ namespace BrowserFolders
 
             public void ApplyFilter()
             {
-                GetCharaFileInfos().RemoveAll(cfi => Utils.NormalizePath(Path.GetDirectoryName(cfi.file)) != CurrentFolder);
+                var currentFolder = CurrentFolder;
+                GetCharaFileInfos().RemoveAll(cfi => Utils.GetNormalizedDirectoryName(cfi.file) != currentFolder);
             }
 
             public void InitCharaList(bool force)
@@ -204,13 +206,15 @@ namespace BrowserFolders
 
             private List<CharaFileInfo> GetCharaFileInfos()
             {
-                return Traverse.Create(_charaList)?.Field<CharaFileSort>("charaFileSort")?.Value?.cfiList;
+                List<CharaFileInfo> result = null;
+                _charaList.SafeProc(cl => cl.charaFileSort.SafeProc(cfs => result = cfs.cfiList));
+                return result;
             }
 
             private int GetSex()
             {
                 if (_sex == -1)
-                    _sex = Traverse.Create(_charaList).Field<int>("sex").Value;
+                    _sex = _charaList.sex;
                 return _sex;
             }
 

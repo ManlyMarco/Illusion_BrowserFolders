@@ -34,21 +34,25 @@ namespace BrowserFolders.Hooks.KK
             }
         }
 
+        private bool _guiActive;
+
         public void OnGui()
         {
             if (_costumeInfoEntry != null)
             {
                 if (_costumeInfoEntry.isActive())
                 {
+                    _guiActive = true;
                     var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f),
                         (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
                     IMGUIUtils.DrawSolidBox(windowRect);
                     GUILayout.Window(363, windowRect, id => TreeWindow(), "Folder with outfits to view");
                     IMGUIUtils.EatInputInRect(windowRect);
                 }
-                else
+                else if (_guiActive)
                 {
                     _costumeInfoEntry.FolderTreeView?.StopMonitoringFiles();
+                    _guiActive = false;
                 }
             }
         }
@@ -75,7 +79,12 @@ namespace BrowserFolders.Hooks.KK
         {
             if (_costumeInfoEntry != null)
             {
-                _costumeInfoEntry.SaveFullList();
+                if (!_refilterOnly)
+                {
+                    // don't update results if we didn't get new ones
+                    _costumeInfoEntry.SaveFullList();
+                }
+
                 _costumeInfoEntry.ApplyFilter();
             }
         }
@@ -161,7 +170,8 @@ namespace BrowserFolders.Hooks.KK
 
             public void ApplyFilter()
             {
-                GetCharaFileInfos().RemoveAll(cfi => Utils.NormalizePath(Path.GetDirectoryName(cfi.file)) != CurrentFolder);
+                var currentFolder = CurrentFolder;
+                GetCharaFileInfos().RemoveAll(cfi => Utils.GetNormalizedDirectoryName(cfi.file) != currentFolder);
             }
 
             public void InitOutfitList()

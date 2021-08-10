@@ -24,8 +24,10 @@ namespace BrowserFolders.Hooks
         public MakerSceneFolders()
         {
             _folderTreeView =
-                new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+                new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+                {
+                    CurrentFolderChanged = OnFolderChanged
+                };
 
             Harmony.CreateAndPatchAll(typeof(MakerSceneFolders));
         }
@@ -96,12 +98,11 @@ namespace BrowserFolders.Hooks
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 
-            if (_hEditLoadSceneWindow == null) return;
-
-            var ccf = Traverse.Create(_hEditLoadSceneWindow);
-
-            ccf.Method("Create").GetValue();
-            ccf.Method("CreateListFilter").GetValue();
+            _hEditLoadSceneWindow.SafeProc(sw =>
+            {
+                sw.Create();
+                sw.CreateListFilter();
+            });
         }
 
         private static void TreeWindow(int id)

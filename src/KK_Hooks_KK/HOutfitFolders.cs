@@ -23,9 +23,11 @@ namespace BrowserFolders.Hooks.KK
 
         public HOutfitFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
-            
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
+
             Harmony.CreateAndPatchAll(typeof(HOutfitFolders));
         }
 
@@ -58,18 +60,22 @@ namespace BrowserFolders.Hooks.KK
             }
         }
 
+        private bool _guiActive;
+
         public void OnGui()
         {
             if (_uiObject && _uiObject.activeSelf && _sceneName == Manager.Scene.Instance.AddSceneName)
             {
+                _guiActive = true;
                 var screenRect = new Rect((int)(Screen.width * 0.04), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select outfit folder");
                 IMGUIUtils.EatInputInRect(screenRect);
             }
-            else
+            else if (_guiActive)
             {
                 _folderTreeView?.StopMonitoringFiles();
+                _guiActive = false;
             }
         }
 
@@ -77,9 +83,8 @@ namespace BrowserFolders.Hooks.KK
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 
-            if (_customCoordinateFile == null) return; //if failed not initializing in "start"
-
-            Traverse.Create(_customCoordinateFile).Method("Initialize").GetValue();
+            //_customCoordinateFile == null if failed not initializing in "start"
+            _customCoordinateFile.SafeProc(ccf => ccf.Initialize());
         }
 
         private static void TreeWindow(int id)
