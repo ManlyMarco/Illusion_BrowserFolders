@@ -1,15 +1,16 @@
-﻿using System.IO;
-using BepInEx.Harmony;
-using ChaCustom;
+﻿using ChaCustom;
 using HarmonyLib;
 using KKAPI.Utilities;
 using Manager;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KKP
 {
     [BrowserType(BrowserType.MakerOutfit)]
+    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library only used in KKP")]
     public class MakerOutfitFolders : IFolderBrowser
     {
         private static Toggle _catToggle;
@@ -26,8 +27,10 @@ namespace BrowserFolders.Hooks.KKP
 
         public MakerOutfitFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(MakerOutfitFolders));
 
@@ -99,17 +102,22 @@ namespace BrowserFolders.Hooks.KKP
                     }
                 }
             }
-            if (!guiShown) _folderTreeView?.StopMonitoringFiles();
+
+            if (!guiShown)
+            {
+                _folderTreeView?.StopMonitoringFiles();
+            }
+
         }
 
         private static void OnFolderChanged()
         {
             if (_customCoordinateFile == null) return;
 
-            if (_loadOutfitToggle != null && _loadOutfitToggle.isOn || _saveOutfitToggle != null && _saveOutfitToggle.isOn)
+            var loadOutfitToggleIsOn = _loadOutfitToggle != null && _loadOutfitToggle.isOn;
+            if (loadOutfitToggleIsOn || _saveOutfitToggle != null && _saveOutfitToggle.isOn)
             {
-                // private bool Initialize(bool isDefaultDataAdd, bool reCreate)
-                Traverse.Create(_customCoordinateFile).Method("Initialize", _loadOutfitToggle?.isOn == true, false).GetValue();
+                _customCoordinateFile.Initialize(loadOutfitToggleIsOn, false);
             }
         }
 

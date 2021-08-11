@@ -24,8 +24,10 @@ namespace BrowserFolders.Hooks
         public MakerPoseSaveFolders()
         {
             _folderTreeView =
-                new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+                new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+                {
+                    CurrentFolderChanged = OnFolderChanged
+                };
 
             Harmony.CreateAndPatchAll(typeof(MakerPoseSaveFolders));
         }
@@ -101,12 +103,11 @@ namespace BrowserFolders.Hooks
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 
-            if (_poseSaveScene == null) return;
-
-            var ccf = Traverse.Create(_poseSaveScene);
-
-            ccf.Method("CreateList").GetValue();
-            ccf.Method("RecreateScrollerList").GetValue();
+            _poseSaveScene.SafeProc(pss =>
+            {
+                pss.CreateList();
+                pss.RecreateScrollerList();
+            });
         }
 
         private static void TreeWindow(int id)

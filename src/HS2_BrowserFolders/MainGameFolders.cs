@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using GameLoadCharaFileSystem;
+﻿using GameLoadCharaFileSystem;
 using HarmonyLib;
 using HS2;
 using KKAPI.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -19,12 +18,16 @@ namespace BrowserFolders
         private static VisibleWindow _lastVisibleWindow;
         private static FolderTreeView _folderTreeView;
 
+        private bool _guiActive;
+
         public MainGameFolders()
         {
             var pathDefault = Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female");
-            _folderTreeView = new FolderTreeView(pathDefault, pathDefault);
-            _folderTreeView.CurrentFolder = pathDefault;
-            _folderTreeView.CurrentFolderChanged = RefreshCurrentWindow;
+            _folderTreeView = new FolderTreeView(pathDefault, pathDefault)
+            {
+                CurrentFolder = pathDefault,
+                CurrentFolderChanged = RefreshCurrentWindow
+            };
 
             Harmony.CreateAndPatchAll(typeof(MainGameFolders));
             //todo split out into a separate thing?
@@ -37,10 +40,12 @@ namespace BrowserFolders
             if (visibleWindow == VisibleWindow.None)
             {
                 _lastVisibleWindow = VisibleWindow.None;
-                _folderTreeView?.StopMonitoringFiles();
+                if (_guiActive) _folderTreeView?.StopMonitoringFiles();
+                _guiActive = false;
                 return;
             }
 
+            _guiActive = true;
             if (_lastVisibleWindow != visibleWindow) RefreshCurrentWindow();
 
             var screenRect = GetDisplayRect();
@@ -59,15 +64,12 @@ namespace BrowserFolders
             {
                 if (_charaLoad != null)
                 {
-                    var tra = Traverse.Create(_charaLoad);
-                    tra.Field<List<GameCharaFileInfo>>("charaLists").Value.Clear();
-
+                    _charaLoad.charaLists.Clear();
+                    // can we pass _charaLoad.charaLists directly rather than allocating new list and assigning?
                     var list = new List<GameCharaFileInfo>();
-                    var method = typeof(GameCharaFileInfoAssist).GetMethod("AddList", BindingFlags.Static | BindingFlags.NonPublic);
-                    if (method == null) throw new ArgumentNullException(nameof(method));
-                    method.Invoke(null, new object[] { list, _folderTreeView.CurrentFolder, 0, (byte)1, true, true, false, false, true, false });
-
-                    tra.Field<List<GameCharaFileInfo>>("charaLists").Value = list;
+                    GameCharaFileInfoAssist.AddList(list, _folderTreeView.CurrentFolder, 0, (byte) 1, true, true, false,
+                        false, true, false);
+                    _charaLoad.charaLists = list;
 
                     _charaLoad.ReDrawListView();
 
@@ -126,8 +128,7 @@ namespace BrowserFolders
             _bookCanvas = __instance.gameObject.transform.Find("Group")?.gameObject;
             _charaLoadVisible = __instance.gameObject.transform.Find("Group")?.GetComponent<CanvasGroup>();
 
-            var tra = Traverse.Create(__instance);
-            _charaLoad = tra.Field<GroupCharaSelectUI>("groupCharaSelectUI").Value;
+            _charaLoad = __instance.groupCharaSelectUI;
         }
 
         public static string GetRelativePath(string fromFile, string toFolder)

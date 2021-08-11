@@ -1,12 +1,11 @@
-﻿using System;
+﻿using HarmonyLib;
+using KKAPI.Utilities;
+using Manager;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
-using BepInEx.Harmony;
-using HarmonyLib;
-using KKAPI.Utilities;
-using Manager;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KK
@@ -22,8 +21,10 @@ namespace BrowserFolders.Hooks.KK
 
         public NewGameFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/male/"));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/male/"))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(NewGameFolders));
         }
@@ -56,18 +57,22 @@ namespace BrowserFolders.Hooks.KK
             }
         }
 
+        private bool _guiActive;
+
         public void OnGui()
         {
             if (_customCharaFile != null && _targetScene == Scene.Instance.AddSceneName)
             {
+                _guiActive = true;
                 var screenRect = GetFullscreenBrowserRect();
                 IMGUIUtils.DrawSolidBox(screenRect);
                 GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
                 IMGUIUtils.EatInputInRect(screenRect);
             }
-            else
+            else if (_guiActive)
             {
                 _folderTreeView?.StopMonitoringFiles();
+                _guiActive = false;
             }
         }
 
@@ -82,7 +87,7 @@ namespace BrowserFolders.Hooks.KK
 
             if (_customCharaFile == null) return;
 
-            AccessTools.Method(typeof(EntryPlayer), "CreateMaleList").Invoke(_customCharaFile, null);
+            _customCharaFile.SafeProc(ccf => ccf.CreateMaleList());
         }
 
         private static void TreeWindow(int id)

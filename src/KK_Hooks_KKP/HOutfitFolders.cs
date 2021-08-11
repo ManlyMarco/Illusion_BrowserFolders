@@ -19,8 +19,10 @@ namespace BrowserFolders.Hooks.KKP
 
         public HOutfitFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(HOutfitFolders));
         }
@@ -54,8 +56,7 @@ namespace BrowserFolders.Hooks.KKP
 
         private static void OnFolderChanged()
         {
-            if (_customCoordinateFile == null) return;
-            Traverse.Create(_customCoordinateFile).Method("Initialize").GetValue();
+            _customCoordinateFile.SafeProc(ccf => ccf.Initialize());
         }
 
         private static void TreeWindow(int id)

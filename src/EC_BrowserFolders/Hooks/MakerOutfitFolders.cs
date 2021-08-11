@@ -29,8 +29,10 @@ namespace BrowserFolders.Hooks
 
         public MakerOutfitFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(MakerOutfitFolders));
         }
@@ -135,21 +137,20 @@ namespace BrowserFolders.Hooks
             var isSave = _saveOutfitToggle != null && _saveOutfitToggle.isOn;
             if (isLoad || isSave)
             {
-                var ccfTrav = Traverse.Create(_customCoordinateFile);
-                ccfTrav.Method("Initialize").GetValue();
+                _customCoordinateFile.Initialize();
 
                 // Fix default cards being shown when refreshing in this way
-                var lctrlTrav = ccfTrav.Field("listCtrl");
+                var listCtrl = _customCoordinateFile.listCtrl;
                 if (isSave)
                 {
-                    var lst = lctrlTrav.Field("lstFileInfo").GetValue<List<CustomFileInfo>>();
-                    var dis = lctrlTrav.Field("cfWindow").Field("forceHideCategoryNo").GetValue<int>();
+                    var lst = listCtrl.lstFileInfo;
+                    var dis = listCtrl.cfWindow.forceHideCategoryNo;
                     if (dis != -1)
                         foreach (var customFileInfo in lst.Where(x => x.category == dis)) customFileInfo.fic.Disvisible(true);
                 }
                 else
                 {
-                    lctrlTrav.Method("UpdateCategory").GetValue();
+                    listCtrl.UpdateCategory();
                 }
             }
         }

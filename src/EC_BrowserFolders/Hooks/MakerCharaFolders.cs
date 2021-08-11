@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using ChaCustom;
+﻿using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
 using KKAPI.Utilities;
 using Manager;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,8 +29,10 @@ namespace BrowserFolders.Hooks
         public MakerCharaFolders()
         {
             _folderTreeView =
-                new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+                new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+                {
+                    CurrentFolderChanged = OnFolderChanged
+                };
 
             Harmony.CreateAndPatchAll(typeof(MakerCharaFolders));
             MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
@@ -120,30 +121,24 @@ namespace BrowserFolders.Hooks
             var isSave = _saveCharaToggle != null && _saveCharaToggle.isOn;
             if (isLoad || isSave)
             {
-                var ccfTrav = Traverse.Create(_customCharaFile);
-                ccfTrav.Method("Initialize").GetValue();
+                _customCharaFile.Initialize();
 
                 // Fix default cards being shown when refreshing in this way
-                var lctrlTrav = ccfTrav.Field("listCtrl");
                 if (isSave)
                 {
-                    var lst = lctrlTrav.Field("lstFileInfo").GetValue<List<CustomFileInfo>>();
+                    var lst = _customCharaFile.listCtrl.lstFileInfo;
                     // Show user created and downloaded cards but no default cards (sitri needs special handling)
                     foreach (var fileInfo in lst)
                         fileInfo.fic.Disvisible(fileInfo.category > 1 || fileInfo.FullPath.EndsWith("DefaultData/chara/sitri/sitri.png", StringComparison.OrdinalIgnoreCase));
                 }
                 else
                 {
-                    lctrlTrav.Method("UpdateCategory").GetValue();
+                    _customCharaFile.listCtrl.UpdateCategory();
                 }
 
                 // Fix add info toggle breaking
-                var tglField = lctrlTrav.Field("tglAddInfo");
-                if (tglField.FieldExists())
-                {
-                    var tglInfo = tglField.GetValue<Toggle>();
-                    tglInfo.onValueChanged.Invoke(tglInfo.isOn);
-                }
+                var tglAddInfo = _customCharaFile.listCtrl.tglAddInfo;
+                tglAddInfo.onValueChanged.Invoke(tglAddInfo.isOn);
             }
         }
 

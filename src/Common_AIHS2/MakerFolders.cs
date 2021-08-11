@@ -1,14 +1,13 @@
-﻿using System;
+﻿using CharaCustom;
+using HarmonyLib;
+using KKAPI.Maker;
+using KKAPI.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
-using BepInEx.Harmony;
-using CharaCustom;
-using HarmonyLib;
-using KKAPI.Maker;
-using KKAPI.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,10 +26,14 @@ namespace BrowserFolders
         private static VisibleWindow _lastRefreshed;
         private static FolderTreeView _folderTreeView;
 
+        private bool _guiActive;
+
         public MakerFolders()
         {
-            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath);
-            _folderTreeView.CurrentFolderChanged = RefreshCurrentWindow;
+            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath)
+            {
+                CurrentFolderChanged = RefreshCurrentWindow
+            };
 
             Harmony.CreateAndPatchAll(typeof(MakerFolders));
             MakerCardSave.RegisterNewCardSavePathModifier(CardSavePathModifier, null);
@@ -138,10 +141,15 @@ namespace BrowserFolders
             if (visibleWindow == VisibleWindow.None)
             {
                 _lastRefreshed = VisibleWindow.None;
-                _folderTreeView?.StopMonitoringFiles();
+                if (!_guiActive)
+                {
+                    _folderTreeView?.StopMonitoringFiles();
+                    _guiActive = false;
+                }
                 return;
             }
 
+            _guiActive = true;
             if (_lastRefreshed != visibleWindow) RefreshCurrentWindow();
 
             var screenRect = GetDisplayRect();
@@ -236,7 +244,7 @@ namespace BrowserFolders
                 var info = ___charaLoadWinA.GetSelectInfo();
                 var info2 = ___charaLoadWinB.GetSelectInfo();
                 __instance.FusionProc(info.info.FullPath, info2.info.FullPath);
-                Traverse.Create(__instance).Field("isFusion").SetValue(true);
+                __instance.isFusion = true;
             });
         }
 

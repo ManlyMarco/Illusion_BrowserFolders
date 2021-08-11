@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection.Emit;
-using AIChara;
-using BepInEx.Harmony;
+﻿using AIChara;
 using CharaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
 using KKAPI.Utilities;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection.Emit;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -24,10 +23,14 @@ namespace BrowserFolders
         private static VisibleWindow _lastRefreshed;
         private static FolderTreeView _folderTreeView;
 
+        private bool _guiActive;
+
         public MakerOutfitFolders()
         {
-            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath);
-            _folderTreeView.CurrentFolderChanged = RefreshCurrentWindow;
+            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath)
+            {
+                CurrentFolderChanged = RefreshCurrentWindow
+            };
 
             Harmony.CreateAndPatchAll(typeof(MakerOutfitFolders));
         }
@@ -111,15 +114,21 @@ namespace BrowserFolders
         }
 
         public void OnGui()
-        {//todo  When loading a coordinate it resets to the main folder without deselect in menu
+        {
+            //todo  When loading a coordinate it resets to the main folder without deselect in menu
             var visibleWindow = IsVisible();
             if (visibleWindow == VisibleWindow.None)
             {
                 _lastRefreshed = VisibleWindow.None;
-                _folderTreeView?.StopMonitoringFiles();
+                if (_guiActive)
+                {
+                    _folderTreeView?.StopMonitoringFiles();
+                    _guiActive = false;
+                }
                 return;
             }
 
+            _guiActive = true;
             if (_lastRefreshed != visibleWindow) RefreshCurrentWindow();
 
             var screenRect = MakerFolders.GetDisplayRect();

@@ -1,16 +1,17 @@
-﻿using System.IO;
-using BepInEx.Harmony;
-using ChaCustom;
+﻿using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
 using KKAPI.Utilities;
 using Manager;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KKP
 {
     [BrowserType(BrowserType.Maker)]
+    [SuppressMessage("KK.Compatibility", "KKANAL03:Member is missing or has a different signature in KK Party.", Justification = "Library only used in KKP")]
     public class MakerFolders : IFolderBrowser
     {
         private static Toggle _catToggle;
@@ -27,8 +28,10 @@ namespace BrowserFolders.Hooks.KKP
 
         public MakerFolders()
         {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path));
-            _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
+            {
+                CurrentFolderChanged = OnFolderChanged
+            };
 
             Harmony.CreateAndPatchAll(typeof(MakerFolders));
 
@@ -90,17 +93,21 @@ namespace BrowserFolders.Hooks.KKP
                     }
                 }
             }
-            if (!guiShown) _folderTreeView?.StopMonitoringFiles();
+
+            if (!guiShown)
+            {
+                _folderTreeView?.StopMonitoringFiles();
+            }
         }
 
         private static void OnFolderChanged()
         {
             if (_customCharaFile == null) return;
 
-            if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
+            var loadCharaToggleIsOn = _loadCharaToggle != null && _loadCharaToggle.isOn;
+            if (loadCharaToggleIsOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
             {
-                // private bool Initialize(bool isDefaultDataAdd, bool reCreate)
-                Traverse.Create(_customCharaFile).Method("Initialize", _loadCharaToggle?.isOn == true, false).GetValue();
+                _customCharaFile.Initialize(loadCharaToggleIsOn == true, false);
             }
         }
 
