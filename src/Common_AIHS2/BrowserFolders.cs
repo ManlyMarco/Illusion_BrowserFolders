@@ -20,6 +20,7 @@ namespace BrowserFolders
 
         private IFolderBrowser _sceneFolders;
         private IFolderBrowser _studioCharaFolders;
+        private IFolderBrowser _studioOutfitFolders;
         private IFolderBrowser _makerCharaFolders;
         private IFolderBrowser _makerClothesFolders;
         
@@ -27,6 +28,7 @@ namespace BrowserFolders
         public static ConfigEntry<bool> EnableMakerCoord { get; private set; }
         public static ConfigEntry<bool> EnableStudio { get; private set; }
         public static ConfigEntry<bool> EnableStudioChara { get; private set; }
+        public static ConfigEntry<bool> EnableStudioOutfit { get; private set; }
         public static ConfigEntry<bool> StudioSaveOverride { get; private set; }
 
         private void Awake()
@@ -45,6 +47,9 @@ namespace BrowserFolders
             EnableStudioChara = Config.Bind("Chara Studio", "Enable folder browser in character browser", true, "Changes take effect on game restart");
             if (StudioAPI.InsideStudio && EnableStudioChara.Value) _studioCharaFolders = new StudioCharaFolders();
 
+            EnableStudioOutfit = Config.Bind("Chara Studio", "Enable folder browser in outfit browser", true, "Changes take effect on game restart");
+            if (StudioAPI.InsideStudio && EnableStudioOutfit.Value) _studioOutfitFolders = new StudioOutfitFolders();
+
             StudioSaveOverride = Config.Bind("Chara Studio", "Save scenes to current folder", false, "When you select a custom folder to load a scene from, newly saved scenes will be saved to this folder.\nIf disabled, scenes are always saved to default folder (studio/scene).");
 
             GameSpecificAwake();
@@ -56,6 +61,7 @@ namespace BrowserFolders
             {
                 _sceneFolders?.OnGui();
                 _studioCharaFolders?.OnGui();
+                _studioOutfitFolders?.OnGui();
             }
             else if (MakerAPI.InsideMaker)
             {
