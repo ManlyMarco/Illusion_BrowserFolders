@@ -70,6 +70,8 @@ namespace BrowserFolders
             {
 #if KK
                 return KK_BrowserFolders.Logger;
+#elif KKS         
+                return KKS_BrowserFolders.Logger;
 #elif EC
                 return EC_BrowserFolders.Logger;
 #else

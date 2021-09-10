@@ -14,7 +14,7 @@ namespace BrowserFolders
 {
     [BepInPlugin(Guid, "Maker/Studio Browser Folders", Version)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
-    public class KK_BrowserFolders : BaseUnityPlugin
+    public class KKS_BrowserFolders : BaseUnityPlugin
     {
         public const string Guid = Constants.Guid;
         public const string Version = Constants.Version;

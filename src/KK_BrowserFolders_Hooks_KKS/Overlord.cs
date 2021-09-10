@@ -20,19 +20,26 @@ namespace BrowserFolders.Hooks.KKP
             Harmony.CreateAndPatchAll(typeof(Overlord));
         }
 
+        //FreeH caches male and female causing window to be stuck on the most last opened sex. Forcing recycle to be false fixes this
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(FreeHCharaSelect), nameof(FreeHCharaSelect.Create), typeof(int), typeof(bool))]
+        internal static void CreateHook(int sex, ref bool recycle)
+        {
+            recycle = false;
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(Localize.Translate.Manager.DefaultData), nameof(Localize.Translate.Manager.DefaultData.UserDataAssist), typeof(string), typeof(bool))]
         internal static void FilenameHook(ref string path, ref bool useDefaultData)
         {
             var sex = path == "chara/female/" ? 1 : 0;
 
-            useDefaultData = useDefaultData && KK_BrowserFolders.ShowDefaultCharas.Value;
+            useDefaultData = useDefaultData && KKS_BrowserFolders.ShowDefaultCharas.Value;
 
             var freeh = Object.FindObjectOfType<FreeHPreviewCharaList>();
             if (freeh != null)
             {
                 FreeHFolders.Init(freeh, sex);
-
                 var overridePath = FreeHFolders.CurrentRelativeFolder;
                 if (!string.IsNullOrEmpty(overridePath))
                     path = overridePath;
@@ -109,10 +116,10 @@ namespace BrowserFolders.Hooks.KKP
         public static bool DrawDefaultCardsToggle()
         {
             GUI.changed = false;
-            var newVal = GUILayout.Toggle(KK_BrowserFolders.ShowDefaultCharas.Value, "Show default cards");
+            var newVal = GUILayout.Toggle(KKS_BrowserFolders.ShowDefaultCharas.Value, "Show default cards");
             if (GUI.changed)
             {
-                KK_BrowserFolders.ShowDefaultCharas.Value = newVal;
+                KKS_BrowserFolders.ShowDefaultCharas.Value = newVal;
                 return true;
             }
             return false;

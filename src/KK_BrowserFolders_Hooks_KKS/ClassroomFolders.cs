@@ -38,7 +38,7 @@ namespace BrowserFolders.Hooks.KKP
         [HarmonyPatch(typeof(Localize.Translate.Manager), nameof(Localize.Translate.Manager.GetRandomUserDataFemaleCard), typeof(int))]
         internal static bool RandomCharaPickOverride(int num, ref ChaFileControl[] __result)
         {
-            if (KK_BrowserFolders.RandomCharaSubfolders?.Value != true) return true;
+            if (KKS_BrowserFolders.RandomCharaSubfolders?.Value != true) return true;
 
             var path = Path.Combine(UserData.Path, "chara/female");
             if (!Directory.Exists(path))
