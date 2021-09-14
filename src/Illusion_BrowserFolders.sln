@@ -23,9 +23,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EC_BrowserFolders", "EC_Bro
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{9303FD5B-13ED-4BBE-9625-B1EAF4287802}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders_Hooks_KKS", "KK_BrowserFolders_Hooks_KKS\KK_BrowserFolders_Hooks_KKS.csproj", "{5F24613D-228D-4EFE-B3AD-EA8DA64BE688}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KKS_BrowserFolders_Hooks", "KKS_BrowserFolders_Hooks\KKS_BrowserFolders_Hooks.csproj", "{5F24613D-228D-4EFE-B3AD-EA8DA64BE688}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KKS_FolderBrowser", "KKS_FolderBrowser\KKS_FolderBrowser.csproj", "{867DB9DF-F1F2-43EF-98E7-F92CD2D01E49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KKS_BrowserFolders", "KKS_BrowserFolders\KKS_BrowserFolders.csproj", "{867DB9DF-F1F2-43EF-98E7-F92CD2D01E49}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
