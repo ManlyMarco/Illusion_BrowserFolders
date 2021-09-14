@@ -12,6 +12,7 @@ using UnityEngine;
 
 namespace BrowserFolders
 {
+    //todo Consider merhing with hooks if the steam version isn't different enough to need separate hooks
     [BepInPlugin(Guid, "Maker/Studio Browser Folders", Version)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
     public class KKS_BrowserFolders : BaseUnityPlugin
@@ -152,7 +153,7 @@ namespace BrowserFolders
         {
             try
             {
-                string assHooks = "KK_BrowserFolders_Hooks_KKS";
+                string assHooks = "KKS_BrowserFolders_Hooks";
 
                 return GetBrowsers(Assembly.Load(assHooks));
             }
