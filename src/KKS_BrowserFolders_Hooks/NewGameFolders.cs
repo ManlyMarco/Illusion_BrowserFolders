@@ -54,7 +54,7 @@ namespace BrowserFolders.Hooks.KKP
 
         private static Rect GetFullscreenBrowserRect()
         {
-            return new Rect((int)(Screen.width * 0.73), (int)(Screen.height * 0.55f), (int)(Screen.width * 0.2), (int)(Screen.height * 0.3));
+            return new Rect((int)(0), (int)(Screen.height * 0.35f), (int)(Screen.width * 0.12), (int)(Screen.height * 0.5));
         }
 
         private static void OnFolderChanged()
