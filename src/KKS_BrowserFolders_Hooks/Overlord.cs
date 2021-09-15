@@ -78,7 +78,6 @@ namespace BrowserFolders.Hooks.KKP
                 var maker = Object.FindObjectOfType<CustomCharaFile>();
                 if (maker != null)
                 {
-                    MakerFolders.Init(maker, sex);
                     var overridePath = MakerFolders.CurrentRelativeFolder;
                     if (!string.IsNullOrEmpty(overridePath))
                         path = overridePath;

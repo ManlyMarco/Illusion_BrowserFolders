@@ -23,7 +23,6 @@ namespace BrowserFolders.Hooks.KKP
 
         private static bool _refreshList;
         private static string _targetScene;
-        private static bool _init;
 
         public MakerFolders()
         {
@@ -44,34 +43,24 @@ namespace BrowserFolders.Hooks.KKP
             return _folderTreeView != null ? _folderTreeView.CurrentFolder : currentDirectoryPath;
         }
 
-
-        //Created to update path since CustomBase.ModeSex no longer updates when entering Male Maker
-        public static void Init(CustomCharaFile list, int sex)
-        {
-            if (_customCharaFile != list || !_init)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CustomCharaFile), nameof(CustomCharaFile.Initialize))]
+        public static void InitializePatch(CustomCharaFile __instance) {
+            if (_customCharaFile == null)
             {
-                _folderTreeView.DefaultPath = Overlord.GetDefaultPath(sex);
+                _customCharaFile = __instance;
+
+                _folderTreeView.DefaultPath = Overlord.GetDefaultPath(__instance.chaCtrl.sex);
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
-                _customCharaFile = list;
                 _targetScene = Scene.AddSceneName;
-                _init = true;
-
             }
         }
-
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CustomCharaFile), "Start")]
         public static void InitHook(CustomCharaFile __instance)
         {          
-            _customCharaFile = __instance;
-
-            //CustomBase.ModeSex does not update when entering Male Maker. _folderTreeView assigned by Init
-
-            //_folderTreeView.DefaultPath = Overlord.GetDefaultPath(_customCharaFile.customBase.modeSex);
-            //_folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
-
 
             var gt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop");
             _loadCharaToggle = gt.transform.Find("tglLoadChara").GetComponent<Toggle>();
@@ -82,7 +71,7 @@ namespace BrowserFolders.Hooks.KKP
 
             _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
 
-            _init = false;
+            _targetScene = Scene.AddSceneName;
         }
 
         public void OnGui()
