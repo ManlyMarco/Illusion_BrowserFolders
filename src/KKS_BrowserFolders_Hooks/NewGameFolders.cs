@@ -54,7 +54,7 @@ namespace BrowserFolders.Hooks.KKP
 
         private static Rect GetFullscreenBrowserRect()
         {
-            return new Rect((int)(0), (int)(Screen.height * 0.35f), (int)(Screen.width * 0.12), (int)(Screen.height * 0.5));
+            return new Rect((int)(0), (int)(Screen.height * 0.35f), (int)(Screen.width * 0.133), (int)(Screen.height * 0.5));
         }
 
         private static void OnFolderChanged()
@@ -80,7 +80,7 @@ namespace BrowserFolders.Hooks.KKP
                         OnFolderChanged();
                     }
 
-                    if (GUILayout.Button("Open current folder in explorer"))
+                    if (GUILayout.Button("Open folder in explorer"))
                         Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
                 }
                 GUILayout.EndVertical();
