@@ -1,11 +1,11 @@
-﻿using FreeH;
+﻿using System.IO;
+using FreeH;
 using KKAPI.Utilities;
 using Localize.Translate;
 using Manager;
-using System.IO;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKP
+namespace BrowserFolders.Hooks.KKS
 {
     [BrowserType(BrowserType.FreeH)]
     public class FreeHFolders : IFolderBrowser

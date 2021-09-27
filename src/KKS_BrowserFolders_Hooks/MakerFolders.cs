@@ -1,13 +1,13 @@
-﻿using ChaCustom;
+﻿using System.IO;
+using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
 using KKAPI.Utilities;
 using Manager;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BrowserFolders.Hooks.KKP
+namespace BrowserFolders.Hooks.KKS
 {
     [BrowserType(BrowserType.Maker)]
     public class MakerFolders : IFolderBrowser

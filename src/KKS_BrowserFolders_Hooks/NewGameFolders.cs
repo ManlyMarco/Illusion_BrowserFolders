@@ -2,7 +2,7 @@
 using Manager;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKP
+namespace BrowserFolders.Hooks.KKS
 {
     [BrowserType(BrowserType.NewGame)]
     public class NewGameFolders : IFolderBrowser

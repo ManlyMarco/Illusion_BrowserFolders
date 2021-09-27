@@ -1,13 +1,13 @@
-﻿using ActionGame;
+﻿using System.IO;
+using System.Linq;
+using ActionGame;
 using HarmonyLib;
 using Illusion.Extensions;
 using KKAPI.Utilities;
 using Manager;
-using System.IO;
-using System.Linq;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKP
+namespace BrowserFolders.Hooks.KKS
 {
     [BrowserType(BrowserType.Classroom)]
     public class ClassroomFolders : IFolderBrowser

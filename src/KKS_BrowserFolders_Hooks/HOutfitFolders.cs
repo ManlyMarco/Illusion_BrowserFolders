@@ -4,7 +4,7 @@ using HarmonyLib;
 using KKAPI.Utilities;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKP
+namespace BrowserFolders.Hooks.KKS
 {
     // Handles both h scene outfits and dance mode
     [BrowserType(BrowserType.HOutfit)]
