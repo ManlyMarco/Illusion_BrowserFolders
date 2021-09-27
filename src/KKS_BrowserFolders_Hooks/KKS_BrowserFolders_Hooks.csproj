@@ -144,6 +144,9 @@
     <Compile Include="Overlord.cs" />
     <Compile Include="Overlord.ImportHooks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SceneFolders.cs" />
+    <Compile Include="StudioCharaFolders.cs" />
+    <Compile Include="StudioOutfitFolders.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
