@@ -142,6 +142,7 @@
     <Compile Include="MakerOutfitFolder.cs" />
     <Compile Include="NewGameFolders.cs" />
     <Compile Include="Overlord.cs" />
+    <Compile Include="Overlord.ImportHooks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
