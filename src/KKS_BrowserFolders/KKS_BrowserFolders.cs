@@ -114,6 +114,8 @@ namespace BrowserFolders
                 EnableStudioOutfit = Config.Bind("Chara Studio", "Enable folder browser in outfit browser", true, "Changes take effect on game restart");
             }
 
+            ShowDefaultCharas = Config.Bind("All", "Show default cards", true, "Default character and outfit cards will be added to the lists. They are visible in the root directory.");
+
             if (_isStudio)
             {
                 if (scene != null && EnableStudio.Value)
@@ -127,8 +129,6 @@ namespace BrowserFolders
             }
             else
             {
-                ShowDefaultCharas = Config.Bind("Main game", "Show default character cards", true);
-
                 if (maker != null && EnableMaker.Value)
                     _makerFolders = (IFolderBrowser)Activator.CreateInstance(maker);
 

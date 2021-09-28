@@ -122,6 +122,9 @@ namespace BrowserFolders.Hooks.KKS
 
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
+                    if (Overlord.DrawDefaultCardsToggle())
+                        entry.InitCharaList(true);
+
                     if (GUILayout.Button("Refresh characters"))
                     {
                         entry.InitCharaList(true);
@@ -148,6 +151,7 @@ namespace BrowserFolders.Hooks.KKS
             public bool RefilterInProgress;
             private List<CharaFileInfo> _backupFileInfos;
             private string _currentFolder;
+            private string _currentDefaultDataFolder;
             private FolderTreeView _folderTreeView;
             private int _sex = -1;
 
@@ -180,7 +184,12 @@ namespace BrowserFolders.Hooks.KKS
             public void ApplyFilter()
             {
                 var currentFolder = CurrentFolder;
-                GetCharaFileInfos().RemoveAll(cfi => Utils.GetNormalizedDirectoryName(cfi.file) != currentFolder);
+                var currentDefaultFolder = KKS_BrowserFolders.ShowDefaultCharas.Value ? _currentDefaultDataFolder : null;
+                GetCharaFileInfos().RemoveAll(cfi =>
+                {
+                    var directoryName = Utils.GetNormalizedDirectoryName(cfi.file);
+                    return directoryName != currentFolder && directoryName != currentDefaultFolder;
+                });
             }
 
             public void InitCharaList(bool force)
@@ -218,6 +227,11 @@ namespace BrowserFolders.Hooks.KKS
             private void OnFolderChanged()
             {
                 _currentFolder = Utils.NormalizePath(FolderTreeView.CurrentFolder);
+
+                var normalizedUserData = Utils.NormalizePath(UserData.Path);
+                _currentDefaultDataFolder = Utils.NormalizePath(normalizedUserData + "/../DefaultData/" + _currentFolder.Remove(0, normalizedUserData.Length));
+                System.Console.WriteLine(_currentDefaultDataFolder);
+
                 RefilterInProgress = true;
                 InitCharaList(true);
             }
