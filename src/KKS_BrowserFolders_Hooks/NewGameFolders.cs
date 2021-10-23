@@ -29,6 +29,9 @@ namespace BrowserFolders.Hooks.KKS
         {
             if (_newGame != list)
             {
+                // Stop events from firing
+                _newGame = null;
+
                 _folderTreeView.DefaultPath = Overlord.GetDefaultPath(sex);
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 

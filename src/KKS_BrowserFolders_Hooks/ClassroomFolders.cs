@@ -67,6 +67,9 @@ namespace BrowserFolders.Hooks.KKS
         {
             if (_customCharaFile != list)
             {
+                // Stop events from firing
+                _customCharaFile = null;
+
                 _folderTreeView.DefaultPath = Overlord.GetDefaultPath(sex);
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 

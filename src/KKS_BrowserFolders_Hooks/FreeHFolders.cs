@@ -32,6 +32,9 @@ namespace BrowserFolders.Hooks.KKS
         {
             if (_freeHFile != list)
             {
+                // Stop events from firing
+                _freeHFile = null;
+
                 _folderTreeView.DefaultPath = Overlord.GetDefaultPath(sex);
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
