@@ -18,6 +18,7 @@ namespace BrowserFolders.Hooks.KKS
         private static Toggle _loadCharaToggle;
         private static Toggle _saveCharaToggle;
         private static GameObject _saveFront;
+        private static GameObject _ccwGo;
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
@@ -45,7 +46,8 @@ namespace BrowserFolders.Hooks.KKS
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CustomCharaFile), nameof(CustomCharaFile.Initialize))]
-        public static void InitializePatch(CustomCharaFile __instance) {
+        public static void InitializePatch(CustomCharaFile __instance)
+        {
             if (_customCharaFile == null)
             {
                 _customCharaFile = __instance;
@@ -60,8 +62,7 @@ namespace BrowserFolders.Hooks.KKS
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CustomCharaFile), "Start")]
         public static void InitHook(CustomCharaFile __instance)
-        {          
-
+        {
             var gt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop");
             _loadCharaToggle = gt.transform.Find("tglLoadChara").GetComponent<Toggle>();
             _saveCharaToggle = gt.transform.Find("tglSaveChara").GetComponent<Toggle>();
@@ -72,6 +73,9 @@ namespace BrowserFolders.Hooks.KKS
             _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
 
             _targetScene = Scene.AddSceneName;
+            
+            // Exit maker / save character dialog boxes
+            _ccwGo = GameObject.FindObjectOfType<CustomCheckWindow>()?.gameObject;
         }
 
         public void OnGui()
@@ -84,7 +88,7 @@ namespace BrowserFolders.Hooks.KKS
                 if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
                 {
                     // Check if the character picture take screen is displayed
-                    if (_saveFront == null || !_saveFront.activeSelf)
+                    if ((_saveFront == null || !_saveFront.activeSelf) && !Scene.IsOverlap && !Scene.IsNowLoadingFade && (_ccwGo == null || !_ccwGo.activeSelf))
                     {
                         if (_refreshList)
                         {

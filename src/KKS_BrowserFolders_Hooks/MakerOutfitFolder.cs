@@ -83,7 +83,7 @@ namespace BrowserFolders.Hooks.KKS
                 if (_loadOutfitToggle != null && _loadOutfitToggle.isOn || _saveOutfitToggle != null && _saveOutfitToggle.isOn)
                 {
                     // Check if the character picture take screen is displayed
-                    if (_saveFront == null || !_saveFront.activeSelf)
+                    if ((_saveFront == null || !_saveFront.activeSelf) && !Scene.IsOverlap && !Scene.IsNowLoadingFade)
                     {
                         if (_refreshList)
                         {

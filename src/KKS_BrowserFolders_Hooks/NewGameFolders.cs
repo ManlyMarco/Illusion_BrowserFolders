@@ -39,7 +39,7 @@ namespace BrowserFolders.Hooks.KKS
 
         public void OnGui()
         {
-            if (_newGame != null && _targetScene == Scene.AddSceneName)
+            if (_newGame != null && _targetScene == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade)
             {
                 var screenRect = GetFullscreenBrowserRect();
                 IMGUIUtils.DrawSolidBox(screenRect);

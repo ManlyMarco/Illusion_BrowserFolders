@@ -77,7 +77,7 @@ namespace BrowserFolders.Hooks.KKS
 
         public void OnGui()
         {
-            if (_customCharaFile != null && _customCharaFile.isVisible && _targetScene == Scene.AddSceneName)
+            if (_customCharaFile != null && _customCharaFile.isVisible && _targetScene == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade)
             {
                 var screenRect = GetFullscreenBrowserRect();
                 IMGUIUtils.DrawSolidBox(screenRect);

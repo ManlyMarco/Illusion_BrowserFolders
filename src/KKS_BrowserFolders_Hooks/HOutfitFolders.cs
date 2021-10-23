@@ -2,6 +2,7 @@
 using ChaCustom;
 using HarmonyLib;
 using KKAPI.Utilities;
+using Manager;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KKS
@@ -41,7 +42,7 @@ namespace BrowserFolders.Hooks.KKS
 
         public void OnGui()
         {
-            if (_uiObject && _uiObject.activeSelf && _sceneName == Manager.Scene.AddSceneName)
+            if (_uiObject && _uiObject.activeSelf && _sceneName == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade)
             {
                 var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);

@@ -51,7 +51,7 @@ namespace BrowserFolders.Hooks.KKS
         {
             if (_freeHFile != null
                 //&& !_isLive 
-                && _targetScene == Scene.AddSceneName)
+                && _targetScene == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade)
             {
                 var screenRect = GetFullscreenBrowserRect();
                 IMGUIUtils.DrawSolidBox(screenRect);
