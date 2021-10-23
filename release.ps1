@@ -5,7 +5,7 @@ else {
     $dir = $PSScriptRoot + "\bin\"
 }
 
-$array = @("KK", "AI", "HS2", "EC", "KKS")
+$array = @("KK_", "AI_", "HS2_", "EC_", "KKS_")
 
 $copy = $dir + "\copy\BepInEx" 
 
@@ -20,7 +20,7 @@ function CreateZip ($element)
 
     $ver = "v" + (Get-ChildItem -Path ($copy) -Filter "*.dll" -Recurse -Force)[0].VersionInfo.FileVersion.ToString()
 
-    Compress-Archive -Path $copy -Force -CompressionLevel "Optimal" -DestinationPath ($dir + "out\" + $element + "_BrowserFolders_" + $ver + ".zip")
+    Compress-Archive -Path $copy -Force -CompressionLevel "Optimal" -DestinationPath ($dir + "out\" + $element + "BrowserFolders_" + $ver + ".zip")
 }
 
 foreach ($element in $array) 
