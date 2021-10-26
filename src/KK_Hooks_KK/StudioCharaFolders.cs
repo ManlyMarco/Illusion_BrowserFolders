@@ -6,55 +6,6 @@ using UnityEngine;
 
 namespace BrowserFolders.Hooks.KK
 {
-    public class CharaListEntry : BaseListEntry<CharaList>
-    {
-        public CharaListEntry(CharaList list) : base(list) { }
-        public override bool isActiveAndEnabled => _list.isActiveAndEnabled;
-
-        protected internal override string GetRoot()
-        {
-            return string.Concat(UserData.Path, GetSex() != 0 ? "chara/female" : "chara/male");
-        }
-
-        public override List<CharaFileInfo> GetCharaFileInfos()
-        {
-            return _list?.charaFileSort?.cfiList;
-        }
-
-        protected override int GetSex()
-        {
-            return _list.sex;
-        }
-
-        public override void InitListFolderChanged()
-        {
-            InitCharaList(true);
-        }
-
-        public override void InitListRefresh()
-        {
-            InitCharaList(true);
-        }
-
-        private void InitCharaList(bool force)
-        {
-            _list.InitCharaList(force);
-        }
-    }
-
-    public class StudioCharaFoldersHelper : BaseStudioFoldersHelper<CharaListEntry, CharaList>
-    {
-        protected override CharaListEntry CreateNewListEntry(CharaList gameList)
-        {
-            return new CharaListEntry(gameList);
-        }
-
-        internal override int GetListEntryIndex(CharaList gameList)
-        {
-            return gameList.sex;
-        }
-    }
-
     [BrowserType(BrowserType.StudioChara)]
     public class StudioCharaFolders : BaseStudioFolders<CharaListEntry, CharaList, StudioCharaFoldersHelper>, IFolderBrowser
     {
@@ -152,6 +103,55 @@ namespace BrowserFolders.Hooks.KK
             {
                 Debug.LogException(err);
             }
+        }
+    }
+
+    public class CharaListEntry : BaseListEntry<CharaList>
+    {
+        public CharaListEntry(CharaList list) : base(list) { }
+        public override bool isActiveAndEnabled => _list.isActiveAndEnabled;
+
+        protected internal override string GetRoot()
+        {
+            return string.Concat(UserData.Path, GetSex() != 0 ? "chara/female" : "chara/male");
+        }
+
+        public override List<CharaFileInfo> GetCharaFileInfos()
+        {
+            return _list?.charaFileSort?.cfiList;
+        }
+
+        protected override int GetSex()
+        {
+            return _list.sex;
+        }
+
+        public override void InitListFolderChanged()
+        {
+            InitCharaList(true);
+        }
+
+        public override void InitListRefresh()
+        {
+            InitCharaList(true);
+        }
+
+        private void InitCharaList(bool force)
+        {
+            _list.InitCharaList(force);
+        }
+    }
+
+    public class StudioCharaFoldersHelper : BaseStudioFoldersHelper<CharaListEntry, CharaList>
+    {
+        protected override CharaListEntry CreateNewListEntry(CharaList gameList)
+        {
+            return new CharaListEntry(gameList);
+        }
+
+        internal override int GetListEntryIndex(CharaList gameList)
+        {
+            return gameList.sex;
         }
     }
 }

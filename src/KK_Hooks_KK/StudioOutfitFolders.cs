@@ -10,52 +10,6 @@ using static Studio.MPCharCtrl;
 
 namespace BrowserFolders.Hooks.KK
 {
-    public class CostumeInfoEntry : BaseListEntry<CostumeInfo>
-    {
-        public CostumeInfoEntry(CostumeInfo list) : base(list) { }
-
-        public override bool isActiveAndEnabled => _list != null && _list.objRoot != null && _list.objRoot.activeSelf;
-
-        protected internal override string GetRoot()
-        {
-            return string.Concat(UserData.Path, "coordinate");
-        }
-
-        public override List<CharaFileInfo> GetCharaFileInfos()
-        {
-            return _list?.fileSort?.cfiList;
-        }
-
-        protected override int GetSex()
-        {
-            return _list.sex;
-        }
-
-        public override void InitListFolderChanged()
-        {
-            _list.InitList(GetSex());
-        }
-
-        public override void InitListRefresh()
-        {
-            _list.InitList(GetSex());
-        }
-    }
-
-    public class StudioOutfitFoldersHelper : BaseStudioFoldersHelper<CostumeInfoEntry, CostumeInfo>
-    {
-        protected override CostumeInfoEntry CreateNewListEntry(CostumeInfo gameList)
-        {
-            return new CostumeInfoEntry(gameList);
-        }
-
-        // KK really only has one of these, so always return the same one
-        internal override int GetListEntryIndex(CostumeInfo gameList)
-        {
-            return -1;
-        }
-    }
-
     [BrowserType(BrowserType.StudioOutfit)]
     public class StudioOutfitFolders : BaseStudioFolders<CostumeInfoEntry, CostumeInfo, StudioOutfitFoldersHelper>,
         IFolderBrowser
@@ -132,6 +86,52 @@ namespace BrowserFolders.Hooks.KK
             {
                 Debug.LogException(err);
             }
+        }
+    }
+
+    public class CostumeInfoEntry : BaseListEntry<CostumeInfo>
+    {
+        public CostumeInfoEntry(CostumeInfo list) : base(list) { }
+
+        public override bool isActiveAndEnabled => _list != null && _list.objRoot != null && _list.objRoot.activeSelf;
+
+        protected internal override string GetRoot()
+        {
+            return string.Concat(UserData.Path, "coordinate");
+        }
+
+        public override List<CharaFileInfo> GetCharaFileInfos()
+        {
+            return _list?.fileSort?.cfiList;
+        }
+
+        protected override int GetSex()
+        {
+            return _list.sex;
+        }
+
+        public override void InitListFolderChanged()
+        {
+            _list.InitList(GetSex());
+        }
+
+        public override void InitListRefresh()
+        {
+            _list.InitList(GetSex());
+        }
+    }
+
+    public class StudioOutfitFoldersHelper : BaseStudioFoldersHelper<CostumeInfoEntry, CostumeInfo>
+    {
+        protected override CostumeInfoEntry CreateNewListEntry(CostumeInfo gameList)
+        {
+            return new CostumeInfoEntry(gameList);
+        }
+
+        // KK really only has one of these, so always return the same one
+        internal override int GetListEntryIndex(CostumeInfo gameList)
+        {
+            return -1;
         }
     }
 }
