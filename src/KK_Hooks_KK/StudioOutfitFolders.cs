@@ -1,213 +1,136 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using HarmonyLib;
-using KKAPI.Utilities;
 using Studio;
 using UnityEngine;
+using static Studio.MPCharCtrl;
 
 namespace BrowserFolders.Hooks.KK
 {
-    [BrowserType(BrowserType.StudioOutfit)]
-    public class StudioOutfitFolders : IFolderBrowser
+    public class CostumeInfoEntry : BaseListEntry<CostumeInfo>
     {
-        private static CostumeInfoEntry _costumeInfoEntry;
-        private static bool _refilterOnly;
+        public CostumeInfoEntry(CostumeInfo list) : base(list) { }
 
+        public override bool isActiveAndEnabled => _list != null && _list.objRoot != null && _list.objRoot.activeSelf;
+
+        protected internal override string GetRoot()
+        {
+            return string.Concat(UserData.Path, "coordinate");
+        }
+
+        public override List<CharaFileInfo> GetCharaFileInfos()
+        {
+            return _list?.fileSort?.cfiList;
+        }
+
+        protected override int GetSex()
+        {
+            return _list.sex;
+        }
+
+        public override void InitListFolderChanged()
+        {
+            _list.InitList(GetSex());
+        }
+
+        public override void InitListRefresh()
+        {
+            _list.InitList(GetSex());
+        }
+    }
+
+    public class StudioOutfitFoldersHelper : BaseStudioFoldersHelper<CostumeInfoEntry, CostumeInfo>
+    {
+        protected override CostumeInfoEntry CreateNewListEntry(CostumeInfo gameList)
+        {
+            return new CostumeInfoEntry(gameList);
+        }
+
+        // KK really only has one of these, so always return the same one
+        internal override int GetListEntryIndex(CostumeInfo gameList)
+        {
+            return -1;
+        }
+    }
+
+    [BrowserType(BrowserType.StudioOutfit)]
+    public class StudioOutfitFolders : BaseStudioFolders<CostumeInfoEntry, CostumeInfo, StudioOutfitFoldersHelper>,
+        IFolderBrowser
+    {
         public StudioOutfitFolders()
         {
-            //CostumeInfo is a private nested class            
-            Harmony harmony = new Harmony(KK_BrowserFolders.Guid);
-
-            var type = typeof(MPCharCtrl.CostumeInfo);
-            {
-                var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitList));
-                var prefix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitCostumeListPrefix));
-                var postfix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitCostumeListPostfix));
-                harmony.Patch(target, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
-            }
-            {
-                var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitFileList));
-                var prefix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitListPrefix));
-                var postfix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitListPostfix));
-                harmony.Patch(target, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
-            }
+            WindowLabel = "Folder with outfits to view";
+            RefreshLabel = "Refresh outfits";
+            Harmony.CreateAndPatchAll(typeof(StudioOutfitFolders));
         }
 
-        private bool _guiActive;
 
-        public void OnGui()
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CostumeInfo), nameof(CostumeInfo.InitList))]
+        internal static void InitCostumeListPrefix(CostumeInfo __instance, int _sex, ref int __state)
         {
-            if (_costumeInfoEntry != null)
-            {
-                if (_costumeInfoEntry.isActive())
-                {
-                    _guiActive = true;
-                    var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f),
-                        (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
-                    IMGUIUtils.DrawSolidBox(windowRect);
-                    GUILayout.Window(363, windowRect, id => TreeWindow(), "Folder with outfits to view");
-                    IMGUIUtils.EatInputInRect(windowRect);
-                }
-                else if (_guiActive)
-                {
-                    _costumeInfoEntry.FolderTreeView?.StopMonitoringFiles();
-                    _guiActive = false;
-                }
-            }
-        }
-
-        internal static void InitCostumeListPostfix(MPCharCtrl.CostumeInfo __instance, ref int ___sex, ref int __state)
-        {
-            ___sex = __state;
-            if (_costumeInfoEntry != null)
-                _costumeInfoEntry.RefilterInProgress = false;
-            _refilterOnly = false;
-        }
-
-        internal static void InitCostumeListPrefix(MPCharCtrl.CostumeInfo __instance, int _sex, ref int ___sex, ref int __state)
-        {
-            //If the CostumeInfo.sex field is equal to the parameter _sex, the method doesn't do anything
+            var origSex = __instance.sex;
             __state = _sex;
-            ___sex = 99;
-            if (_costumeInfoEntry == null)
-                _costumeInfoEntry = new CostumeInfoEntry(__instance);
-            _refilterOnly = _costumeInfoEntry.RefilterInProgress;
-        }
-
-        private static void InitListPostfix()
-        {
-            if (_costumeInfoEntry != null)
+            try
             {
-                if (!_refilterOnly)
-                {
-                    // don't update results if we didn't get new ones
-                    _costumeInfoEntry.SaveFullList();
-                }
-
-                _costumeInfoEntry.ApplyFilter();
+                SetRefilterOnly(__instance, __instance.sex == _sex);
+                // if _sex == __instance.sex InitCostumeList does nothing, set to invalid here, restore after
+                __instance.sex = -1;
+            }
+            catch (Exception err)
+            {
+                __instance.sex = origSex;
+                SetRefilterOnly(__instance, false);
+                Debug.LogException(err);
             }
         }
-
-        public static bool InitListPrefix()
+        
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CostumeInfo), nameof(CostumeInfo.InitList))]
+        internal static void InitCostumeListPostfix(CostumeInfo __instance, int __state)
         {
-            // detect if force reload was triggered by a change of folder
-            if (_refilterOnly && _costumeInfoEntry != null)
+            try
             {
-                // if so just restore cached values so they can be re-filtered without
-                // going back to disk and refilter them
-                _costumeInfoEntry.RestoreUnfiltered();
-                // stop real method from running, filter in postfix
-                return false;
+                __instance.sex = __state;
+                SetRefilterOnly(__instance, false);
+                if (TryGetListEntry(__instance, out var entry)) entry.RefilterInProgress = false;
             }
-            return true;
+            catch (Exception err)
+            {
+                Debug.LogException(err);
+            }
         }
 
-        private static void TreeWindow()
+     
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CostumeInfo), nameof(CostumeInfo.InitFileList))]
+        internal static bool InitFileListPrefix(CostumeInfo __instance)
         {
-            GUILayout.BeginVertical();
+            try
             {
-                _costumeInfoEntry.FolderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (GUILayout.Button("Refresh outfits"))
-                    {
-                        _costumeInfoEntry.InitOutfitList();
-                        _costumeInfoEntry.FolderTreeView.ResetTreeCache();
-                        _costumeInfoEntry.FolderTreeView.CurrentFolderChanged.Invoke();
-                    }
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(_costumeInfoEntry.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                }
-                GUILayout.EndVertical();
+                return InitListPrefix(__instance);
             }
-            GUILayout.EndVertical();
+            catch (Exception err)
+            {
+                Debug.LogException(err);
+                return true;
+            }
         }
 
-        private class CostumeInfoEntry
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CostumeInfo), nameof(CostumeInfo.InitFileList))]
+        internal static void InitFileListPostfix(CostumeInfo __instance)
         {
-            private readonly MPCharCtrl.CostumeInfo _costumeInfo;
-            public bool RefilterInProgress;
-            private List<CharaFileInfo> _backupFileInfos;
-            private string _currentFolder;
-            private FolderTreeView _folderTreeView;
-            private int _sex = -1;
-            private readonly GameObject _clothesRoot;
-
-            public CostumeInfoEntry(MPCharCtrl.CostumeInfo costumeInfo)
+            try
             {
-                _costumeInfo = costumeInfo;
-                _clothesRoot = (GameObject)costumeInfo.GetType().GetField("objRoot", AccessTools.all).GetValue(costumeInfo);
+                InitListPostfix(__instance);
             }
-
-            public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? UserData.Path + "coordinate/");
-
-            public FolderTreeView FolderTreeView
+            catch (Exception err)
             {
-                get
-                {
-                    if (_folderTreeView == null)
-                    {
-                        _folderTreeView = new FolderTreeView(
-                            Utils.NormalizePath(UserData.Path),
-                            Path.Combine(Utils.NormalizePath(UserData.Path), "coordinate/"));
-                        _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
-                        _folderTreeView.CurrentFolderChanged = OnFolderChanged;
-                        OnFolderChanged();
-                    }
-                    return _folderTreeView;
-                }
-            }
-
-            public bool isActive() => _clothesRoot.activeInHierarchy;
-
-            public void ApplyFilter()
-            {
-                var currentFolder = CurrentFolder;
-                GetCharaFileInfos().RemoveAll(cfi => Utils.GetNormalizedDirectoryName(cfi.file) != currentFolder);
-            }
-
-            public void InitOutfitList()
-            {
-                _costumeInfo.InitList(GetSex());
-            }
-
-            public void RestoreUnfiltered()
-            {
-                if (_backupFileInfos != null)
-                {
-                    var fileInfos = GetCharaFileInfos();
-                    fileInfos.Clear();
-                    fileInfos.AddRange(_backupFileInfos);
-                }
-            }
-
-            public void SaveFullList()
-            {
-                _backupFileInfos = GetCharaFileInfos().ToList();
-            }
-            private List<CharaFileInfo> GetCharaFileInfos()
-            {
-                return _costumeInfo?.fileSort?.cfiList;
-            }
-            private int GetSex()
-            {
-                if (_sex == -1)
-                    _sex = _costumeInfo.sex;
-                return _sex;
-            }
-            private void OnFolderChanged()
-            {
-                _currentFolder = Utils.NormalizePath(FolderTreeView.CurrentFolder);
-                RefilterInProgress = true;
-                InitOutfitList();
+                Debug.LogException(err);
             }
         }
     }

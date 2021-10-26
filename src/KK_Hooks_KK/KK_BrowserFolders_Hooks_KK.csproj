@@ -85,6 +85,8 @@
     <Compile Include="NewGameFolders.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SceneFolders.cs" />
+    <Compile Include="BaseStudioFolders.cs" />
+    <Compile Include="StudioFileHelper.cs" />
     <Compile Include="StudioOutfitFolders.cs" />
     <Compile Include="StudioCharaFolders.cs" />
   </ItemGroup>
