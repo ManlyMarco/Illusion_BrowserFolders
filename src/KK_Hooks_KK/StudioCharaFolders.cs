@@ -26,7 +26,13 @@ namespace BrowserFolders.Hooks.KK
             }
             catch (Exception err)
             {
-                SetRefilterOnly(__instance, false);
+                try
+                {
+                    // try to disable refilter only if something went wrong
+                    SetRefilterOnly(__instance, false);
+                }
+                catch { }
+
                 Debug.LogException(err);
             }
         }
