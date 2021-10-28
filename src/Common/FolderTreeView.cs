@@ -16,6 +16,21 @@ namespace BrowserFolders
         private long _refreshRequestedFrame = 0;
         private FileSystemWatcher _fileSystemWatcher;
 
+        private static GameObject _xua;
+        private static bool _xuaChecked;
+
+        private GameObject XuaObject
+        {
+            get
+            {
+                if (_xuaChecked) return _xua;
+                _xua = GameObject.Find("___XUnityAutoTranslator");
+                _xuaChecked = true;
+                return _xua;
+            }
+        }
+
+
         public void ScrollListToSelected()
         {
             _searchString = "";
@@ -83,8 +98,10 @@ namespace BrowserFolders
         private int _itemHeight;
         private int _scrollviewHeight;
 
+
         public void DrawDirectoryTree()
         {
+
             ExpandToCurrentFolder();
 
             GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
@@ -107,6 +124,8 @@ namespace BrowserFolders
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();
+
+
             try
             {
                 StartMonitoringFiles();
@@ -238,6 +257,19 @@ namespace BrowserFolders
             }
         }
 
+        private bool NonTranslatedButton(string text, GUIStyle style, params GUILayoutOption[] options)
+        {
+            XuaObject?.SendMessage("DisableAutoTranslator");
+            try
+            {
+                return GUILayout.Button(text, style, options);
+            }
+            finally
+            {
+                XuaObject?.SendMessage("EnableAutoTranslator");
+            }
+        }
+
         private void DisplayObjectTreeHelper(DirectoryTree dir, int indent, ref int itemsDrawn)
         {
             var dirFullName = dir.FullName;
@@ -283,6 +315,7 @@ namespace BrowserFolders
 
                         GUILayout.BeginHorizontal();
                         {
+
                             if (subDirs.Count > 0)
                             {
                                 if (GUILayout.Toggle(_openedObjects.Contains(dirFullName), "", GUILayout.ExpandWidth(false)))
@@ -295,8 +328,9 @@ namespace BrowserFolders
                                 GUILayout.Space(20f);
                             }
 
-                            if (GUILayout.Button(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
+                            if (NonTranslatedButton(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
                             {
+
                                 if (string.Equals(CurrentFolder, dirFullName, StringComparison.OrdinalIgnoreCase))
                                 {
                                     if (_openedObjects.Contains(dirFullName) == false)
@@ -304,7 +338,9 @@ namespace BrowserFolders
                                     else
                                         _openedObjects.Remove(dirFullName);
                                 }
+
                                 CurrentFolder = dirFullName;
+
                             }
                         }
                         GUILayout.EndHorizontal();
