@@ -19,6 +19,8 @@ namespace BrowserFolders
         private static GameObject _xua;
         private static bool _xuaChecked;
 
+        public static bool EnableFilesystemWatcher { get; set; } = true;
+
         private GameObject XuaObject
         {
             get
@@ -167,6 +169,8 @@ namespace BrowserFolders
 
         private void InitFileSystemWatcher()
         {
+            if (!EnableFilesystemWatcher) return;
+
             if (_fileSystemWatcher != null) return;
             _fileSystemWatcher = new FileSystemWatcher()
             {

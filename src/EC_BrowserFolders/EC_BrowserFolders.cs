@@ -31,6 +31,7 @@ namespace BrowserFolders
         public static ConfigEntry<bool> EnableMakerMap { get; private set; }
         public static ConfigEntry<bool> EnableMakerScene { get; private set; }
         //public static ConfigEntry<bool> EnableMakerHPoseIK { get; private set; }
+        public static ConfigEntry<bool> EnableFilesystemWatchers { get; private set; }
 
         private void Awake()
         {
@@ -51,6 +52,11 @@ namespace BrowserFolders
             if (EnableMakerMap.Value) { _makerMapFolders = new MakerMapFolders(); _makerMapSaveFolders = new MakerMapSaveFolders(); }
             if (EnableMakerScene.Value) _makerSceneFolders = new MakerSceneFolders();
             //if (EnableMakerHPoseIK.Value) _makerHPoseIKFolders = new MakerHPoseIKFolders();
+
+            EnableFilesystemWatchers = Config.Bind("General", "Automatically refresh when files change", true, "When files are added/deleted/updated the list will automatically update. If disabled you have to hit the refresh button manually when files are changed.");
+            EnableFilesystemWatchers.SettingChanged += (s, e) => FolderTreeView.EnableFilesystemWatcher = EnableFilesystemWatchers.Value;
+            FolderTreeView.EnableFilesystemWatcher = EnableFilesystemWatchers.Value;
+
         }
 
         private void OnGUI()
