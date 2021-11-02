@@ -146,7 +146,10 @@ namespace BrowserFolders
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
                 {
                     if (GUILayout.Button("Refresh thumbnails"))
+                    {
+                        _folderTreeView?.ResetTreeCache();
                         RefreshCurrentWindow();
+                    }
 
                     GUILayout.Space(1);
 
