@@ -49,6 +49,8 @@ namespace BrowserFolders
         public static ConfigEntry<bool> ShowDefaultCharas { get; private set; }
         public static ConfigEntry<bool> RandomCharaSubfolders { get; private set; }
 
+        public static ConfigEntry<bool> EnableFilesystemWatchers { get; private set; }
+
         internal void OnGUI()
         {
             if (_isStudio)
@@ -147,6 +149,10 @@ namespace BrowserFolders
                 if (freeH != null && EnableFreeH.Value)
                     _freeHFolders = (IFolderBrowser)Activator.CreateInstance(freeH);
             }
+
+            EnableFilesystemWatchers = Config.Bind("General", "Automatically refresh when files change", true, "When files are added/deleted/updated the list will automatically update. If disabled you have to hit the refresh button manually when files are changed.");
+            EnableFilesystemWatchers.SettingChanged += (s, e) => FolderTreeView.EnableFilesystemWatcher = EnableFilesystemWatchers.Value;
+            FolderTreeView.EnableFilesystemWatcher = EnableFilesystemWatchers.Value;
         }
 
         private static List<KeyValuePair<BrowserType, Type>> LoadBrowsers()
