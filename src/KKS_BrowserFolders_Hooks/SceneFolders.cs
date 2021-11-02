@@ -121,7 +121,10 @@ namespace BrowserFolders.Hooks.KKS
                 GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(200));
                 {
                     if (GUILayout.Button("Refresh scene thumbnails"))
+                    {
+                        _folderTreeView.ResetTreeCache();
                         OnFolderChanged();
+                    }
 
                     GUILayout.FlexibleSpace();
 
