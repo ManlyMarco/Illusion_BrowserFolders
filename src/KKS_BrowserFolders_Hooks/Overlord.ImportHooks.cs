@@ -95,11 +95,14 @@ namespace BrowserFolders.Hooks.KKS
             {
                 foreach (var file in Directory.GetFiles(dir))
                 {
-                    using (var reader = File.Open(file, FileMode.Open))
+                    if (file.EndsWith(".png"))
                     {
-                        var charFile = new ChaFile();
-                        if (charFile.LoadFileKoikatsu(new BinaryReader(reader), false, true))
-                            instance.convKoikatsuCha[sex].Add(new ConvertChaFileScene.PackData(file, 1)); //Mode must be 1
+                        using (var reader = File.Open(file, FileMode.Open))
+                        {
+                            var charFile = new ChaFile();
+                            if (charFile.LoadFileKoikatsu(new BinaryReader(reader), false, true))
+                                instance.convKoikatsuCha[sex].Add(new ConvertChaFileScene.PackData(file, 1)); //Mode must be 1
+                        }
                     }
                 }
             }
