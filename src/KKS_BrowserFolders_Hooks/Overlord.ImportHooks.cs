@@ -95,7 +95,7 @@ namespace BrowserFolders.Hooks.KKS
             {
                 foreach (var file in Directory.GetFiles(dir))
                 {
-                    if (file.EndsWith(".png"))
+                    if (file.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                     {
                         using (var reader = File.Open(file, FileMode.Open))
                         {
