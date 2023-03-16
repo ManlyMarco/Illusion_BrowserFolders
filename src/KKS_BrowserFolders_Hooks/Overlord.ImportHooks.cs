@@ -108,8 +108,4 @@ namespace BrowserFolders.Hooks.KKS
             }
         }
     }
-
-    internal static partial class Overlord
-    {
-    }
 }
