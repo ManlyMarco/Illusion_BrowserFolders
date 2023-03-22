@@ -11,8 +11,7 @@ namespace BrowserFolders
     public static class Utils
     {
         private static readonly Dictionary<string, string> _normalizedDirectoryNames = new Dictionary<string, string>();
-
-
+        
         public static string GetNormalizedDirectoryName(string filePath)
         {
             if (_normalizedDirectoryNames.TryGetValue(filePath, out var result)) return result;
@@ -92,6 +91,11 @@ namespace BrowserFolders
                 Logger.LogError(e);
                 Logger.LogMessage("Failed to open the folder - " + e.Message);
             }
+        }
+
+        public static bool IsEmpty(this UnityEngine.Rect value)
+        {
+            return value.height == 0 || value.width == 0;
         }
     }
 }

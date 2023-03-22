@@ -1,7 +1,6 @@
 ﻿using GameLoadCharaFileSystem;
 using HarmonyLib;
 using HS2;
-using KKAPI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,6 +18,7 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
 
         private bool _guiActive;
+        private static Rect _windowRect;
 
         public MainGameFolders()
         {
@@ -29,9 +29,9 @@ namespace BrowserFolders
                 CurrentFolderChanged = RefreshCurrentWindow
             };
 
-            Harmony.CreateAndPatchAll(typeof(MainGameFolders));
+            var hi = Harmony.CreateAndPatchAll(typeof(MainGameFolders));
             //todo split out into a separate thing?
-            Harmony.CreateAndPatchAll(typeof(NestedFilenamesMainGamePatch));
+            hi.PatchAll(typeof(NestedFilenamesMainGamePatch));
         }
 
         public void OnGui()
@@ -48,10 +48,7 @@ namespace BrowserFolders
             _guiActive = true;
             if (_lastVisibleWindow != visibleWindow) RefreshCurrentWindow();
 
-            var screenRect = GetDisplayRect();
-            IMGUIUtils.DrawSolidBox(screenRect);
-            GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-            IMGUIUtils.EatInputInRect(screenRect);
+            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", RefreshCurrentWindow);
         }
 
         private static void RefreshCurrentWindow()
@@ -80,38 +77,10 @@ namespace BrowserFolders
             if (resetTree) _folderTreeView.ResetTreeCache();
         }
 
-        internal static Rect GetDisplayRect()
+        internal static Rect GetDefaultDisplayRect()
         {
             const float x = 0.02f, y = 0.59f, w = 0.200f, h = 0.35f;
             return new Rect((int)(Screen.width * x), (int)(Screen.height * y), (int)(Screen.width * w), (int)(Screen.height * h));
-        }
-
-        private static void TreeWindow(int id)
-        {
-            GUILayout.BeginVertical();
-            {
-                _folderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (GUILayout.Button("Refresh thumbnails"))
-                    {
-                        _folderTreeView?.ResetTreeCache();
-                        RefreshCurrentWindow();
-                    }
-
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
 
         private static VisibleWindow IsVisible()
@@ -132,6 +101,8 @@ namespace BrowserFolders
             _charaLoadVisible = __instance.gameObject.transform.Find("Group")?.GetComponent<CanvasGroup>();
 
             _charaLoad = __instance.groupCharaSelectUI;
+
+            _windowRect = GetDefaultDisplayRect();
         }
 
         public static string GetRelativePath(string fromFile, string toFolder)

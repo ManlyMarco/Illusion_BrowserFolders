@@ -1,8 +1,6 @@
-﻿using System.IO;
-using ChaCustom;
+﻿using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
-using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,6 +22,7 @@ namespace BrowserFolders.Hooks.KKS
 
         private static bool _refreshList;
         private static string _targetScene;
+        private Rect _windowRect;
 
         public MakerFolders()
         {
@@ -73,7 +72,7 @@ namespace BrowserFolders.Hooks.KKS
             _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
 
             _targetScene = Scene.AddSceneName;
-            
+
             // Exit maker / save character dialog boxes
             _ccwGo = GameObject.FindObjectOfType<CustomCheckWindow>()?.gameObject;
         }
@@ -97,10 +96,15 @@ namespace BrowserFolders.Hooks.KKS
                             _refreshList = false;
                         }
 
-                        var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
-                        IMGUIUtils.DrawSolidBox(screenRect);
-                        GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-                        IMGUIUtils.EatInputInRect(screenRect);
+                        if (_windowRect.IsEmpty())
+                            _windowRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
+
+                        InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", OnFolderChanged, drawAdditionalButtons: () =>
+                        {
+                            if (Overlord.DrawDefaultCardsToggle())
+                                OnFolderChanged();
+                        });
+
                         guiShown = true;
                     }
                 }
@@ -119,39 +123,8 @@ namespace BrowserFolders.Hooks.KKS
             var loadCharaToggleIsOn = _loadCharaToggle != null && _loadCharaToggle.isOn;
             if (loadCharaToggleIsOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
             {
-                _customCharaFile.Initialize(loadCharaToggleIsOn == true, false);
+                _customCharaFile.Initialize(loadCharaToggleIsOn, false);
             }
-        }
-
-        private static void TreeWindow(int id)
-        {
-            GUILayout.BeginVertical();
-            {
-                _folderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (Overlord.DrawDefaultCardsToggle())
-                        OnFolderChanged();
-
-                    if (GUILayout.Button("Refresh thumbnails"))
-                    {
-                        _folderTreeView.ResetTreeCache();
-                        OnFolderChanged();
-                    }
-
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
     }
 }

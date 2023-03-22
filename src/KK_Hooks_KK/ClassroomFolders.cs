@@ -7,7 +7,6 @@ using System.Reflection.Emit;
 using ActionGame;
 using HarmonyLib;
 using Illusion.Extensions;
-using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 
@@ -96,16 +95,18 @@ namespace BrowserFolders.Hooks.KK
         }
 
         private bool _guiActive;
+        private Rect _windowRect;
 
         public void OnGui()
         {
             if (_canvas != null && _canvas.enabled && _targetScene == Scene.Instance.AddSceneName)
             {
                 _guiActive = true;
-                var screenRect = GetFullscreenBrowserRect();
-                IMGUIUtils.DrawSolidBox(screenRect);
-                GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-                IMGUIUtils.EatInputInRect(screenRect);
+
+                if (_windowRect.IsEmpty())
+                    _windowRect = GetFullscreenBrowserRect();
+
+                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", OnFolderChanged);
             }
             else if (_guiActive)
             {
@@ -130,34 +131,6 @@ namespace BrowserFolders.Hooks.KK
             // Fix add info toggle breaking
             var tglInfo = _customCharaFile.listCtrl.tglAddInfo;
             tglInfo.onValueChanged.Invoke(tglInfo.isOn);
-        }
-
-        private static void TreeWindow(int id)
-        {
-            GUILayout.BeginVertical();
-            {
-                _folderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (GUILayout.Button("Refresh thumbnails"))
-                    {
-                        _folderTreeView.ResetTreeCache();
-                        OnFolderChanged();
-                    }
-
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
     }
 }

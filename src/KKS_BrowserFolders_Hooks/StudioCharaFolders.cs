@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using HarmonyLib;
-using KKAPI.Utilities;
 using Studio;
 using UnityEngine;
 
@@ -14,6 +13,7 @@ namespace BrowserFolders.Hooks.KKS
         private static readonly Dictionary<string, CharaListEntry> _charaListEntries = new Dictionary<string, CharaListEntry>();
         private static bool _refilterOnly;
         private static CharaListEntry _lastEntry;
+        private Rect _windowRect;
 
         public StudioCharaFolders()
         {
@@ -31,10 +31,19 @@ namespace BrowserFolders.Hooks.KKS
 
             if (entry == null) return;
             _lastEntry = entry;
-            var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f), (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
-            IMGUIUtils.DrawSolidBox(windowRect);
-            GUILayout.Window(363, windowRect, id => TreeWindow(entry), "Select folder with cards to view");
-            IMGUIUtils.EatInputInRect(windowRect);
+
+            if (_windowRect.IsEmpty())
+                _windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
+
+            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Select folder with cards to view", () =>
+            {
+                entry.InitCharaList(true);
+                entry.FolderTreeView.CurrentFolderChanged.Invoke();
+            }, drawAdditionalButtons: () =>
+            {
+                if (Overlord.DrawDefaultCardsToggle())
+                    entry.InitCharaList(true);
+            });
         }
 
         [HarmonyPostfix]
@@ -112,37 +121,6 @@ namespace BrowserFolders.Hooks.KKS
                 }
             }
             return true;
-        }
-
-        private static void TreeWindow(CharaListEntry entry)
-        {
-            GUILayout.BeginVertical();
-            {
-                entry.FolderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (Overlord.DrawDefaultCardsToggle())
-                        entry.InitCharaList(true);
-
-                    if (GUILayout.Button("Refresh characters"))
-                    {
-                        entry.InitCharaList(true);
-                        entry.FolderTreeView.ResetTreeCache();
-                        entry.FolderTreeView.CurrentFolderChanged.Invoke();
-                    }
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(entry.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
 
         private class CharaListEntry

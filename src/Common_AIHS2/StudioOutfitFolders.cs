@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BepInEx;
 using HarmonyLib;
-using KKAPI.Utilities;
 using Studio;
 using UnityEngine;
 
@@ -35,6 +33,7 @@ namespace BrowserFolders
         }
 
         private bool _guiActive;
+        private static Rect _windowRect;
 
         public void OnGui()
         {
@@ -43,11 +42,11 @@ namespace BrowserFolders
                 if (_costumeInfoEntry.isActive())
                 {
                     _guiActive = true;
-                    var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f),
-                        (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
-                    IMGUIUtils.DrawSolidBox(windowRect);
-                    GUILayout.Window(363, windowRect, id => TreeWindow(), "Folder with outfits to view");
-                    IMGUIUtils.EatInputInRect(windowRect);
+                    InterfaceUtils.DisplayFolderWindow(_costumeInfoEntry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Folder with outfits to view", () =>
+                    {
+                        _costumeInfoEntry.InitOutfitList();
+                        _costumeInfoEntry.FolderTreeView.CurrentFolderChanged.Invoke();
+                    });
                 }
                 else if (_guiActive)
                 {
@@ -73,6 +72,9 @@ namespace BrowserFolders
             if (_costumeInfoEntry == null || _costumeInfoEntry.GetSex() != _sex)
                 _costumeInfoEntry = new CostumeInfoEntry(__instance);
             _refilterOnly = _costumeInfoEntry.RefilterInProgress;
+
+            _windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f),
+                                   (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
         }
 
         private static void InitListPostfix()
@@ -101,34 +103,6 @@ namespace BrowserFolders
                 return false;
             }
             return true;
-        }
-
-        private static void TreeWindow()
-        {
-            GUILayout.BeginVertical();
-            {
-                _costumeInfoEntry.FolderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (GUILayout.Button("Refresh outfits"))
-                    {
-                        _costumeInfoEntry.InitOutfitList();
-                        _costumeInfoEntry.FolderTreeView.ResetTreeCache();
-                        _costumeInfoEntry.FolderTreeView.CurrentFolderChanged.Invoke();
-                    }
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(_costumeInfoEntry.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Paths.GameRootPath);
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
 
         private class CostumeInfoEntry

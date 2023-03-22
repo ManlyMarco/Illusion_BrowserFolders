@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using KKAPI.Utilities;
 using Manager;
 using System;
 using System.Collections.Generic;
@@ -58,16 +57,18 @@ namespace BrowserFolders.Hooks.KK
         }
 
         private bool _guiActive;
+        private Rect _windowRect;
 
         public void OnGui()
         {
             if (_customCharaFile != null && _targetScene == Scene.Instance.AddSceneName)
             {
                 _guiActive = true;
-                var screenRect = GetFullscreenBrowserRect();
-                IMGUIUtils.DrawSolidBox(screenRect);
-                GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-                IMGUIUtils.EatInputInRect(screenRect);
+
+                if (_windowRect.IsEmpty())
+                    _windowRect = GetFullscreenBrowserRect();
+
+                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", OnFolderChanged, hideCapAndGameFolderBtns: true);
             }
             else if (_guiActive)
             {
@@ -88,28 +89,6 @@ namespace BrowserFolders.Hooks.KK
             if (_customCharaFile == null) return;
 
             _customCharaFile.SafeProc(ccf => ccf.CreateMaleList());
-        }
-
-        private static void TreeWindow(int id)
-        {
-            GUILayout.BeginVertical();
-            {
-                _folderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (GUILayout.Button("Refresh thumbnails"))
-                    {
-                        _folderTreeView.ResetTreeCache();
-                        OnFolderChanged();
-                    }
-
-                    if (GUILayout.Button("Open current folder in explorer"))
-                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
     }
 }

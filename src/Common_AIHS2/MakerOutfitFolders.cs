@@ -2,7 +2,6 @@
 using CharaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
-using KKAPI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +23,7 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
 
         private bool _guiActive;
+        private static Rect _windowRect;
 
         public MakerOutfitFolders()
         {
@@ -131,38 +131,7 @@ namespace BrowserFolders
             _guiActive = true;
             if (_lastRefreshed != visibleWindow) RefreshCurrentWindow();
 
-            var screenRect = MakerFolders.GetDisplayRect();
-            IMGUIUtils.DrawSolidBox(screenRect);
-            GUILayout.Window(362, screenRect, TreeWindow, "Select clothes folder");
-            IMGUIUtils.EatInputInRect(screenRect);
-        }
-
-        private static void TreeWindow(int id)
-        {
-            GUILayout.BeginVertical();
-            {
-                _folderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (GUILayout.Button("Refresh thumbnails"))
-                    {
-                        _folderTreeView?.ResetTreeCache();
-                        RefreshCurrentWindow();
-                    }
-
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
+            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select clothes folder", RefreshCurrentWindow);
         }
 
         private enum VisibleWindow
@@ -185,6 +154,8 @@ namespace BrowserFolders
 
             _charaLoad = __instance;
             _charaLoadVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
+
+            _windowRect = MakerFolders.GetDefaultDisplayRect();
         }
 
         [HarmonyPrefix]
@@ -193,6 +164,8 @@ namespace BrowserFolders
         {
             _charaSave = __instance;
             _charaSaveVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
+
+            _windowRect = MakerFolders.GetDefaultDisplayRect();
         }
 
         [HarmonyTranspiler]

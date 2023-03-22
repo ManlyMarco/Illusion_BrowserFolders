@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using ChaCustom;
 using HarmonyLib;
-using KKAPI.Utilities;
 using Manager;
 using UnityEngine;
 
@@ -15,6 +14,7 @@ namespace BrowserFolders.Hooks.KKS
         private static FolderTreeView _folderTreeView;
         private static GameObject _uiObject;
         private static string _sceneName;
+        private Rect _windowRect;
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
@@ -44,10 +44,14 @@ namespace BrowserFolders.Hooks.KKS
         {
             if (_uiObject && _uiObject.activeSelf && _sceneName == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade)
             {
-                var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
-                IMGUIUtils.DrawSolidBox(screenRect);
-                GUILayout.Window(36, screenRect, TreeWindow, "Select outfit folder");
-                IMGUIUtils.EatInputInRect(screenRect);
+                if (_windowRect.IsEmpty())
+                    _windowRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
+
+                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select outfit folder", OnFolderChanged, drawAdditionalButtons: () =>
+                {
+                    if (Overlord.DrawDefaultCardsToggle())
+                        OnFolderChanged();
+                });
             }
             else
             {
@@ -59,37 +63,6 @@ namespace BrowserFolders.Hooks.KKS
         {
             if (_customCoordinateFile == null) return;
             _customCoordinateFile.Initialize();
-        }
-
-        private static void TreeWindow(int id)
-        {
-            GUILayout.BeginVertical();
-            {
-                _folderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (Overlord.DrawDefaultCardsToggle())
-                        OnFolderChanged();
-
-                    if (GUILayout.Button("Refresh thumbnails"))
-                    {
-                        _folderTreeView.ResetTreeCache();
-                        OnFolderChanged();
-                    }
-
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
     }
 }

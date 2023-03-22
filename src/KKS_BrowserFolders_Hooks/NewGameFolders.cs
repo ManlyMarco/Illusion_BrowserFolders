@@ -1,5 +1,4 @@
-﻿using KKAPI.Utilities;
-using Manager;
+﻿using Manager;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KKS
@@ -12,6 +11,7 @@ namespace BrowserFolders.Hooks.KKS
         private static string _targetScene;
 
         private static EntryPlayer _newGame;
+        private Rect _windowRect;
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
@@ -44,10 +44,14 @@ namespace BrowserFolders.Hooks.KKS
         {
             if (_newGame != null && _targetScene == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade)
             {
-                var screenRect = GetFullscreenBrowserRect();
-                IMGUIUtils.DrawSolidBox(screenRect);
-                GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-                IMGUIUtils.EatInputInRect(screenRect);
+                if (_windowRect.IsEmpty())
+                    _windowRect = GetFullscreenBrowserRect();
+
+                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", OnFolderChanged, drawAdditionalButtons: () =>
+                {
+                    if (Overlord.DrawDefaultCardsToggle())
+                        OnFolderChanged();
+                });
             }
             else
             {
@@ -57,38 +61,13 @@ namespace BrowserFolders.Hooks.KKS
 
         private static Rect GetFullscreenBrowserRect()
         {
-            return new Rect((int)(0), (int)(Screen.height * 0.35f), (int)(Screen.width * 0.133), (int)(Screen.height * 0.5));
+            return new Rect(0, (int)(Screen.height * 0.35f), (int)(Screen.width * 0.133), (int)(Screen.height * 0.5));
         }
 
         private static void OnFolderChanged()
         {
             if (_newGame != null)
                 _newGame.CreateMaleList(false);
-        }
-
-        private static void TreeWindow(int id)
-        {
-            GUILayout.BeginVertical();
-            {
-                _folderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (Overlord.DrawDefaultCardsToggle())
-                        OnFolderChanged();
-
-                    if (GUILayout.Button("Refresh thumbnails"))
-                    {
-                        _folderTreeView.ResetTreeCache();
-                        OnFolderChanged();
-                    }
-
-                    if (GUILayout.Button("Open folder in explorer"))
-                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
     }
 }

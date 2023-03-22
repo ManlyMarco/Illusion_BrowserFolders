@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)DirectoryTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FolderTreeView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IFolderBrowser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)InterfaceUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
   </ItemGroup>
 </Project>

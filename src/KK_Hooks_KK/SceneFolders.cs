@@ -34,9 +34,11 @@ namespace BrowserFolders.Hooks.KK
             {
                 _guiActive = true;
                 var screenRect = new Rect((int)(Screen.width / 11.3f), (int)(Screen.height / 90f), (int)(Screen.width / 2.5f), (int)(Screen.height / 5f));
-                IMGUIUtils.DrawSolidBox(screenRect);
+                var orig = GUI.skin;
+                GUI.skin = IMGUIUtils.SolidBackgroundGuiSkin;
                 GUILayout.Window(362, screenRect, TreeWindow, "Select folder with scenes to view");
                 IMGUIUtils.EatInputInRect(screenRect);
+                GUI.skin = orig;
             }
             else if (_guiActive)
             {

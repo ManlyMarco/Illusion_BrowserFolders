@@ -1,6 +1,4 @@
-﻿using BepInEx;
-using HarmonyLib;
-using KKAPI.Utilities;
+﻿using HarmonyLib;
 using Studio;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +12,7 @@ namespace BrowserFolders
         private static readonly Dictionary<string, CharaListEntry> _charaListEntries = new Dictionary<string, CharaListEntry>();
         private static bool _refilterOnly;
         private static CharaListEntry _lastEntry;
+        private static Rect _windowRect;
 
         public StudioCharaFolders()
         {
@@ -32,10 +31,12 @@ namespace BrowserFolders
 
             if (entry == null) return;
             _lastEntry = entry;
-            var windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
-            IMGUIUtils.DrawSolidBox(windowRect);
-            GUILayout.Window(363, windowRect, id => TreeWindow(entry), "Select folder with cards to view");
-            IMGUIUtils.EatInputInRect(windowRect);
+
+            InterfaceUtils.DisplayFolderWindow(_lastEntry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Select folder with cards to view", () =>
+            {
+                entry.InitCharaList(true);
+                entry.FolderTreeView.CurrentFolderChanged.Invoke();
+            });
         }
 
         [HarmonyPostfix]
@@ -54,6 +55,8 @@ namespace BrowserFolders
             if (!_charaListEntries.ContainsKey(__instance.name))
                 _charaListEntries[__instance.name] = new CharaListEntry(__instance);
             _refilterOnly = _force && _charaListEntries[__instance.name].RefilterInProgress;
+            
+            _windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
         }
 
         [HarmonyPostfix]
@@ -113,34 +116,6 @@ namespace BrowserFolders
                 }
             }
             return true;
-        }
-
-        private static void TreeWindow(CharaListEntry entry)
-        {
-            GUILayout.BeginVertical();
-            {
-                entry.FolderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (GUILayout.Button("Refresh characters"))
-                    {
-                        entry.InitCharaList(true);
-                        entry.FolderTreeView.ResetTreeCache();
-                        entry.FolderTreeView.CurrentFolderChanged.Invoke();
-                    }
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(entry.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Paths.GameRootPath);
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
 
         private class CharaListEntry

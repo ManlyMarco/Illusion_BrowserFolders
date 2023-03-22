@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using KKAPI.Utilities;
 using Studio;
 using UnityEngine;
 
@@ -18,7 +16,8 @@ namespace BrowserFolders.Hooks.KK
         protected string RefreshLabel = "Refresh files";
 
         protected string WindowLabel = "Select folder to view";
-        
+        private Rect _windowRect;
+
         public void OnGui()
         {
             var entry = Helper.GetActiveEntry();
@@ -30,10 +29,15 @@ namespace BrowserFolders.Hooks.KK
 
             if (entry == null) return;
             _lastEntry = entry;
-            var windowRect = GetMainRect();
-            IMGUIUtils.DrawSolidBox(windowRect);
-            GUILayout.Window(363, windowRect, id => TreeWindow(entry), WindowLabel);
-            IMGUIUtils.EatInputInRect(windowRect);
+
+            if (_windowRect.IsEmpty())
+                _windowRect = GetMainRect();
+
+            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => _windowRect, r => _windowRect = r, WindowLabel, () =>
+            {
+                entry.InitListRefresh();
+                entry.FolderTreeView.CurrentFolderChanged.Invoke();
+            });
         }
 
         // override to change layout of main window
@@ -62,7 +66,7 @@ namespace BrowserFolders.Hooks.KK
         {
             return gameList != null && Helper.RefilterOnly;
         }
-        
+
         protected static bool InitListPrefix(TSub gameList)
         {
             try
@@ -112,43 +116,6 @@ namespace BrowserFolders.Hooks.KK
             // clear the override
             StudioFileHelper.SetGetAllFilesOverride(entry.GetRoot(), "*.png", null);
         }
-
-        private void TreeWindow(T entry)
-        {
-            GUILayout.BeginVertical();
-            {
-                entry.FolderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (GUILayout.Button(RefreshLabel))
-                    {
-                        entry.InitListRefresh();
-                        entry.FolderTreeView.ResetTreeCache();
-                        entry.FolderTreeView.CurrentFolderChanged.Invoke();
-                    }
-
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                    {
-                        Utils.OpenDirInExplorer(entry.CurrentFolder);
-                    }
-
-                    if (GUILayout.Button("Screenshot folder"))
-                    {
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    }
-
-                    if (GUILayout.Button("Main game folder"))
-                    {
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                    }
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
-        }
     }
 
     public abstract class BaseListEntry<TList>
@@ -189,7 +156,7 @@ namespace BrowserFolders.Hooks.KK
 
         public abstract bool isActiveAndEnabled { get; }
         public abstract List<CharaFileInfo> GetCharaFileInfos();
-        
+
         /// <summary>
         /// Called to reinitialize list when FolderTreeView folder changes
         /// </summary>

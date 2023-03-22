@@ -27,6 +27,7 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
 
         private bool _guiActive;
+        private static Rect _windowRect;
 
         public MakerFolders()
         {
@@ -37,6 +38,7 @@ namespace BrowserFolders
 
             Harmony.CreateAndPatchAll(typeof(MakerFolders));
             MakerCardSave.RegisterNewCardSavePathModifier(CardSavePathModifier, null);
+            MakerAPI.MakerFinishedLoading += (sender, args) => _windowRect = GetDefaultDisplayRect();
         }
 
         private static VisibleWindow IsVisible()
@@ -111,7 +113,7 @@ namespace BrowserFolders
                         _charaFusion.UpdateCharasList();
                         resetTree = true;
                     }
-            
+
                     break;
             }
 
@@ -120,7 +122,7 @@ namespace BrowserFolders
 
         }
 
-        internal static Rect GetDisplayRect()
+        internal static Rect GetDefaultDisplayRect()
         {
 #if HS2
             const float x = 0.623f;
@@ -152,38 +154,7 @@ namespace BrowserFolders
             _guiActive = true;
             if (_lastRefreshed != visibleWindow) RefreshCurrentWindow();
 
-            var screenRect = GetDisplayRect();
-            IMGUIUtils.DrawSolidBox(screenRect);
-            GUILayout.Window(362, screenRect, TreeWindow, "Select character folder");
-            IMGUIUtils.EatInputInRect(screenRect);
-        }
-
-        private static void TreeWindow(int id)
-        {
-            GUILayout.BeginVertical();
-            {
-                _folderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (GUILayout.Button("Refresh thumbnails"))
-                    {
-                        _folderTreeView?.ResetTreeCache();
-                        RefreshCurrentWindow();
-                    }
-
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
+            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", RefreshCurrentWindow);
         }
 
         private enum VisibleWindow
@@ -228,7 +199,7 @@ namespace BrowserFolders
 #elif HS2
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CvsO_Fusion), "Start")]
-        internal static void InitHookFuse(CvsO_Fusion __instance, Button ___btnFusion, 
+        internal static void InitHookFuse(CvsO_Fusion __instance, Button ___btnFusion,
             CustomCharaWindow ___charaLoadWinA, CustomCharaWindow ___charaLoadWinB, ref IEnumerator __result)
         {
             __result = __result.AppendCo(() => InitFusion(__instance, ___btnFusion, ___charaLoadWinA, ___charaLoadWinB));

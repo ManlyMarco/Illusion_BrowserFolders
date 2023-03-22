@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using HarmonyLib;
-using KKAPI.Utilities;
 using Studio;
 using UnityEngine;
 
@@ -35,6 +34,7 @@ namespace BrowserFolders.Hooks.KKS
         }
 
         private bool _guiActive;
+        private Rect _windowRect;
 
         public void OnGui()
         {
@@ -43,11 +43,19 @@ namespace BrowserFolders.Hooks.KKS
                 if (_costumeInfoEntry.isActive())
                 {
                     _guiActive = true;
-                    var windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f),
-                        (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
-                    IMGUIUtils.DrawSolidBox(windowRect);
-                    GUILayout.Window(363, windowRect, id => TreeWindow(), "Folder with outfits to view");
-                    IMGUIUtils.EatInputInRect(windowRect);
+
+                    if (_windowRect.IsEmpty())
+                        _windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
+
+                    InterfaceUtils.DisplayFolderWindow(_costumeInfoEntry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Folder with outfits to view", () =>
+                    {
+                        _costumeInfoEntry.InitOutfitList();
+                        _costumeInfoEntry.FolderTreeView.CurrentFolderChanged.Invoke();
+                    }, drawAdditionalButtons: () =>
+                    {
+                        if (Overlord.DrawDefaultCardsToggle())
+                            _costumeInfoEntry.InitOutfitList();
+                    });
                 }
                 else if (_guiActive)
                 {
@@ -101,37 +109,6 @@ namespace BrowserFolders.Hooks.KKS
                 return false;
             }
             return true;
-        }
-
-        private static void TreeWindow()
-        {
-            GUILayout.BeginVertical();
-            {
-                _costumeInfoEntry.FolderTreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
-                {
-                    if (Overlord.DrawDefaultCardsToggle())
-                        _costumeInfoEntry.InitOutfitList();
-
-                    if (GUILayout.Button("Refresh outfits"))
-                    {
-                        _costumeInfoEntry.InitOutfitList();
-                        _costumeInfoEntry.FolderTreeView.ResetTreeCache();
-                        _costumeInfoEntry.FolderTreeView.CurrentFolderChanged.Invoke();
-                    }
-                    GUILayout.Space(1);
-
-                    if (GUILayout.Button("Current folder"))
-                        Utils.OpenDirInExplorer(_costumeInfoEntry.CurrentFolder);
-                    if (GUILayout.Button("Screenshot folder"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Main game folder"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
-                }
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndVertical();
         }
 
         private class CostumeInfoEntry
