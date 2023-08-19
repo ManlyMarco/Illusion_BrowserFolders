@@ -16,6 +16,7 @@ namespace BrowserFolders.Hooks.KKS
         private static Toggle _loadOutfitToggle;
         private static Toggle _saveOutfitToggle;
         private static GameObject _saveFront;
+        private static CustomControl _customControl;
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
@@ -61,6 +62,8 @@ namespace BrowserFolders.Hooks.KKS
             _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
 
             _targetScene = Scene.AddSceneName;
+
+            _customControl = GameObject.FindObjectOfType<CustomControl>();
         }
 
         [HarmonyPrefix]
@@ -76,8 +79,8 @@ namespace BrowserFolders.Hooks.KKS
         public void OnGui()
         {
             bool guiShown = false;
-            // Check the opened category
-            if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.AddSceneName)
+            // Check UI visibility and the opened category
+            if (_customControl && !_customControl.hideFrontUI && _catToggle != null && _catToggle.isOn && _targetScene == Scene.AddSceneName)
             {
                 // Check opened tab
                 if (_loadOutfitToggle != null && _loadOutfitToggle.isOn || _saveOutfitToggle != null && _saveOutfitToggle.isOn)
