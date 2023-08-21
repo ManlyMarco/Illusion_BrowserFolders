@@ -17,6 +17,7 @@ namespace BrowserFolders.Hooks.KKS
         private static Toggle _saveCharaToggle;
         private static GameObject _saveFront;
         private static GameObject _ccwGo;
+        private static CustomControl _customControl;
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
@@ -75,13 +76,15 @@ namespace BrowserFolders.Hooks.KKS
 
             // Exit maker / save character dialog boxes
             _ccwGo = GameObject.FindObjectOfType<CustomCheckWindow>()?.gameObject;
+
+            _customControl = GameObject.FindObjectOfType<CustomControl>();
         }
 
         public void OnGui()
         {
             var guiShown = false;
-            // Check the opened category
-            if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.AddSceneName)
+            // Check UI visibility and the opened category
+            if (_customControl && !_customControl.hideFrontUI && _catToggle != null && _catToggle.isOn && _targetScene == Scene.AddSceneName)
             {
                 // Check opened tab
                 if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
