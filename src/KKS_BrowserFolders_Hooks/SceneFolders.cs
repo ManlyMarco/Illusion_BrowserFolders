@@ -36,7 +36,7 @@ namespace BrowserFolders.Hooks.KKS
                 var screenRect = new Rect(0, 0, Screen.width * 0.1f, Screen.height);
                 var orig = GUI.skin;
                 GUI.skin = IMGUIUtils.SolidBackgroundGuiSkin;
-                GUILayout.Window(362, screenRect, TreeWindow, "Select folder with scenes to view");
+                GUILayout.Window(362, screenRect, TreeWindow, "Select folder to view");
                 IMGUIUtils.EatInputInRect(screenRect);
                 GUI.skin = orig;
             }
@@ -116,23 +116,29 @@ namespace BrowserFolders.Hooks.KKS
 
         private static void TreeWindow(int id)
         {
-            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.BeginVertical();
             {
                 _folderTreeView.DrawDirectoryTree();
 
-                if (GUILayout.Button("Refresh scene thumbnails"))
+                if (GUILayout.Button("Refresh scenes"))
                 {
                     _folderTreeView.ResetTreeCache();
                     OnFolderChanged();
                 }
 
-                if (GUILayout.Button("Open current folder in explorer"))
+                GUILayout.Space(5);
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                GUILayout.Label("Open in explorer:");
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+                if (GUILayout.Button("Open current folder"))
                     Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                if (GUILayout.Button("Open screenshot folder in explorer"))
+                if (GUILayout.Button("Open screenshot folder"))
                     Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                if (GUILayout.Button("Open character folder in explorer"))
+                if (GUILayout.Button("Open character folder"))
                     Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "chara"));
-                if (GUILayout.Button("Open main game folder in explorer"))
+                if (GUILayout.Button("Open main game folder"))
                     Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
             }
             GUILayout.EndVertical();
