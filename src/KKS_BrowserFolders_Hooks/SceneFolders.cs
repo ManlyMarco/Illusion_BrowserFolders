@@ -33,7 +33,7 @@ namespace BrowserFolders.Hooks.KKS
             if (_studioInitObject != null)
             {
                 _guiActive = true;
-                var screenRect = new Rect((int)(Screen.width / 11.3f), (int)(Screen.height / 90f), (int)(Screen.width / 2.5f), (int)(Screen.height / 5f));
+                var screenRect = new Rect(0, 0, Screen.width * 0.1f, Screen.height);
                 var orig = GUI.skin;
                 GUI.skin = IMGUIUtils.SolidBackgroundGuiSkin;
                 GUILayout.Window(362, screenRect, TreeWindow, "Select folder with scenes to view");
@@ -116,32 +116,26 @@ namespace BrowserFolders.Hooks.KKS
 
         private static void TreeWindow(int id)
         {
-            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical(GUI.skin.box);
             {
                 _folderTreeView.DrawDirectoryTree();
 
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.Width(200));
+                if (GUILayout.Button("Refresh scene thumbnails"))
                 {
-                    if (GUILayout.Button("Refresh scene thumbnails"))
-                    {
-                        _folderTreeView.ResetTreeCache();
-                        OnFolderChanged();
-                    }
-
-                    GUILayout.FlexibleSpace();
-
-                    if (GUILayout.Button("Open current folder in explorer"))
-                        Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                    if (GUILayout.Button("Open screenshot folder in explorer"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
-                    if (GUILayout.Button("Open character folder in explorer"))
-                        Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "chara"));
-                    if (GUILayout.Button("Open main game folder in explorer"))
-                        Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
+                    _folderTreeView.ResetTreeCache();
+                    OnFolderChanged();
                 }
-                GUILayout.EndVertical();
+
+                if (GUILayout.Button("Open current folder in explorer"))
+                    Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
+                if (GUILayout.Button("Open screenshot folder in explorer"))
+                    Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
+                if (GUILayout.Button("Open character folder in explorer"))
+                    Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "chara"));
+                if (GUILayout.Button("Open main game folder in explorer"))
+                    Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
             }
-            GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
         }
     }
 }
