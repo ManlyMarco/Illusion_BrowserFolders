@@ -147,6 +147,8 @@
     <Compile Include="SceneFolders.cs" />
     <Compile Include="StudioCharaFolders.cs" />
     <Compile Include="StudioOutfitFolders.cs" />
+    <Compile Include="BaseStudioFolders.cs" />
+    <Compile Include="StudioFileHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
