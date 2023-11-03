@@ -122,7 +122,7 @@ namespace BrowserFolders.Hooks.KKS
 
                 if (GUILayout.Button("Refresh scenes"))
                 {
-                    _folderTreeView.ResetTreeCache();
+                    _folderTreeView?.ResetTreeCache();
                     OnFolderChanged();
                 }
 
