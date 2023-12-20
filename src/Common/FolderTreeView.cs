@@ -97,9 +97,9 @@ namespace BrowserFolders
         private string _defaultPath;
 
         private string _searchString = "";
-        private int _itemHeight;
+        private int _scrollviewWidth;
         private int _scrollviewHeight;
-
+        private readonly Dictionary<string, int> _itemHeightMap = new Dictionary<string, int>();
 
         public void DrawDirectoryTree()
         {
@@ -115,8 +115,22 @@ namespace BrowserFolders
                 }
                 GUILayout.EndScrollView();
 
-                if (_scrollviewHeight == 0 && Event.current.type == EventType.Repaint)
-                    _scrollviewHeight = (int)GUILayoutUtility.GetLastRect().height;
+                if (Event.current.type == EventType.Repaint)
+                {
+                    var viewRect = GUILayoutUtility.GetLastRect();
+                    
+                    if(_scrollviewHeight == 0)
+                    {
+                        _scrollviewWidth = (int)viewRect.width;
+                        _scrollviewHeight = (int)viewRect.height;
+                    }
+                    else if ((int)viewRect.width != _scrollviewWidth || (int)viewRect.height != _scrollviewHeight)
+                    {
+                        _itemHeightMap.Clear();
+                        _scrollviewWidth = 0;
+                        _scrollviewHeight = 0;
+                    }
+                }
 
                 GUILayout.BeginHorizontal();
                 {
@@ -274,7 +288,7 @@ namespace BrowserFolders
             }
         }
 
-        private void DisplayObjectTreeHelper(DirectoryTree dir, int indent, ref int itemsDrawn)
+        private void DisplayObjectTreeHelper(DirectoryTree dir, int indent, ref int drawnItemTotalHeight)
         {
             var dirFullName = dir.FullName;
             var subDirs = dir.SubDirs;
@@ -291,16 +305,18 @@ namespace BrowserFolders
                 return;
             }
 
+            int itemHeight;
+            _itemHeightMap.TryGetValue(dirFullName, out itemHeight);
+
             var isSearching = !string.IsNullOrEmpty(_searchString);
             if (!isSearching || dirFullName.IndexOf(_searchString, DefaultPath.Length, StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                var drawnItemTotalHeight = itemsDrawn * _itemHeight;
-
                 if (_scrollTreeToSelected ||
-                    _itemHeight == 0 || _scrollviewHeight == 0 ||
+                    itemHeight == 0 || _scrollviewHeight == 0 ||
                     // Only draw items that are visible at current scroll position
-                    drawnItemTotalHeight >= _treeScrollPosition.y - _itemHeight &&
-                    drawnItemTotalHeight <= _treeScrollPosition.y + _scrollviewHeight + _itemHeight)
+                    drawnItemTotalHeight >= _treeScrollPosition.y - itemHeight &&
+                    drawnItemTotalHeight <= _treeScrollPosition.y + _scrollviewHeight + itemHeight
+                    )
                 {
                     GUILayout.BeginHorizontal();
                     {
@@ -313,7 +329,7 @@ namespace BrowserFolders
                             if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
                             {
                                 _scrollTreeToSelected = false;
-                                _treeScrollPosition.y = Mathf.Max(0, drawnItemTotalHeight - (_scrollviewHeight - _itemHeight) / 2);
+                                _treeScrollPosition.y = Mathf.Max(0, drawnItemTotalHeight - (_scrollviewHeight - itemHeight) / 2);
                             }
                         }
 
@@ -353,21 +369,21 @@ namespace BrowserFolders
                     }
                     GUILayout.EndHorizontal();
 
-                    if (_itemHeight == 0 && Event.current.type == EventType.Repaint)
-                        _itemHeight = (int)GUILayoutUtility.GetLastRect().height;
+                    if (itemHeight == 0 && Event.current.type == EventType.Repaint)
+                        itemHeight = _itemHeightMap[dirFullName] = (int)GUILayoutUtility.GetLastRect().height;
                 }
                 else
                 {
-                    GUILayout.Space(_itemHeight);
+                    GUILayout.Space(itemHeight);
                 }
 
-                itemsDrawn++;
+                drawnItemTotalHeight += itemHeight;
             }
 
             if (isSearching || _openedObjects.Contains(dirFullName))
             {
                 foreach (var subDir in subDirs)
-                    DisplayObjectTreeHelper(subDir, indent + 1, ref itemsDrawn);
+                    DisplayObjectTreeHelper(subDir, indent + 1, ref drawnItemTotalHeight);
             }
         }
     }
