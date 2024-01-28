@@ -41,6 +41,7 @@ namespace BrowserFolders
 
         private readonly HashSet<string> _openedObjects = new HashSet<string>();
         private Vector2 _treeScrollPosition;
+        private float? _selectedTreeScrollPositionY = null;
         private string _currentFolder;
 
         private DirectoryTree _defaultPathTree;
@@ -103,8 +104,13 @@ namespace BrowserFolders
 
         public void DrawDirectoryTree()
         {
-
             ExpandToCurrentFolder();
+
+            if (_selectedTreeScrollPositionY.HasValue && Event.current.type == EventType.Layout)
+            {
+                _treeScrollPosition.y = Mathf.Max(0, _selectedTreeScrollPositionY.Value - _scrollviewHeight * 0.5f);
+                _selectedTreeScrollPositionY = null;
+            }
 
             GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
             {
@@ -311,7 +317,7 @@ namespace BrowserFolders
             var isSearching = !string.IsNullOrEmpty(_searchString);
             if (!isSearching || dirFullName.IndexOf(_searchString, DefaultPath.Length, StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                if (_scrollTreeToSelected ||
+                if (_scrollTreeToSelected || _selectedTreeScrollPositionY.HasValue ||
                     itemHeight == 0 || _scrollviewHeight == 0 ||
                     // Only draw items that are visible at current scroll position
                     drawnItemTotalHeight >= _treeScrollPosition.y - itemHeight &&
@@ -324,14 +330,7 @@ namespace BrowserFolders
 
                         var c = GUI.color;
                         if (dirFullName == CurrentFolder)
-                        {
                             GUI.color = Color.cyan;
-                            if (_scrollTreeToSelected && Event.current.type == EventType.Repaint)
-                            {
-                                _scrollTreeToSelected = false;
-                                _treeScrollPosition.y = Mathf.Max(0, drawnItemTotalHeight - (_scrollviewHeight - itemHeight) / 2);
-                            }
-                        }
 
                         GUILayout.BeginHorizontal();
                         {
@@ -371,6 +370,12 @@ namespace BrowserFolders
 
                     if (itemHeight == 0 && Event.current.type == EventType.Repaint)
                         itemHeight = _itemHeightMap[dirFullName] = (int)GUILayoutUtility.GetLastRect().height;
+
+                    if (_scrollTreeToSelected && dirFullName == CurrentFolder && Event.current.type == EventType.Repaint)
+                    {
+                        _scrollTreeToSelected = false;
+                        _selectedTreeScrollPositionY = drawnItemTotalHeight + itemHeight * 0.5f;
+                    }
                 }
                 else
                 {
