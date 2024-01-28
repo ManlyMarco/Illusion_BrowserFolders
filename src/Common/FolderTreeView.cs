@@ -344,9 +344,6 @@ namespace BrowserFolders
 
                 if (draw)
                 {
-                    if( Event.current.type == EventType.Layout )
-                        _displayItems.Add(dirFullName);
-
                     GUILayout.BeginHorizontal();
                     {
                         GUILayout.Space(indent * 20f);
