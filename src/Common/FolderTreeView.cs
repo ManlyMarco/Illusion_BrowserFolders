@@ -109,6 +109,8 @@ namespace BrowserFolders
 
             if (Event.current.type == EventType.Layout)
             {
+                // Use _displayItems instead of calculating every time to fix a bug that sometimes causes exception when scrolling
+                // Scrolling may cause the item to be shown or hidden in the middle of an event, changing the layout function call
                 _displayItems.Clear();
 
                 if (_selectedTreeScrollPositionY.HasValue)
