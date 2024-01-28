@@ -145,8 +145,9 @@ namespace BrowserFolders.Hooks.KK
                     _folderTreeView = new FolderTreeView(
                         Utils.NormalizePath(UserData.Path),
                         Utils.NormalizePath(GetRoot()));
-                    _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+                    _folderTreeView.CurrentFolder = _currentFolder ?? _folderTreeView.DefaultPath;
                     _folderTreeView.CurrentFolderChanged = OnFolderChanged;
+                    _folderTreeView.ScrollListToSelected();
                     OnFolderChanged();
                 }
 
