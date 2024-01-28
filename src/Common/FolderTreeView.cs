@@ -101,15 +101,21 @@ namespace BrowserFolders
         private int _scrollviewWidth;
         private int _scrollviewHeight;
         private readonly Dictionary<string, int> _itemHeightMap = new Dictionary<string, int>();
+        private readonly HashSet<string> _displayItems = new HashSet<string>();
 
         public void DrawDirectoryTree()
         {
             ExpandToCurrentFolder();
 
-            if (_selectedTreeScrollPositionY.HasValue && Event.current.type == EventType.Layout)
+            if (Event.current.type == EventType.Layout)
             {
-                _treeScrollPosition.y = Mathf.Max(0, _selectedTreeScrollPositionY.Value - _scrollviewHeight * 0.5f);
-                _selectedTreeScrollPositionY = null;
+                _displayItems.Clear();
+
+                if (_selectedTreeScrollPositionY.HasValue)
+                {
+                    _treeScrollPosition.y = Mathf.Max(0, _selectedTreeScrollPositionY.Value - _scrollviewHeight * 0.5f);
+                    _selectedTreeScrollPositionY = null;
+                }
             }
 
             GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
@@ -317,13 +323,30 @@ namespace BrowserFolders
             var isSearching = !string.IsNullOrEmpty(_searchString);
             if (!isSearching || dirFullName.IndexOf(_searchString, DefaultPath.Length, StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                if (_scrollTreeToSelected || _selectedTreeScrollPositionY.HasValue ||
-                    itemHeight == 0 || _scrollviewHeight == 0 ||
-                    // Only draw items that are visible at current scroll position
-                    drawnItemTotalHeight >= _treeScrollPosition.y - itemHeight &&
-                    drawnItemTotalHeight <= _treeScrollPosition.y + _scrollviewHeight + itemHeight
-                    )
+                bool draw;
+
+                if( Event.current.type == EventType.Layout )
                 {
+                    draw =
+                        _scrollTreeToSelected ||
+                        itemHeight == 0 || _scrollviewHeight == 0 ||
+                        // Only draw items that are visible at current scroll position
+                        drawnItemTotalHeight >= _treeScrollPosition.y - itemHeight &&
+                        drawnItemTotalHeight <= _treeScrollPosition.y + _scrollviewHeight + itemHeight;
+
+                    if (draw)
+                        _displayItems.Add(dirFullName);
+                }
+                else
+                {
+                    draw = _displayItems.Contains(dirFullName);
+                }
+
+                if (draw)
+                {
+                    if( Event.current.type == EventType.Layout )
+                        _displayItems.Add(dirFullName);
+
                     GUILayout.BeginHorizontal();
                     {
                         GUILayout.Space(indent * 20f);
@@ -368,13 +391,16 @@ namespace BrowserFolders
                     }
                     GUILayout.EndHorizontal();
 
-                    if (itemHeight == 0 && Event.current.type == EventType.Repaint)
-                        itemHeight = _itemHeightMap[dirFullName] = (int)GUILayoutUtility.GetLastRect().height;
-
-                    if (_scrollTreeToSelected && dirFullName == CurrentFolder && Event.current.type == EventType.Repaint)
+                    if(Event.current.type == EventType.Repaint)
                     {
-                        _scrollTreeToSelected = false;
-                        _selectedTreeScrollPositionY = drawnItemTotalHeight + itemHeight * 0.5f;
+                        if (itemHeight == 0)
+                            itemHeight = _itemHeightMap[dirFullName] = (int)GUILayoutUtility.GetLastRect().height;
+
+                        if (_scrollTreeToSelected && dirFullName == CurrentFolder)
+                        {
+                            _scrollTreeToSelected = false;
+                            _selectedTreeScrollPositionY = drawnItemTotalHeight + itemHeight * 0.5f;
+                        }
                     }
                 }
                 else
