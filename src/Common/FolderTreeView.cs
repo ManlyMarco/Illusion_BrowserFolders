@@ -269,7 +269,7 @@ namespace BrowserFolders
             while (!string.IsNullOrEmpty(path) && path.Length > defaultPath.Length)
             {
                 if (_openedObjects.Add(path))
-                    path = NormalizePath(Path.GetDirectoryName(path));
+                    path = NormalizePath(Path.GetDirectoryName(path.TrimEnd('/')));
                 else
                     break;
             }
