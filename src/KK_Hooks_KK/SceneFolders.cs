@@ -72,6 +72,7 @@ namespace BrowserFolders.Hooks.KK
             if (_folderTreeView.CurrentFolder == null)
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
             _folderTreeView.ScrollListToSelected();
+            BrowserFoldersUtil.ScrollToSelected(__instance);
         }
 
         [HarmonyPrefix]

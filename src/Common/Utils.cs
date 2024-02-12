@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -96,6 +97,18 @@ namespace BrowserFolders
         public static bool IsEmpty(this UnityEngine.Rect value)
         {
             return value.height == 0 || value.width == 0;
+        }
+
+        public static void DelayedInvoke(this UnityEngine.MonoBehaviour monoBehaviour, System.Action action, int delayedFrames)
+        {
+            monoBehaviour.StartCoroutine(DelayedInvoke(action, delayedFrames));
+        }
+
+        private static IEnumerator DelayedInvoke(System.Action action, int delayedFrames)
+        {
+            while (delayedFrames-- > 0)
+                yield return null;
+            action.Invoke();
         }
     }
 }
