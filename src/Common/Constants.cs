@@ -3,6 +3,6 @@
     internal static class Constants
     {
         public const string Guid = "marco.FolderBrowser";
-        public const string Version = "3.2";
+        public const string Version = "3.2.1";
     }
 }
