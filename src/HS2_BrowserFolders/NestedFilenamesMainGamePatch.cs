@@ -3,6 +3,7 @@ using System.IO;
 using AIChara;
 using HarmonyLib;
 using KKAPI;
+using KKAPI.Chara;
 
 namespace BrowserFolders
 {
@@ -48,6 +49,13 @@ namespace BrowserFolders
             var gmode = KoikatuAPI.GetCurrentGameMode();
             if (gmode != GameMode.MainGame && gmode != GameMode.Maker) return true;
             if (path == null) return true;
+
+            if (path == __instance.charaFileName)
+            {
+                __result = __instance.GetSourceFilePath();
+                if (!string.IsNullOrEmpty(__result))
+                    return false;
+            }
 
             if (!path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                 path += ".png";
