@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 using AIChara;
 using HarmonyLib;
 using KKAPI;
@@ -42,6 +43,19 @@ namespace BrowserFolders
         }
 
         [HarmonyPrefix]
+        [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.LoadFile), typeof(BinaryReader), typeof(int), typeof(bool), typeof(bool))]
+        private static void ChaFileLoadHook(ChaFile __instance, BinaryReader br)
+        {
+            if (! (br.BaseStream is FileStream fs))
+                return;
+            
+            var fullPath = Path.GetFullPath(fs.Name);
+            chaFileFullPathMap[__instance.charaFileName] = fullPath;
+        }
+
+        static Dictionary<string, string> chaFileFullPathMap = new Dictionary<string, string>();
+
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(ChaFileControl), "ConvertCharaFilePath")]
         public static bool ConvertCharaFilePath(ref ChaFileControl __instance, ref string __result, string path)
         {
@@ -50,11 +64,10 @@ namespace BrowserFolders
             if (gmode != GameMode.MainGame && gmode != GameMode.Maker) return true;
             if (path == null) return true;
 
-            if (path == __instance.charaFileName)
+            if (path == __instance.charaFileName && chaFileFullPathMap.TryGetValue(path, out string fullPath))
             {
-                __result = __instance.GetSourceFilePath();
-                if (!string.IsNullOrEmpty(__result))
-                    return false;
+                __result = fullPath;
+                return false;
             }
 
             if (!path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
