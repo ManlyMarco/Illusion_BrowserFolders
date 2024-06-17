@@ -64,6 +64,8 @@ namespace BrowserFolders
             if (gmode != GameMode.MainGame && gmode != GameMode.Maker) return true;
             if (path == null) return true;
 
+            // BUG - If there are multiple cards with the same file name (in different subdirs) the last added card will override all other copies
+            // more info at https://github.com/ManlyMarco/Illusion_BrowserFolders/pull/52
             if (path == __instance.charaFileName && chaFileFullPathMap.TryGetValue(path, out string fullPath))
             {
                 __result = fullPath;
