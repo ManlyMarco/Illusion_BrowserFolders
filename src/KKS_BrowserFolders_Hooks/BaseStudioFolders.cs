@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Studio;
 using UnityEngine;
@@ -37,6 +38,10 @@ namespace BrowserFolders.Hooks.KKS
             {
                 entry.InitListRefresh();
                 entry.FolderTreeView.CurrentFolderChanged.Invoke();
+            }, drawAdditionalButtons: () =>
+            {
+                if (Overlord.DrawDefaultCardsToggle())
+                    entry.InitListRefresh();
             });
         }
 
@@ -175,7 +180,12 @@ namespace BrowserFolders.Hooks.KKS
             // normally this does nothing, but in case something caused it to fall back to standard code path
             // this will allow per-folder filtering to still work
             var currentFolder = CurrentFolder;
-            GetCharaFileInfos().RemoveAll(cfi => Utils.GetNormalizedDirectoryName(cfi.file) != currentFolder);
+            var defaultFolder = KKS_BrowserFolders.ShowDefaultCharas.Value ? Utils.GetNormalizedDirectoryName(Path.GetFullPath(Studio.DefaultData.Path)) : null;
+            GetCharaFileInfos().RemoveAll(cfi =>
+            {
+                var directoryName = Utils.GetNormalizedDirectoryName(cfi.file);
+                return directoryName != currentFolder && (defaultFolder == null || !directoryName.StartsWith(defaultFolder, StringComparison.OrdinalIgnoreCase));
+            });
         }
 
         public bool TryRestoreCurrentFolderList()
