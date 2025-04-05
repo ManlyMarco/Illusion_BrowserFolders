@@ -71,16 +71,9 @@ namespace BrowserFolders.Hooks.KKS
 
                     if (KKS_BrowserFolders.ShowDefaultCharas.Value)
                     {
-                        var userDataRootPath = Path.GetFullPath(UserData.Path);
-                        if (overrideFolder.StartsWith(userDataRootPath, StringComparison.OrdinalIgnoreCase))
-                        {
-                            var defaultDataPath = Path.GetFullPath(Studio.DefaultData.Path);
-                            // Check if the subfolder is inside default data, add the defaul files if it is
-                            var subfolder = overrideFolder.Substring(userDataRootPath.Length);
-                            var defaultDataSubfolder = Path.Combine(defaultDataPath.TrimEnd('/', '\\'), subfolder.TrimStart('/', '\\'));
-                            if (Directory.Exists(defaultDataSubfolder))
-                                files.AddRange(Directory.GetFiles(defaultDataSubfolder, searchPattern).Select(Illusion.Utils.File.ConvertPath));
-                        }
+                        var defaultDataSubfolder = ToDefaultDataPath(overrideFolder, true);
+                        if (defaultDataSubfolder != null)
+                            files.AddRange(Directory.GetFiles(defaultDataSubfolder, searchPattern).Select(Illusion.Utils.File.ConvertPath));
                     }
 
                     files.AddRange(Directory.GetFiles(overrideFolder, searchPattern).Select(Illusion.Utils.File.ConvertPath));
@@ -100,6 +93,23 @@ namespace BrowserFolders.Hooks.KKS
         }
 
 
+        public static string ToDefaultDataPath(string userDataPath, bool onlyIfExists)
+        {
+            if (userDataPath == null) return null;
 
+            userDataPath = Path.GetFullPath(userDataPath);
+            var userDataRootPath = Path.GetFullPath(UserData.Path);
+            if (userDataPath.StartsWith(userDataRootPath, StringComparison.OrdinalIgnoreCase))
+            {
+                var defaultDataPath = Path.GetFullPath(Studio.DefaultData.Path);
+                // Check if the subfolder is inside default data, add the defaul files if it is
+                var subfolder = userDataPath.Substring(userDataRootPath.Length);
+                var defaultDataSubfolder = Path.Combine(defaultDataPath.TrimEnd('/', '\\'), subfolder.TrimStart('/', '\\'));
+
+                return !onlyIfExists || Directory.Exists(defaultDataSubfolder) ? defaultDataSubfolder : null;
+            }
+
+            return null;
+        }
     }
 }

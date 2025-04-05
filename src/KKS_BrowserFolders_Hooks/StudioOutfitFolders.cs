@@ -69,7 +69,11 @@ namespace BrowserFolders.Hooks.KKS
         {
             ___sex = __state;
             if (_costumeInfoEntry != null)
+            {
                 _costumeInfoEntry.RefilterInProgress = false;
+                StudioFileHelper.SetGetAllFilesOverride(_costumeInfoEntry.CurrentFolder, "*.png", null);
+            }
+
             _refilterOnly = false;
         }
 
@@ -81,6 +85,9 @@ namespace BrowserFolders.Hooks.KKS
             if (_costumeInfoEntry == null)
                 _costumeInfoEntry = new CostumeInfoEntry(__instance);
             _refilterOnly = _costumeInfoEntry.RefilterInProgress;
+
+            // This is such a mess
+            StudioFileHelper.SetGetAllFilesOverride(_costumeInfoEntry.CurrentFolder, "*.png", _costumeInfoEntry.CurrentFolder);
         }
 
         private static void InitListPostfix()
@@ -197,7 +204,7 @@ namespace BrowserFolders.Hooks.KKS
                 _currentDefaultDataFolder = Utils.NormalizePath(normalizedUserData + "/../DefaultData/" + _currentFolder.Remove(0, normalizedUserData.Length));
                 System.Console.WriteLine(_currentDefaultDataFolder);
 
-                RefilterInProgress = true;
+                //RefilterInProgress = true;
                 InitOutfitList();
             }
         }
