@@ -22,18 +22,20 @@ namespace BrowserFolders.Hooks.KKS
 
             // keyed by searchPattern, then defaultFolder to avoid any excess calls to NormalizePath
 
+            var normalizedDefaultFolder = Utils.NormalizePath(Path.GetFullPath(defaultFolder));
+
             if (overrideFolder.IsNullOrEmpty() && GetAllFilesOverrideFolders.TryGetValue(searchPattern, out var activeOverrides))
             {
-                activeOverrides.Remove(Utils.NormalizePath(defaultFolder));
+                activeOverrides.Remove(normalizedDefaultFolder);
             }
             else
             {
                 if (!GetAllFilesOverrideFolders.TryGetValue(searchPattern, out activeOverrides))
                 {
-                    GetAllFilesOverrideFolders[searchPattern] = activeOverrides = new Dictionary<string, string>();
+                    GetAllFilesOverrideFolders[searchPattern] = activeOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 }
 
-                activeOverrides[Utils.NormalizePath(defaultFolder)] = Utils.NormalizePath(overrideFolder);
+                activeOverrides[normalizedDefaultFolder] = Utils.NormalizePath(overrideFolder);
             }
         }
 
@@ -41,7 +43,7 @@ namespace BrowserFolders.Hooks.KKS
         {
             overrideFolder = null;
             return GetAllFilesOverrideFolders.TryGetValue(searchPattern, out var activeOverrides) &&
-                   activeOverrides.TryGetValue(Utils.NormalizePath(defaultFolder), out overrideFolder);
+                   activeOverrides.TryGetValue(Utils.NormalizePath(Path.GetFullPath(defaultFolder)), out overrideFolder);
         }
 
         private static void InitHooks()
@@ -66,6 +68,14 @@ namespace BrowserFolders.Hooks.KKS
                 {
                     // backup existing entries and restore if something goes wrong
                     backupFiles = files.ToArray();
+
+                    if (KKS_BrowserFolders.ShowDefaultCharas.Value)
+                    {
+                        var defaultDataSubfolder = ToDefaultDataPath(overrideFolder, true);
+                        if (defaultDataSubfolder != null)
+                            files.AddRange(Directory.GetFiles(defaultDataSubfolder, searchPattern).Select(Illusion.Utils.File.ConvertPath));
+                    }
+
                     files.AddRange(Directory.GetFiles(overrideFolder, searchPattern).Select(Illusion.Utils.File.ConvertPath));
                     return false;
                 }
@@ -81,8 +91,25 @@ namespace BrowserFolders.Hooks.KKS
                 return true;
             }
         }
-        
 
-        
+
+        public static string ToDefaultDataPath(string userDataPath, bool onlyIfExists)
+        {
+            if (userDataPath == null) return null;
+
+            userDataPath = Path.GetFullPath(userDataPath);
+            var userDataRootPath = Path.GetFullPath(UserData.Path);
+            if (userDataPath.StartsWith(userDataRootPath, StringComparison.OrdinalIgnoreCase))
+            {
+                var defaultDataPath = Path.GetFullPath(Studio.DefaultData.Path);
+                // Check if the subfolder is inside default data, add the defaul files if it is
+                var subfolder = userDataPath.Substring(userDataRootPath.Length);
+                var defaultDataSubfolder = Path.Combine(defaultDataPath.TrimEnd('/', '\\'), subfolder.TrimStart('/', '\\'));
+
+                return !onlyIfExists || Directory.Exists(defaultDataSubfolder) ? defaultDataSubfolder : null;
+            }
+
+            return null;
+        }
     }
 }
