@@ -132,8 +132,8 @@ namespace BrowserFolders
                 if (Event.current.type == EventType.Repaint)
                 {
                     var viewRect = GUILayoutUtility.GetLastRect();
-                    
-                    if(_scrollviewHeight == 0)
+
+                    if (_scrollviewHeight == 0)
                     {
                         _scrollviewWidth = (int)viewRect.width;
                         _scrollviewHeight = (int)viewRect.height;
@@ -149,7 +149,9 @@ namespace BrowserFolders
                 GUILayout.BeginHorizontal();
                 {
                     GUILayout.Label("Search: ", GUILayout.ExpandWidth(false));
+                    GUI.SetNextControlName("_searchbox");
                     _searchString = GUILayout.TextField(_searchString).Replace('\\', '/');
+                    GUI.FocusControl("_searchbox");
                 }
                 GUILayout.EndHorizontal();
             }
@@ -274,7 +276,7 @@ namespace BrowserFolders
                 {
                     CurrentFolder = DefaultPath;
                 }
-            } 
+            }
             UpdateTreeCache();
 
             var path = CurrentFolder;
@@ -327,7 +329,7 @@ namespace BrowserFolders
             {
                 bool draw;
 
-                if( Event.current.type == EventType.Layout )
+                if (Event.current.type == EventType.Layout)
                 {
                     draw =
                         _scrollTreeToSelected ||
@@ -390,7 +392,7 @@ namespace BrowserFolders
                     }
                     GUILayout.EndHorizontal();
 
-                    if(Event.current.type == EventType.Repaint)
+                    if (Event.current.type == EventType.Repaint)
                     {
                         if (itemHeight == 0)
                             itemHeight = _itemHeightMap[dirFullName] = (int)GUILayoutUtility.GetLastRect().height;

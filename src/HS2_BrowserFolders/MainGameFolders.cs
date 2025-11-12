@@ -4,6 +4,7 @@ using HS2;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -20,8 +21,10 @@ namespace BrowserFolders
         private bool _guiActive;
         private static Rect _windowRect;
 
-        public MainGameFolders()
+        public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
+            if (isStudio) return false;
+
             var pathDefault = Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female");
             _folderTreeView = new FolderTreeView(pathDefault, pathDefault)
             {
@@ -29,12 +32,12 @@ namespace BrowserFolders
                 CurrentFolderChanged = RefreshCurrentWindow
             };
 
-            var hi = Harmony.CreateAndPatchAll(typeof(MainGameFolders));
             //todo split out into a separate thing?
-            hi.PatchAll(typeof(NestedFilenamesMainGamePatch));
+            harmony.PatchAll(typeof(NestedFilenamesMainGamePatch));
+            return true;
         }
 
-        public void OnGui()
+        public void Update()
         {
             var visibleWindow = IsVisible();
             if (visibleWindow == VisibleWindow.None)
@@ -47,6 +50,11 @@ namespace BrowserFolders
 
             _guiActive = true;
             if (_lastVisibleWindow != visibleWindow) RefreshCurrentWindow();
+        }
+
+        public void OnGui()
+        {
+            if (!_guiActive) return;
 
             InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", RefreshCurrentWindow);
         }

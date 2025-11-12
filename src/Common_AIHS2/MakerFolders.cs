@@ -8,12 +8,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
+using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BrowserFolders
 {
-    public class MakerFolders : IFolderBrowser
+    public class MakerFolders : BaseFolderBrowser
     {
         private static CvsO_CharaLoad _charaLoad;
         private static CanvasGroup[] _charaLoadVisible;
@@ -23,25 +24,71 @@ namespace BrowserFolders
         private static CanvasGroup[] _charaFusionVisible;
         private static GameObject _makerCanvas;
 
-        private static VisibleWindow _lastRefreshed;
-        private static FolderTreeView _folderTreeView;
+        private static MakerFolders _instance;
 
-        private bool _guiActive;
-        private static Rect _windowRect;
+        private static VisibleWindow _currentlyVisible;
 
-        public MakerFolders()
+        public MakerFolders() : base("Select character folder", AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath) { }
+
+        protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath)
-            {
-                CurrentFolderChanged = RefreshCurrentWindow
-            };
+            if (isStudio) return false;
 
-            Harmony.CreateAndPatchAll(typeof(MakerFolders));
+            _instance = this;
+
+            harmony.PatchAll(typeof(Hooks));
             MakerCardSave.RegisterNewCardSavePathModifier(CardSavePathModifier, null);
-            MakerAPI.MakerFinishedLoading += (sender, args) => _windowRect = GetDefaultDisplayRect();
+            //todo? MakerAPI.MakerFinishedLoading += (sender, args) => _windowRect = GetDefaultDisplayRect();
+
+            return true;
         }
 
-        private static VisibleWindow IsVisible()
+        protected override int IsVisible()
+        {
+            _currentlyVisible = WhatIsVisible();
+            return (int)_currentlyVisible;
+        }
+
+        protected override void OnListRefresh()
+        {
+            var visibleWindow = WhatIsVisible();
+            var resetTree = false;
+            switch (visibleWindow)
+            {
+                case VisibleWindow.Load:
+                    if (_charaLoad != null)
+                    {
+                        _charaLoad.UpdateCharasList();
+                        resetTree = true;
+                    }
+                    break;
+                case VisibleWindow.Save:
+                    if (_charaSave != null)
+                    {
+                        _charaSave.UpdateCharasList();
+                        resetTree = true;
+                    }
+                    break;
+                case VisibleWindow.Fuse:
+                    if (_charaFusion != null)
+                    {
+                        _charaFusion.UpdateCharasList();
+                        resetTree = true;
+                    }
+                    break;
+            }
+
+            // clear tree cache
+            if (resetTree) TreeView.ResetTreeCache();
+
+        }
+
+        protected override Rect GetDefaultRect()
+        {
+            return GetDefaultDisplayRect();
+        }
+
+        private static VisibleWindow WhatIsVisible()
         {
             if (_makerCanvas == null) return VisibleWindow.None;
             if (IsFusionVisible()) return VisibleWindow.Fuse;
@@ -69,11 +116,11 @@ namespace BrowserFolders
         private static string CardSavePathModifier(string currentDirectoryPath)
         {
             if (_makerCanvas == null) return currentDirectoryPath;
-            var newFolder = _folderTreeView?.CurrentFolder;
+            var newFolder = _instance?.TreeView.CurrentFolder;
             if (newFolder != null)
             {
                 // Force reload
-                _lastRefreshed = VisibleWindow.None;
+                _instance?.OnListRefresh();
                 return newFolder;
             }
 
@@ -82,44 +129,8 @@ namespace BrowserFolders
 
         private static string GetCurrentRelativeFolder(string defaultPath)
         {
-            if (IsVisible() == VisibleWindow.None) return defaultPath;
-            return _folderTreeView?.CurrentRelativeFolder ?? defaultPath;
-        }
-
-        private static void RefreshCurrentWindow()
-        {
-            var visibleWindow = IsVisible();
-            _lastRefreshed = visibleWindow;
-            var resetTree = false;
-            switch (visibleWindow)
-            {
-                case VisibleWindow.Load:
-                    if (_charaLoad != null)
-                    {
-                        _charaLoad.UpdateCharasList();
-                        resetTree = true;
-                    }
-                    break;
-                case VisibleWindow.Save:
-                    if (_charaSave != null)
-                    {
-                        _charaSave.UpdateCharasList();
-                        resetTree = true;
-                    }
-                    break;
-                case VisibleWindow.Fuse:
-                    if (_charaFusion != null)
-                    {
-                        _charaFusion.UpdateCharasList();
-                        resetTree = true;
-                    }
-
-                    break;
-            }
-
-            // clear tree cache
-            if (resetTree) _folderTreeView.ResetTreeCache();
-
+            if (_currentlyVisible == VisibleWindow.None) return defaultPath;
+            return _instance?.TreeView.CurrentRelativeFolder ?? defaultPath;
         }
 
         internal static Rect GetDefaultDisplayRect()
@@ -137,106 +148,90 @@ namespace BrowserFolders
                 (int)(Screen.width * w), (int)(Screen.height * h));
         }
 
-        public void OnGui()
-        {
-            var visibleWindow = IsVisible();
-            if (visibleWindow == VisibleWindow.None)
-            {
-                _lastRefreshed = VisibleWindow.None;
-                if (!_guiActive)
-                {
-                    _folderTreeView?.StopMonitoringFiles();
-                    _guiActive = false;
-                }
-                return;
-            }
-
-            _guiActive = true;
-            if (_lastRefreshed != visibleWindow) RefreshCurrentWindow();
-
-            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", RefreshCurrentWindow);
-        }
-
         private enum VisibleWindow
         {
-            None,
+            None = 0,
             Load,
             Save,
             Fuse
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CvsO_CharaLoad), "Start")]
-        internal static void InitHookLoad(CvsO_CharaLoad __instance)
+        private static class Hooks
         {
-            _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path),
-                MakerAPI.GetMakerSex() == 0 ? "chara/male" : @"chara/female");
-            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
-            //_targetScene = GetAddSceneName();
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(CvsO_CharaLoad), nameof(CvsO_CharaLoad.Start))]
+            internal static void InitHookLoad(CvsO_CharaLoad __instance)
+            {
+                var treeView = _instance?.TreeView;
+                if (treeView == null) return;
+                treeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), MakerAPI.GetMakerSex() == 0 ? "chara/male" : @"chara/female");
+                treeView.CurrentFolder = treeView.DefaultPath;
+                //_targetScene = GetAddSceneName();
 
-            _makerCanvas = __instance.GetComponentInParent<Canvas>().gameObject;
+                _makerCanvas = __instance.GetComponentInParent<Canvas>().gameObject;
 
-            _charaLoad = __instance;
-            _charaLoadVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
-        }
+                _charaLoad = __instance;
+                _charaLoadVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
+            }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CvsO_CharaSave), "Start")]
-        internal static void InitHookSave(CvsO_CharaSave __instance)
-        {
-            _charaSave = __instance;
-            _charaSaveVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
-        }
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(CvsO_CharaSave), nameof(CvsO_CharaSave.Start))]
+            internal static void InitHookSave(CvsO_CharaSave __instance)
+            {
+                _charaSave = __instance;
+                _charaSaveVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
+            }
 
 #if AI
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(CvsO_Fusion), "Start")]
+        [HarmonyPatch(typeof(CvsO_Fusion), nameof(CvsO_Fusion.Start))]
         internal static void InitHookFuse(CvsO_Fusion __instance, Button ___btnFusion,
             CustomCharaWindow ___charaLoadWinA, CustomCharaWindow ___charaLoadWinB)
         {
             InitFusion(__instance, ___btnFusion, ___charaLoadWinA, ___charaLoadWinB);
         }
 #elif HS2
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(CvsO_Fusion), "Start")]
-        internal static void InitHookFuse(CvsO_Fusion __instance, Button ___btnFusion,
-            CustomCharaWindow ___charaLoadWinA, CustomCharaWindow ___charaLoadWinB, ref IEnumerator __result)
-        {
-            __result = __result.AppendCo(() => InitFusion(__instance, ___btnFusion, ___charaLoadWinA, ___charaLoadWinB));
-        }
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(CvsO_Fusion), nameof(CvsO_Fusion.Start))]
+            internal static void InitHookFuse(CvsO_Fusion __instance, Button ___btnFusion,
+                CustomCharaWindow ___charaLoadWinA, CustomCharaWindow ___charaLoadWinB, ref IEnumerator __result)
+            {
+                __result = __result.AppendCo(() => InitFusion(__instance, ___btnFusion, ___charaLoadWinA, ___charaLoadWinB));
+            }
 #endif
-        private static void InitFusion(CvsO_Fusion __instance, Button ___btnFusion,
-            CustomCharaWindow ___charaLoadWinA, CustomCharaWindow ___charaLoadWinB)
-        {
-            _charaFusion = __instance;
-            _charaFusionVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
-
-            // Fix fusion button not working when cards from different folers are used
-            ___btnFusion.onClick.RemoveAllListeners();
-            ___btnFusion.onClick.AddListener(() =>
+            private static void InitFusion(CvsO_Fusion __instance, Button ___btnFusion,
+                CustomCharaWindow ___charaLoadWinA, CustomCharaWindow ___charaLoadWinB)
             {
-                var info = ___charaLoadWinA.GetSelectInfo();
-                var info2 = ___charaLoadWinB.GetSelectInfo();
-                __instance.FusionProc(info.info.FullPath, info2.info.FullPath);
-                __instance.isFusion = true;
-            });
-        }
+                _charaFusion = __instance;
+                _charaFusionVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(CustomCharaFileInfoAssist), nameof(CustomCharaFileInfoAssist.CreateCharaFileInfoList))]
-        internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
-        {
-            var getFolderMethod = AccessTools.Method(typeof(MakerFolders), nameof(GetCurrentRelativeFolder)) ??
-                                  throw new MissingMethodException("could not find GetCurrentRelativeFolder");
+                // Fix fusion button not working when cards from different folers are used
+                ___btnFusion.onClick.RemoveAllListeners();
+                ___btnFusion.onClick.AddListener(() =>
+                {
+                    var info = ___charaLoadWinA.GetSelectInfo();
+                    var info2 = ___charaLoadWinB.GetSelectInfo();
+                    __instance.FusionProc(info.info.FullPath, info2.info.FullPath);
+                    __instance.isFusion = true;
+                });
+            }
 
-            foreach (var instruction in instructions)
+            [HarmonyTranspiler]
+            [HarmonyPatch(typeof(CustomCharaFileInfoAssist), nameof(CustomCharaFileInfoAssist.CreateCharaFileInfoList))]
+            internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
             {
-                yield return instruction;
+                var getFolderMethod = AccessTools.Method(typeof(MakerFolders), nameof(MakerFolders.GetCurrentRelativeFolder)) ??
+                                      throw new MissingMethodException("could not find GetCurrentRelativeFolder");
 
-                if (string.Equals(instruction.operand as string, "chara/female/", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(instruction.operand as string, "chara/male/", StringComparison.OrdinalIgnoreCase))
-                    // Will eat the string that just got pushed and produce a replacement
-                    yield return new CodeInstruction(OpCodes.Call, getFolderMethod);
+                foreach (var instruction in instructions)
+                {
+                    yield return instruction;
+
+                    if (string.Equals(instruction.operand as string, "chara/female/", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(instruction.operand as string, "chara/male/", StringComparison.OrdinalIgnoreCase))
+                        // Will eat the string that just got pushed and produce a replacement
+                        yield return new CodeInstruction(OpCodes.Call, getFolderMethod);
+                }
             }
         }
     }

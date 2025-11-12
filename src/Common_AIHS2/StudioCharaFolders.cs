@@ -3,6 +3,7 @@ using Studio;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -14,12 +15,14 @@ namespace BrowserFolders
         private static CharaListEntry _lastEntry;
         private static Rect _windowRect;
 
-        public StudioCharaFolders()
+        public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            Harmony.CreateAndPatchAll(typeof(StudioCharaFolders));
+            if (!isStudio) return false;
+            harmony.PatchAll(typeof(StudioCharaFolders));
+            return true;
         }
 
-        public void OnGui()
+        public void Update()
         {
             var entry = _charaListEntries.Values.SingleOrDefault(x => x.isActiveAndEnabled);
             if (_lastEntry != null && _lastEntry != entry)
@@ -28,11 +31,16 @@ namespace BrowserFolders
 
                 _lastEntry = null;
             }
+            else
+                _lastEntry = entry;
+        }
 
+        public void OnGui()
+        {
+            var entry = _lastEntry;
             if (entry == null) return;
-            _lastEntry = entry;
 
-            InterfaceUtils.DisplayFolderWindow(_lastEntry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Select folder with cards to view", () =>
+            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", () =>
             {
                 entry.InitCharaList(true);
                 entry.FolderTreeView.CurrentFolderChanged.Invoke();
@@ -40,7 +48,7 @@ namespace BrowserFolders
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(CharaList), "InitCharaList")]
+        [HarmonyPatch(typeof(CharaList), nameof(CharaList.InitCharaList))]
         internal static void InitCharaListPostfix(CharaList __instance)
         {
             if (_charaListEntries.TryGetValue(__instance.name, out var entry))
@@ -49,39 +57,39 @@ namespace BrowserFolders
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(CharaList), "InitCharaList")]
+        [HarmonyPatch(typeof(CharaList), nameof(CharaList.InitCharaList))]
         internal static void InitCharaListPrefix(CharaList __instance, bool _force)
         {
             if (!_charaListEntries.ContainsKey(__instance.name))
                 _charaListEntries[__instance.name] = new CharaListEntry(__instance);
             _refilterOnly = _force && _charaListEntries[__instance.name].RefilterInProgress;
-            
+
             _windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(CharaList), "InitFemaleList")]
+        [HarmonyPatch(typeof(CharaList), nameof(CharaList.InitFemaleList))]
         internal static void InitFemaleLisPostfix(CharaList __instance)
         {
             InitListPostfix(__instance.name);
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(CharaList), "InitFemaleList")]
+        [HarmonyPatch(typeof(CharaList), nameof(CharaList.InitFemaleList))]
         internal static bool InitFemaleListPrefix(CharaList __instance)
         {
             return InitListPrefix(__instance.name);
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(CharaList), "InitMaleList")]
+        [HarmonyPatch(typeof(CharaList), nameof(CharaList.InitMaleList))]
         internal static void InitMaleListPostfix(CharaList __instance)
         {
             InitListPostfix(__instance.name);
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(CharaList), "InitMaleList")]
+        [HarmonyPatch(typeof(CharaList), nameof(CharaList.InitMaleList))]
         internal static bool InitMaleListPrefix(CharaList __instance)
         {
             return InitListPrefix(__instance.name);

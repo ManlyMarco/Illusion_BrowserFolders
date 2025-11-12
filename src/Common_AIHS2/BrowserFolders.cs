@@ -36,6 +36,8 @@ namespace BrowserFolders
         {
             Logger = base.Logger;
 
+            // TODO need to collect a list of browsers then init them and add update call
+
             EnableMaker = Config.Bind("Main game", "Enable character folder browser in maker", true, "Changes take effect on game restart");
             if (!StudioAPI.InsideStudio && EnableMaker.Value) _makerCharaFolders = new MakerFolders();
 

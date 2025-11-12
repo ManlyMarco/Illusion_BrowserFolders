@@ -7,104 +7,36 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace BrowserFolders
 {
-    public class SceneFolders : IFolderBrowser
+    public class SceneFolders : BaseFolderBrowser
     {
         private static FolderTreeView _folderTreeView;
         private static SceneLoadScene _studioInitObject;
 
-        private bool _guiActive;
+        public SceneFolders() : base("Select scene folder", AI_BrowserFolders.UserDataPath, Path.Combine(AI_BrowserFolders.UserDataPath, @"studio\scene")) { }
 
-        public SceneFolders()
+        protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, Path.Combine(AI_BrowserFolders.UserDataPath, @"studio\scene"))
-            {
-                CurrentFolderChanged = OnFolderChanged
-            };
+            if (!isStudio) return false;
 
-            Harmony.CreateAndPatchAll(typeof(SceneFolders));
+            _folderTreeView = TreeView;
+
+            harmony.PatchAll(typeof(Hooks));
+            return true;
         }
 
-        public void OnGui()
+        protected override int IsVisible()
         {
-            if (_studioInitObject != null)
-            {
-                _guiActive = true;
-                var screenRect = new Rect(0, 0, Screen.width * 0.1f, Screen.height);
-                var orig = GUI.skin;
-                GUI.skin = IMGUIUtils.SolidBackgroundGuiSkin;
-                GUILayout.Window(362, screenRect, TreeWindow, "Select folder to view");
-                IMGUIUtils.EatInputInRect(screenRect);
-                GUI.skin = orig;
-            }
-            else if (_guiActive)
-            {
-                _folderTreeView?.StopMonitoringFiles();
-                _guiActive = false;
-            }
+            return _studioInitObject != null ? 1 : 0;
         }
-
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(SceneLoadScene), "InitInfo")]
-        internal static IEnumerable<CodeInstruction> StudioInitInfoPatch(IEnumerable<CodeInstruction> instructions)
+        
+        protected override void OnListRefresh()
         {
-            foreach (var instruction in instructions)
-            {
-                if (string.Equals(instruction.operand as string, "studio/scene", StringComparison.OrdinalIgnoreCase))
-                {
-                    //0x7E	ldsfld <field>	Push the value of the static field on the stack.
-                    instruction.opcode = OpCodes.Ldsfld;
-                    instruction.operand = typeof(SceneFolders).GetField(nameof(_currentRelativeFolder), BindingFlags.NonPublic | BindingFlags.Static);
-                }
-
-                yield return instruction;
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(SceneLoadScene), "InitInfo")]
-        internal static void StudioInitInfoPost(SceneLoadScene __instance)
-        {
-            _studioInitObject = __instance;
-            if (_folderTreeView.CurrentFolder == null)
-                _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
-            _folderTreeView.ScrollListToSelected();
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), typeof(string))]
-        internal static void SavePrefix(ref string _path)
-        {
-            try
-            {
-                if (AI_BrowserFolders.StudioSaveOverride.Value && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
-                {
-                    // Compatibility with autosave plugin
-                    if (_path.Contains("/_autosave")) return;
-
-                    var name = Path.GetFileName(_path);
-                    if (!string.IsNullOrEmpty(name) &&
-                        // Play nice with other mods if they want to save outside
-                        _path.ToLowerInvariant().Replace('\\', '/').Contains("userdata/studio/scene"))
-                    {
-                        _path = Path.Combine(_folderTreeView.CurrentFolder, name);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
-
-        private static string _currentRelativeFolder;
-
-        private static void OnFolderChanged()
-        {
-            _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
+            _currentRelativeFolder = TreeView.CurrentRelativeFolder;
 
             _studioInitObject.SafeProc(sls =>
             {
@@ -114,34 +46,74 @@ namespace BrowserFolders
             });
         }
 
-        private static void TreeWindow(int id)
+        private static string _currentRelativeFolder;
+        
+        protected override void DrawControlButtons()
         {
-            GUILayout.BeginVertical();
+            base.DrawControlButtons();
+            if (GUILayout.Button("Character folder"))
+                Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "chara"));
+        }
+
+        protected override Rect GetDefaultRect()
+        {
+            return new Rect(0, 0, Screen.width * 0.1f, Screen.height);
+        }
+
+        private static class Hooks
+        {
+            [HarmonyTranspiler]
+            [HarmonyPatch(typeof(SceneLoadScene), nameof(SceneLoadScene.InitInfo))]
+            internal static IEnumerable<CodeInstruction> StudioInitInfoPatch(IEnumerable<CodeInstruction> instructions)
             {
-                _folderTreeView.DrawDirectoryTree();
-
-                if (GUILayout.Button("Refresh scenes"))
+                foreach (var instruction in instructions)
                 {
-                    _folderTreeView?.ResetTreeCache();
-                    OnFolderChanged();
-                }
+                    if (string.Equals(instruction.operand as string, "studio/scene", StringComparison.OrdinalIgnoreCase))
+                    {
+                        //0x7E	ldsfld <field>	Push the value of the static field on the stack.
+                        instruction.opcode = OpCodes.Ldsfld;
+                        instruction.operand = typeof(SceneFolders).GetField(nameof(_currentRelativeFolder), BindingFlags.NonPublic | BindingFlags.Static);
+                    }
 
-                GUILayout.Space(5);
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("Open in explorer:");
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-                if (GUILayout.Button("Open current folder"))
-                    Utils.OpenDirInExplorer(_folderTreeView.CurrentFolder);
-                if (GUILayout.Button("Open screenshot folder"))
-                    Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "cap"));
-                if (GUILayout.Button("Open character folder"))
-                    Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "chara"));
-                if (GUILayout.Button("Open main game folder"))
-                    Utils.OpenDirInExplorer(Paths.GameRootPath);
+                    yield return instruction;
+                }
             }
-            GUILayout.EndVertical();
+
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(SceneLoadScene), nameof(SceneLoadScene.InitInfo))]
+            internal static void StudioInitInfoPost(SceneLoadScene __instance)
+            {
+                _studioInitObject = __instance;
+                if (_folderTreeView.CurrentFolder == null)
+                    _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+                _folderTreeView.ScrollListToSelected();
+            }
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), typeof(string))]
+            internal static void SavePrefix(ref string _path)
+            {
+                try
+                {
+                    if (AI_BrowserFolders.StudioSaveOverride.Value && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
+                    {
+                        // Compatibility with autosave plugin
+                        if (_path.Contains("/_autosave")) return;
+
+                        var name = Path.GetFileName(_path);
+                        if (!string.IsNullOrEmpty(name) &&
+                            // Play nice with other mods if they want to save outside
+                            _path.ToLowerInvariant().Replace('\\', '/').Contains("userdata/studio/scene"))
+                        {
+                            _path = Path.Combine(_folderTreeView.CurrentFolder, name);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
         }
     }
 }

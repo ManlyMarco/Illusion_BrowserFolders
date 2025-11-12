@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BepInEx.Configuration;
 using HarmonyLib;
 using Studio;
 using UnityEngine;
@@ -12,11 +13,14 @@ namespace BrowserFolders
         private static CostumeInfoEntry _costumeInfoEntry;
         private static bool _refilterOnly;
 
-        public StudioOutfitFolders()
-        {
-            //CostumeInfo is a private nested class            
-            Harmony harmony = new Harmony(nameof(StudioOutfitFolders));
+        private bool _guiActive;
+        private static Rect _windowRect;
 
+        public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
+        {
+            if (!isStudio) return false;
+
+            //CostumeInfo is a private nested class            
             var type = typeof(MPCharCtrl.CostumeInfo);
             {
                 var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitList));
@@ -30,30 +34,30 @@ namespace BrowserFolders
                 var postfix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitListPostfix));
                 harmony.Patch(target, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
             }
+            return true;
         }
 
-        private bool _guiActive;
-        private static Rect _windowRect;
+        public void Update()
+        {
+            var visible = _costumeInfoEntry == null || !_costumeInfoEntry.isActive();
+            if (visible)
+            {
+                if (_guiActive)
+                    _costumeInfoEntry?.FolderTreeView.StopMonitoringFiles();
+            }
+            _guiActive = visible;
+        }
 
         public void OnGui()
         {
-            if (_costumeInfoEntry != null)
+            if (!_guiActive) return;
+
+            var entry = _costumeInfoEntry;
+            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Folder with outfits to view", () =>
             {
-                if (_costumeInfoEntry.isActive())
-                {
-                    _guiActive = true;
-                    InterfaceUtils.DisplayFolderWindow(_costumeInfoEntry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Folder with outfits to view", () =>
-                    {
-                        _costumeInfoEntry.InitOutfitList();
-                        _costumeInfoEntry.FolderTreeView.CurrentFolderChanged.Invoke();
-                    });
-                }
-                else if (_guiActive)
-                {
-                    _costumeInfoEntry.FolderTreeView?.StopMonitoringFiles();
-                    _guiActive = false;
-                }
-            }
+                entry.InitOutfitList();
+                entry.FolderTreeView.CurrentFolderChanged.Invoke();
+            });
         }
 
         internal static void InitCostumeListPostfix(MPCharCtrl.CostumeInfo __instance, ref int ___sex, ref int __state)
@@ -73,8 +77,8 @@ namespace BrowserFolders
                 _costumeInfoEntry = new CostumeInfoEntry(__instance);
             _refilterOnly = _costumeInfoEntry.RefilterInProgress;
 
-            _windowRect = new Rect((int) (Screen.width * 0.06f), (int) (Screen.height * 0.32f),
-                                   (int) (Screen.width * 0.13f), (int) (Screen.height * 0.4f));
+            _windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f),
+                                   (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
         }
 
         private static void InitListPostfix()
