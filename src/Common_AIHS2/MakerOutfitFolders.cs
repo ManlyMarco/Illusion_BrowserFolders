@@ -28,8 +28,10 @@ namespace BrowserFolders
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            if (isStudio) return false;
-            
+            var enable = config.Bind("Main game", "Enable clothes folder browser in maker", true, "Changes take effect on game restart");
+
+            if (isStudio || !enable.Value) return false;
+
             _instance = this;
 
             harmony.PatchAll(typeof(Hooks));
@@ -134,7 +136,7 @@ namespace BrowserFolders
             {
                 var treeView = _instance?.TreeView;
                 if (treeView == null) return;
-                treeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), MakerAPI.GetMakerSex() == 0 ? "coordinate/male" : @"coordinate/female");
+                treeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), MakerAPI.GetMakerSex() == 0 ? "coordinate/male" : "coordinate/female");
                 treeView.CurrentFolder = treeView.DefaultPath;
                 //_targetScene = GetAddSceneName();
 

@@ -17,7 +17,10 @@ namespace BrowserFolders
 
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            if (!isStudio) return false;
+            var enable = config.Bind("Chara Studio", "Enable folder browser in character browser", true, "Changes take effect on game restart");
+
+            if (!isStudio || !enable.Value) return false;
+
             harmony.PatchAll(typeof(StudioCharaFolders));
             return true;
         }

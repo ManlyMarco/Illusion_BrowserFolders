@@ -18,7 +18,9 @@ namespace BrowserFolders
 
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            if (!isStudio) return false;
+            var enable = config.Bind("Chara Studio", "Enable folder browser in outfit browser", true, "Changes take effect on game restart");
+
+            if (!isStudio || !enable.Value) return false;
 
             //CostumeInfo is a private nested class            
             var type = typeof(MPCharCtrl.CostumeInfo);
@@ -39,8 +41,8 @@ namespace BrowserFolders
 
         public void Update()
         {
-            var visible = _costumeInfoEntry == null || !_costumeInfoEntry.isActive();
-            if (visible)
+            var visible = _costumeInfoEntry != null && _costumeInfoEntry.isActive();
+            if (!visible)
             {
                 if (_guiActive)
                     _costumeInfoEntry?.FolderTreeView.StopMonitoringFiles();

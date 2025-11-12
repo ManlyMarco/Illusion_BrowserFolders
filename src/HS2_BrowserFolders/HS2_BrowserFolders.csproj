@@ -96,7 +96,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HS2_BrowserFolders.cs" />
     <Compile Include="MainGameFolders.cs" />
     <Compile Include="NestedFilenamesMainGamePatch.cs" />
   </ItemGroup>

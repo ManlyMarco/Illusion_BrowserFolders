@@ -1,14 +1,14 @@
-﻿using CharaCustom;
-using HarmonyLib;
-using KKAPI.Maker;
-using KKAPI.Utilities;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
 using BepInEx.Configuration;
+using CharaCustom;
+using HarmonyLib;
+using KKAPI.Maker;
+using KKAPI.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,7 +32,9 @@ namespace BrowserFolders
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            if (isStudio) return false;
+            var enable = config.Bind("Main game", "Enable character folder browser in maker", true, "Changes take effect on game restart");
+
+            if (isStudio || !enable.Value) return false;
 
             _instance = this;
 
@@ -164,7 +166,7 @@ namespace BrowserFolders
             {
                 var treeView = _instance?.TreeView;
                 if (treeView == null) return;
-                treeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), MakerAPI.GetMakerSex() == 0 ? "chara/male" : @"chara/female");
+                treeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), MakerAPI.GetMakerSex() == 0 ? "chara/male" : "chara/female");
                 treeView.CurrentFolder = treeView.DefaultPath;
                 //_targetScene = GetAddSceneName();
 

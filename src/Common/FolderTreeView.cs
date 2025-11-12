@@ -149,9 +149,10 @@ namespace BrowserFolders
                 GUILayout.BeginHorizontal();
                 {
                     GUILayout.Label("Search: ", GUILayout.ExpandWidth(false));
-                    GUI.SetNextControlName("_searchbox");
+                    // todo fix searchbox losing focus when folder count changes
+                    // doesn't work GUI.SetNextControlName("_searchbox");
                     _searchString = GUILayout.TextField(_searchString).Replace('\\', '/');
-                    GUI.FocusControl("_searchbox");
+                    //GUI.FocusControl("_searchbox");
                 }
                 GUILayout.EndHorizontal();
             }

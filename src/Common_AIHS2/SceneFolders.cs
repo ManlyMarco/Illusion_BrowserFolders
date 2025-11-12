@@ -1,6 +1,4 @@
-﻿using BepInEx;
-using HarmonyLib;
-using KKAPI.Utilities;
+﻿using HarmonyLib;
 using Studio;
 using System;
 using System.Collections.Generic;
@@ -14,6 +12,8 @@ namespace BrowserFolders
 {
     public class SceneFolders : BaseFolderBrowser
     {
+        private static ConfigEntry<bool> _studioSaveOverride;
+
         private static FolderTreeView _folderTreeView;
         private static SceneLoadScene _studioInitObject;
 
@@ -21,7 +21,10 @@ namespace BrowserFolders
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            if (!isStudio) return false;
+            _studioSaveOverride = config.Bind("Chara Studio", "Save scenes to current folder", false, "When you select a custom folder to load a scene from, newly saved scenes will be saved to this folder.\nIf disabled, scenes are always saved to default folder (studio/scene).");
+            var enable = config.Bind("Chara Studio", "Enable folder browser in scene browser", true, "Changes take effect on game restart");
+
+            if (!isStudio || !enable.Value) return false;
 
             _folderTreeView = TreeView;
 
@@ -33,24 +36,25 @@ namespace BrowserFolders
         {
             return _studioInitObject != null ? 1 : 0;
         }
-        
+
         protected override void OnListRefresh()
         {
             _currentRelativeFolder = TreeView.CurrentRelativeFolder;
 
-            _studioInitObject.SafeProc(sls =>
+            if (_studioInitObject != null)
             {
-                sls.OnClickCancel();
-                sls.InitInfo();
-                sls.SetPage(SceneLoadScene.page);
-            });
+                _studioInitObject.OnClickCancel();
+                _studioInitObject.InitInfo();
+                _studioInitObject.SetPage(SceneLoadScene.page);
+            }
         }
 
         private static string _currentRelativeFolder;
-        
+
         protected override void DrawControlButtons()
         {
             base.DrawControlButtons();
+
             if (GUILayout.Button("Character folder"))
                 Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "chara"));
         }
@@ -93,20 +97,19 @@ namespace BrowserFolders
             [HarmonyPatch(typeof(SceneInfo), nameof(SceneInfo.Save), typeof(string))]
             internal static void SavePrefix(ref string _path)
             {
+                if (!_studioSaveOverride.Value || string.IsNullOrEmpty(_folderTreeView.CurrentFolder)) return;
+
                 try
                 {
-                    if (AI_BrowserFolders.StudioSaveOverride.Value && !string.IsNullOrEmpty(_folderTreeView.CurrentFolder))
-                    {
-                        // Compatibility with autosave plugin
-                        if (_path.Contains("/_autosave")) return;
+                    // Compatibility with autosave plugin
+                    if (_path.Contains("/_autosave")) return;
 
-                        var name = Path.GetFileName(_path);
-                        if (!string.IsNullOrEmpty(name) &&
-                            // Play nice with other mods if they want to save outside
-                            _path.ToLowerInvariant().Replace('\\', '/').Contains("userdata/studio/scene"))
-                        {
-                            _path = Path.Combine(_folderTreeView.CurrentFolder, name);
-                        }
+                    var name = Path.GetFileName(_path);
+                    if (!string.IsNullOrEmpty(name) &&
+                        // Play nice with other mods if they want to save outside
+                        _path.ToLowerInvariant().Replace('\\', '/').Contains("userdata/studio/scene"))
+                    {
+                        _path = Path.Combine(_folderTreeView.CurrentFolder, name);
                     }
                 }
                 catch (Exception ex)
