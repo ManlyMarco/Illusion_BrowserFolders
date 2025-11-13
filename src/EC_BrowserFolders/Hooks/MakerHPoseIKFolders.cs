@@ -39,7 +39,7 @@ namespace BrowserFolders.Hooks
                 var screenRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f),
                     (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
                 IMGUIUtils.DrawSolidBox(screenRect);
-                GUILayout.Window(362, screenRect, TreeWindow, "Select hik folder");
+                GUILayout.Window(362, screenRect, TreeWindow, "H IK folder");
                 IMGUIUtils.EatInputInRect(screenRect);
             }
         }
@@ -54,7 +54,7 @@ namespace BrowserFolders.Hooks
         [HarmonyPatch(typeof(MotionIKUI), "Start")]
         internal static void InitHook(MotionIKUI __instance)
         {
-            _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), "edit/ik");
+            _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), "edit/IK");
             _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
             _motionIKUI = __instance;
@@ -67,7 +67,7 @@ namespace BrowserFolders.Hooks
         {
             foreach (var instruction in instructions)
             {
-                if (string.Equals(instruction.operand as string, "edit/ik", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(instruction.operand as string, "edit/IK", StringComparison.OrdinalIgnoreCase))
 
                 {
                     //0x7E	ldsfld <field>	Push the value of the static field on the stack.

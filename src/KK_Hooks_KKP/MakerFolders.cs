@@ -85,7 +85,7 @@ namespace BrowserFolders.Hooks.KKP
                         if (_windowRect.IsEmpty())
                             _windowRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
 
-                        InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", OnFolderChanged, drawAdditionalButtons: () =>
+                        InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Character folder", OnFolderChanged, drawAdditionalButtons: () =>
                         {
                             if (Overlord.DrawDefaultCardsToggle())
                                 OnFolderChanged();

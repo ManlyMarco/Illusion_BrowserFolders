@@ -106,7 +106,7 @@ namespace BrowserFolders.Hooks.KK
                 if (_windowRect.IsEmpty())
                     _windowRect = GetFullscreenBrowserRect();
 
-                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", OnFolderChanged);
+                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Character folder", OnFolderChanged);
             }
             else if (_guiActive)
             {

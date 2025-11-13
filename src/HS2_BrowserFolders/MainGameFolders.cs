@@ -20,7 +20,8 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
 
         private bool _guiActive;
-        private static Rect _windowRect;
+
+        public Rect WindowRect { get; set; }
 
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -60,7 +61,13 @@ namespace BrowserFolders
         {
             if (!_guiActive) return;
 
-            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", RefreshCurrentWindow);
+            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => WindowRect, r => WindowRect = r, "Character folder", RefreshCurrentWindow, GetDefaultRect);
+        }
+
+        public Rect GetDefaultRect()
+        {
+            const float x = 0.02f, y = 0.59f, w = 0.200f, h = 0.35f;
+            return new Rect((int)(Screen.width * x), (int)(Screen.height * y), (int)(Screen.width * w), (int)(Screen.height * h));
         }
 
         private static void RefreshCurrentWindow()
@@ -86,12 +93,6 @@ namespace BrowserFolders
             }
 
             if (resetTree) _folderTreeView.ResetTreeCache();
-        }
-
-        internal static Rect GetDefaultDisplayRect()
-        {
-            const float x = 0.02f, y = 0.59f, w = 0.200f, h = 0.35f;
-            return new Rect((int)(Screen.width * x), (int)(Screen.height * y), (int)(Screen.width * w), (int)(Screen.height * h));
         }
 
         private static VisibleWindow IsVisible()
@@ -130,8 +131,6 @@ namespace BrowserFolders
                 _charaLoadVisible = __instance.gameObject.transform.Find("Group")?.GetComponent<CanvasGroup>();
 
                 _charaLoad = __instance.groupCharaSelectUI;
-
-                _windowRect = GetDefaultDisplayRect();
             }
         }
     }
