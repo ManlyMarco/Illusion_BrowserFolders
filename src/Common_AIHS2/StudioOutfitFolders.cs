@@ -14,7 +14,7 @@ namespace BrowserFolders
         private static bool _refilterOnly;
 
         private bool _guiActive;
-        private static Rect _windowRect;
+        public Rect WindowRect { get; set; }
 
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -22,26 +22,14 @@ namespace BrowserFolders
 
             if (!isStudio || !enable.Value) return false;
 
-            //CostumeInfo is a private nested class            
-            var type = typeof(MPCharCtrl.CostumeInfo);
-            {
-                var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitList));
-                var prefix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitCostumeListPrefix));
-                var postfix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitCostumeListPostfix));
-                harmony.Patch(target, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
-            }
-            {
-                var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitFileList));
-                var prefix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitListPrefix));
-                var postfix = AccessTools.Method(typeof(StudioOutfitFolders), nameof(InitListPostfix));
-                harmony.Patch(target, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
-            }
+            Hooks.Apply(harmony);
+
             return true;
         }
 
         public void Update()
         {
-            var visible = _costumeInfoEntry != null && _costumeInfoEntry.isActive();
+            var visible = _costumeInfoEntry != null && _costumeInfoEntry.ListIsActive();
             if (!visible)
             {
                 if (_guiActive)
@@ -55,60 +43,84 @@ namespace BrowserFolders
             if (!_guiActive) return;
 
             var entry = _costumeInfoEntry;
-            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Folder with outfits to view", () =>
+            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => WindowRect, r => WindowRect = r, "Folder with outfits to view", () =>
             {
                 entry.InitOutfitList();
                 entry.FolderTreeView.CurrentFolderChanged.Invoke();
-            });
+            }, GetDefaultRect);
         }
 
-        internal static void InitCostumeListPostfix(MPCharCtrl.CostumeInfo __instance, ref int ___sex, ref int __state)
+        public Rect GetDefaultRect()
         {
-            ___sex = __state;
-            if (_costumeInfoEntry != null)
-                _costumeInfoEntry.RefilterInProgress = false;
-            _refilterOnly = false;
+            return new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f),
+                            (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
         }
 
-        internal static void InitCostumeListPrefix(MPCharCtrl.CostumeInfo __instance, int _sex, ref int ___sex, ref int __state)
+        private static class Hooks
         {
-            //If the CostumeInfo.sex field is equal to the parameter _sex, the method doesn't do anything
-            __state = _sex;
-            ___sex = 99;
-            if (_costumeInfoEntry == null || _costumeInfoEntry.GetSex() != _sex)
-                _costumeInfoEntry = new CostumeInfoEntry(__instance);
-            _refilterOnly = _costumeInfoEntry.RefilterInProgress;
-
-            _windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f),
-                                   (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
-        }
-
-        private static void InitListPostfix()
-        {
-            if (_costumeInfoEntry != null)
+            public static void Apply(Harmony harmony)
             {
-                if (!_refilterOnly)
+                //CostumeInfo is a private nested class            
+                var type = typeof(MPCharCtrl.CostumeInfo);
                 {
-                    // don't update results if we didn't get new ones
-                    _costumeInfoEntry.SaveFullList();
+                    var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitList));
+                    var prefix = AccessTools.Method(typeof(Hooks), nameof(InitCostumeListPrefix));
+                    var postfix = AccessTools.Method(typeof(Hooks), nameof(InitCostumeListPostfix));
+                    harmony.Patch(target, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
                 }
-
-                _costumeInfoEntry.ApplyFilter();
+                {
+                    var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitFileList));
+                    var prefix = AccessTools.Method(typeof(Hooks), nameof(InitListPrefix));
+                    var postfix = AccessTools.Method(typeof(Hooks), nameof(InitListPostfix));
+                    harmony.Patch(target, new HarmonyMethod(prefix), new HarmonyMethod(postfix));
+                }
             }
-        }
 
-        public static bool InitListPrefix()
-        {
-            // detect if force reload was triggered by a change of folder
-            if (_refilterOnly && _costumeInfoEntry != null)
+            internal static void InitCostumeListPostfix(MPCharCtrl.CostumeInfo __instance, ref int ___sex, ref int __state)
             {
-                // if so just restore cached values so they can be re-filtered without
-                // going back to disk and refilter them
-                _costumeInfoEntry.RestoreUnfiltered();
-                // stop real method from running, filter in postfix
-                return false;
+                ___sex = __state;
+                if (_costumeInfoEntry != null)
+                    _costumeInfoEntry.RefilterInProgress = false;
+                _refilterOnly = false;
             }
-            return true;
+
+            internal static void InitCostumeListPrefix(MPCharCtrl.CostumeInfo __instance, int _sex, ref int ___sex, ref int __state)
+            {
+                //If the CostumeInfo.sex field is equal to the parameter _sex, the method doesn't do anything
+                __state = _sex;
+                ___sex = 99;
+                if (_costumeInfoEntry == null || _costumeInfoEntry.GetSex() != _sex)
+                    _costumeInfoEntry = new CostumeInfoEntry(__instance);
+                _refilterOnly = _costumeInfoEntry.RefilterInProgress;
+            }
+
+            private static void InitListPostfix()
+            {
+                if (_costumeInfoEntry != null)
+                {
+                    if (!_refilterOnly)
+                    {
+                        // don't update results if we didn't get new ones
+                        _costumeInfoEntry.SaveFullList();
+                    }
+
+                    _costumeInfoEntry.ApplyFilter();
+                }
+            }
+
+            public static bool InitListPrefix()
+            {
+                // detect if force reload was triggered by a change of folder
+                if (_refilterOnly && _costumeInfoEntry != null)
+                {
+                    // if so just restore cached values so they can be re-filtered without
+                    // going back to disk and refilter them
+                    _costumeInfoEntry.RestoreUnfiltered();
+                    // stop real method from running, filter in postfix
+                    return false;
+                }
+                return true;
+            }
         }
 
         private class CostumeInfoEntry
@@ -119,12 +131,10 @@ namespace BrowserFolders
             private string _currentFolder;
             private FolderTreeView _folderTreeView;
             private int _sex = -1;
-            private readonly GameObject _clothesRoot;
 
             public CostumeInfoEntry(MPCharCtrl.CostumeInfo costumeInfo)
             {
                 _costumeInfo = costumeInfo;
-                _clothesRoot = (GameObject)costumeInfo.GetType().GetField("objRoot", AccessTools.all).GetValue(costumeInfo);
             }
 
             public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? UserData.Path);
@@ -146,7 +156,7 @@ namespace BrowserFolders
                 }
             }
 
-            public bool isActive() => _clothesRoot.activeInHierarchy;
+            public bool ListIsActive() => _costumeInfo.objRoot.activeInHierarchy;
 
             public void ApplyFilter()
             {

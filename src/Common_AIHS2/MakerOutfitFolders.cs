@@ -24,7 +24,7 @@ namespace BrowserFolders
 
         private static VisibleWindow _currentlyVisible;
 
-        public MakerOutfitFolders() : base("Select clothes folder", AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath) { }
+        public MakerOutfitFolders() : base("Clothes folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -70,7 +70,7 @@ namespace BrowserFolders
             if (resetTree) TreeView.ResetTreeCache();
         }
 
-        protected override Rect GetDefaultRect()
+        public override Rect GetDefaultRect()
         {
             return MakerFolders.GetDefaultDisplayRect();
         }

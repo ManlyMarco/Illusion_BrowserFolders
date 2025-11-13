@@ -10,10 +10,11 @@ namespace BrowserFolders
 {
     public class StudioCharaFolders : IFolderBrowser
     {
-        private static readonly Dictionary<string, CharaListEntry> _charaListEntries = new Dictionary<string, CharaListEntry>();
+        private static readonly Dictionary<string, CharaListEntry> _CharaListEntries = new Dictionary<string, CharaListEntry>();
         private static bool _refilterOnly;
         private static CharaListEntry _lastEntry;
-        private static Rect _windowRect;
+
+        public Rect WindowRect { get; set; }
 
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -27,7 +28,7 @@ namespace BrowserFolders
 
         public void Update()
         {
-            var entry = _charaListEntries.Values.SingleOrDefault(x => x.isActiveAndEnabled);
+            var entry = _CharaListEntries.Values.SingleOrDefault(x => x.ListIsActive);
             if (_lastEntry != null && _lastEntry != entry)
             {
                 _lastEntry.FolderTreeView?.StopMonitoringFiles();
@@ -43,18 +44,23 @@ namespace BrowserFolders
             var entry = _lastEntry;
             if (entry == null) return;
 
-            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => _windowRect, r => _windowRect = r, "Select character folder", () =>
+            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => WindowRect, r => WindowRect = r, "Character folder", () =>
             {
                 entry.InitCharaList(true);
                 entry.FolderTreeView.CurrentFolderChanged.Invoke();
-            });
+            }, GetDefaultRect);
+        }
+
+        public Rect GetDefaultRect()
+        {
+            return new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CharaList), nameof(CharaList.InitCharaList))]
         internal static void InitCharaListPostfix(CharaList __instance)
         {
-            if (_charaListEntries.TryGetValue(__instance.name, out var entry))
+            if (_CharaListEntries.TryGetValue(__instance.name, out var entry))
                 entry.RefilterInProgress = false;
             _refilterOnly = false;
         }
@@ -63,11 +69,9 @@ namespace BrowserFolders
         [HarmonyPatch(typeof(CharaList), nameof(CharaList.InitCharaList))]
         internal static void InitCharaListPrefix(CharaList __instance, bool _force)
         {
-            if (!_charaListEntries.ContainsKey(__instance.name))
-                _charaListEntries[__instance.name] = new CharaListEntry(__instance);
-            _refilterOnly = _force && _charaListEntries[__instance.name].RefilterInProgress;
-
-            _windowRect = new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f), (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
+            if (!_CharaListEntries.ContainsKey(__instance.name))
+                _CharaListEntries[__instance.name] = new CharaListEntry(__instance);
+            _refilterOnly = _force && _CharaListEntries[__instance.name].RefilterInProgress;
         }
 
         [HarmonyPostfix]
@@ -100,7 +104,7 @@ namespace BrowserFolders
 
         private static void InitListPostfix(string name)
         {
-            if (_charaListEntries.TryGetValue(name, out var entry))
+            if (_CharaListEntries.TryGetValue(name, out var entry))
             {
                 if (!_refilterOnly)
                 {
@@ -114,7 +118,7 @@ namespace BrowserFolders
 
         private static bool InitListPrefix(string name)
         {
-            if (_charaListEntries.TryGetValue(name, out var entry))
+            if (_CharaListEntries.TryGetValue(name, out var entry))
             {
                 // detect if force reload was triggered by a change of folder
                 if (_refilterOnly)
@@ -143,7 +147,7 @@ namespace BrowserFolders
                 _charaList = charaList;
             }
 
-            public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? AI_BrowserFolders.UserDataPath);
+            public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? BrowserFoldersPlugin.UserDataPath);
 
             public FolderTreeView FolderTreeView
             {
@@ -152,8 +156,8 @@ namespace BrowserFolders
                     if (_folderTreeView == null)
                     {
                         _folderTreeView = new FolderTreeView(
-                            AI_BrowserFolders.UserDataPath,
-                            Path.Combine(AI_BrowserFolders.UserDataPath, GetSex() != 0 ? "chara/female" : "chara/male"));
+                            BrowserFoldersPlugin.UserDataPath,
+                            Path.Combine(BrowserFoldersPlugin.UserDataPath, GetSex() != 0 ? "chara/female" : "chara/male"));
                         _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
                         _folderTreeView.CurrentFolderChanged = OnFolderChanged;
                         OnFolderChanged();
@@ -162,7 +166,7 @@ namespace BrowserFolders
                 }
             }
 
-            public bool isActiveAndEnabled => _charaList.isActiveAndEnabled;
+            public bool ListIsActive => _charaList.isActiveAndEnabled;
 
             public void ApplyFilter()
             {

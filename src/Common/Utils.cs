@@ -63,22 +63,7 @@ namespace BrowserFolders
             }
         }
 
-        public static ManualLogSource Logger
-        {
-            get
-            {
-#if KK
-                return KK_BrowserFolders.Logger;
-#elif KKS         
-                return KKS_BrowserFolders.Logger;
-#elif EC
-                return EC_BrowserFolders.Logger;
-#else
-                return AI_BrowserFolders.Logger;
-#endif
-            }
-
-        }
+        public static ManualLogSource Logger => BrowserFoldersPlugin.Logger;
 
         public static void OpenDirInExplorer(string path)
         {

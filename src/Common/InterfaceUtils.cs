@@ -16,22 +16,22 @@ namespace BrowserFolders
             _defaultPath = defaultPath ?? throw new ArgumentNullException(nameof(defaultPath));
         }
 
-        private int _id = 362; // Assume at most one folder window can be visible at one time
-        private int _guiVisible;
+        private readonly int _id = 362; // Assume at most one folder window can be visible at one time
         private readonly string _topmostPath;
         private readonly string _defaultPath;
 
-        //public bool Enabled { get; set; } = true;
-        public Rect WindowRect { get; protected set; }
+        private int _guiVisible;
+
+        public Rect WindowRect { get; set; }
         public FolderTreeView TreeView { get; protected set; }
         public string Title { get; protected set; }
 
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            // todo store WindowRect in a setting
-            WindowRect = GetDefaultRect();
-            TreeView = new FolderTreeView(_topmostPath, _defaultPath);
-            TreeView.CurrentFolderChanged = OnListRefresh;
+            TreeView = new FolderTreeView(_topmostPath, _defaultPath)
+            {
+                CurrentFolderChanged = OnListRefresh
+            };
             return OnInitialize(isStudio, config, harmony);
         }
 
@@ -87,10 +87,15 @@ namespace BrowserFolders
                     Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
             }
         }
-        protected abstract Rect GetDefaultRect();
+
+        public abstract Rect GetDefaultRect();
 
         protected virtual void DrawFolderWindow(int id)
         {
+            var borderTop = GUI.skin.window.border.top - 4;
+            if (GUI.Button(new Rect(WindowRect.width - borderTop - 2, 2, borderTop + 4, borderTop), "R"))
+                WindowRect = GetDefaultRect();
+
             //TODO fix searchbox losing focus
 
             var isHorizontal = WindowRect.width > WindowRect.height;
@@ -118,27 +123,27 @@ namespace BrowserFolders
 
     public static class InterfaceUtils
     {
-        //todo
-        // convert into an instance class to avoid passing all those lambdas
-        // take in get default rect lambda and keep rect handling internal
-        // save rect to settings?
-        // ensure rect is on screen
-        // a way to reset to default rect
-        // try to make completely generic, only needs to be called in ongui
-        public static void DisplayFolderWindow(FolderTreeView tree, Func<Rect> getWindowRect, Action<Rect> setWindowRect, string title, Action onRefresh, Action drawAdditionalButtons = null, bool hideCapAndGameFolderBtns = false)
+        public static void DisplayFolderWindow(FolderTreeView tree, Func<Rect> getWindowRect, Action<Rect> setWindowRect, string title, Action onRefresh, Func<Rect> getDefaultRect, Action drawAdditionalButtons = null, bool hideCapAndGameFolderBtns = false)
         {
             var orig = GUI.skin;
             GUI.skin = IMGUIUtils.SolidBackgroundGuiSkin;
 
-            var windowRect = GUILayout.Window(362, getWindowRect(), id => setWindowRect(DisplayFolderWindowInt(id, tree, getWindowRect(), onRefresh, drawAdditionalButtons, hideCapAndGameFolderBtns)), title);
+            var windowRect = GUILayout.Window(362, getWindowRect(), id => setWindowRect(DisplayFolderWindowInt(id, tree, getWindowRect(), onRefresh, getDefaultRect, drawAdditionalButtons, hideCapAndGameFolderBtns)), title);
             setWindowRect(windowRect);
 
             GUI.skin = orig;
         }
-        private static Rect DisplayFolderWindowInt(int id, FolderTreeView tree, Rect windowRect, Action onRefresh, Action drawAdditionalButtons, bool hideCapAndGameFolderBtns)
+        private static Rect DisplayFolderWindowInt(int id, FolderTreeView tree, Rect windowRect, Action onRefresh, Func<Rect> getDefaultRect, Action drawAdditionalButtons, bool hideCapAndGameFolderBtns)
         {
-            // todo switch to horizontal based on aspect ratio, show more buttons then, needed for scenes
-            GUILayout.BeginVertical();
+            var borderTop = GUI.skin.window.border.top - 4;
+            if (GUI.Button(new Rect(windowRect.width - borderTop - 2, 2, borderTop + 4, borderTop), "R"))
+                windowRect = getDefaultRect();
+
+            var isHorizontal = windowRect.width > windowRect.height;
+            if (isHorizontal)
+                GUILayout.BeginHorizontal();
+            else
+                GUILayout.BeginVertical();
             {
                 tree.DrawDirectoryTree();
 
@@ -168,7 +173,10 @@ namespace BrowserFolders
                 }
                 GUILayout.EndVertical();
             }
-            GUILayout.EndVertical();
+            if (isHorizontal)
+                GUILayout.EndHorizontal();
+            else
+                GUILayout.EndVertical();
 
             return IMGUIUtils.DragResizeEatWindow(id, windowRect);
         }

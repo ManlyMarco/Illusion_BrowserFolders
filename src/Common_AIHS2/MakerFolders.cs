@@ -28,7 +28,7 @@ namespace BrowserFolders
 
         private static VisibleWindow _currentlyVisible;
 
-        public MakerFolders() : base("Select character folder", AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath) { }
+        public MakerFolders() : base("Character folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -85,7 +85,7 @@ namespace BrowserFolders
 
         }
 
-        protected override Rect GetDefaultRect()
+        public override Rect GetDefaultRect()
         {
             return GetDefaultDisplayRect();
         }

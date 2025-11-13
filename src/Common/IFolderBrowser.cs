@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using HarmonyLib;
+using UnityEngine;
 
 namespace BrowserFolders
 {
@@ -14,5 +15,8 @@ namespace BrowserFolders
         bool Initialize(bool isStudio, ConfigFile config, Harmony harmony);
         void Update();
         void OnGui();
+        // todo config entry to turn on/off remembering window pos/size
+        Rect WindowRect { get; set; }
+        Rect GetDefaultRect();
     }
 }

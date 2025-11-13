@@ -17,7 +17,7 @@ namespace BrowserFolders
         private static FolderTreeView _folderTreeView;
         private static SceneLoadScene _studioInitObject;
 
-        public SceneFolders() : base("Select scene folder", AI_BrowserFolders.UserDataPath, Path.Combine(AI_BrowserFolders.UserDataPath, @"studio\scene")) { }
+        public SceneFolders() : base("Scene folder", BrowserFoldersPlugin.UserDataPath, Path.Combine(BrowserFoldersPlugin.UserDataPath, @"studio\scene")) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -56,10 +56,10 @@ namespace BrowserFolders
             base.DrawControlButtons();
 
             if (GUILayout.Button("Character folder"))
-                Utils.OpenDirInExplorer(Path.Combine(AI_BrowserFolders.UserDataPath, "chara"));
+                Utils.OpenDirInExplorer(Path.Combine(BrowserFoldersPlugin.UserDataPath, "chara"));
         }
 
-        protected override Rect GetDefaultRect()
+        public override Rect GetDefaultRect()
         {
             return new Rect(0, 0, Screen.width * 0.1f, Screen.height);
         }
