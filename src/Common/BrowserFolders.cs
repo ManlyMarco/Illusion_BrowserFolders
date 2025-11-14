@@ -26,12 +26,14 @@ namespace BrowserFolders
     [BepInProcess(KoikatuAPI.StudioProcessName)]
 #endif
 #endif
+    [BepInIncompatibility("KKS_StudioDefaultData")]
     public class BrowserFoldersPlugin : BaseUnityPlugin
     {
         public const string Guid = Constants.Guid;
         public const string Version = Constants.Version;
 
         internal static new ManualLogSource Logger { get; private set; }
+        internal static ConfigEntry<bool> ShowDefaultCharas { get; private set; }
         internal static string UserDataPath { get; } = Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")); // UserData.Path
 
         private IFolderBrowser[] _instances;
@@ -45,6 +47,9 @@ namespace BrowserFolders
             var storedRects = Config.Bind("General", "Window Rectangles", string.Empty, new ConfigDescription("Window positions and sizes.", null, "Advanced"));
             var storedRectsDic = DeserializeRects(storeRects.Value ? storedRects.Value : null);
             KoikatuAPI.Quitting += (o, e) => storedRects.Value = SerializeRects(_instances);
+
+            // todo only in games where applicable
+            ShowDefaultCharas = Config.Bind("General", "Show default cards", true, "Default character and outfit cards will be added to the lists. They are visible in the root directory.");
 
             var enableFilesystemWatchers = Config.Bind("General", "Automatically refresh when files change", true, "When files are added/deleted/updated the list will automatically update. If disabled you have to hit the refresh button manually when files are changed.");
             enableFilesystemWatchers.SettingChanged += (s, e) => FolderTreeView.EnableFilesystemWatcher = enableFilesystemWatchers.Value;
@@ -66,6 +71,18 @@ namespace BrowserFolders
         {
             for (var i = 0; i < _instances.Length; i++)
                 _instances[i].OnGui();
+        }
+
+        internal static bool DrawDefaultCardsToggle()
+        {
+            GUI.changed = false;
+            var newVal = GUILayout.Toggle(ShowDefaultCharas.Value, "Show default cards");
+            if (GUI.changed)
+            {
+                ShowDefaultCharas.Value = newVal;
+                return true;
+            }
+            return false;
         }
 
         private static IFolderBrowser[] LoadBrowsers(Harmony harmony, ConfigFile config, Dictionary<string, Rect> windowRects)

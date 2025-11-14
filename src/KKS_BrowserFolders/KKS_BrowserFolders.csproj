@@ -142,7 +142,6 @@
     <Compile Include="ClassroomFolders.cs" />
     <Compile Include="FreeHFolders.cs" />
     <Compile Include="HOutfitFolders.cs" />
-    <Compile Include="KKS_BrowserFolders.cs" />
     <Compile Include="MakerFolders.cs" />
     <Compile Include="MakerOutfitFolder.cs" />
     <Compile Include="NewGameFolders.cs" />

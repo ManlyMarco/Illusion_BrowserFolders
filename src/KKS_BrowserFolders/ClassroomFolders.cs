@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using ActionGame;
+using BepInEx.Configuration;
 using HarmonyLib;
 using Illusion.Extensions;
 using Manager;
@@ -9,60 +10,18 @@ using UnityEngine;
 
 namespace BrowserFolders.Hooks.KKS
 {
-    [BrowserType(BrowserType.Classroom)]
-    public class ClassroomFolders : IFolderBrowser
+    public class ClassroomFolders : BaseFolderBrowser
     {
-        private static FolderTreeView _folderTreeView;
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
+
+        internal static ConfigEntry<bool> EnableClassroom { get; private set; }
+        private static ConfigEntry<bool> _randomCharaSubfolders;
+        private static FolderTreeView _folderTreeView;
 
         private static string _targetScene;
         private static PreviewCharaList _customCharaFile;
-        private Rect _windowRect;
 
-        public ClassroomFolders()
-        {
-            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0))
-            {
-                CurrentFolderChanged = OnFolderChanged
-            };
-
-            Overlord.Init();
-
-            Harmony.CreateAndPatchAll(typeof(ClassroomFolders));
-        }
-
-        /// <summary>
-        /// Make it possible to fill in class with random characters from all subfolders
-        /// ChaFileControl[] GetRandomUserDataFemaleCard(int num)
-        /// </summary>
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Localize.Translate.Manager), nameof(Localize.Translate.Manager.GetRandomUserDataFemaleCard), typeof(int))]
-        internal static bool RandomCharaPickOverride(int num, ref ChaFileControl[] __result)
-        {
-            if (KKS_BrowserFolders.RandomCharaSubfolders?.Value != true) return true;
-
-            var path = Path.Combine(UserData.Path, "chara/female");
-            if (!Directory.Exists(path))
-            {
-                __result = Array.Empty<ChaFileControl>();
-                return false;
-            }
-
-            // Grab from all subdirs
-            var results = Directory.GetFiles(path, "*.png", SearchOption.AllDirectories);
-            // Try to load cards until enough load successfully
-            __result = results.Shuffle().Attempt(f =>
-            {
-                var chaFileControl = new ChaFileControl();
-                if (chaFileControl.LoadCharaFile(f, 1, true, true))
-                {
-                    if (chaFileControl.parameter.sex != 0)
-                        return chaFileControl;
-                }
-                return null;
-            }).Where(x => x != null).Take(num).ToArray();
-            return false;
-        }
+        public ClassroomFolders() : base("Character folder", Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0)) { }
 
         public static void Init(PreviewCharaList list, int sex)
         {
@@ -79,33 +38,89 @@ namespace BrowserFolders.Hooks.KKS
             }
         }
 
-        public void OnGui()
+        protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            if (_customCharaFile != null && _customCharaFile.isVisible && _targetScene == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade)
-            {
-                if (_windowRect.IsEmpty())
-                    _windowRect = GetFullscreenBrowserRect();
+            if (isStudio) return false;
 
-                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Character folder", OnFolderChanged, drawAdditionalButtons: () =>
-                {
-                    if (Overlord.DrawDefaultCardsToggle())
-                        OnFolderChanged();
-                });
-            }
-            else
-            {
-                _folderTreeView?.StopMonitoringFiles();
-            }
+            _folderTreeView = TreeView;
+
+            EnableClassroom = config.Bind("Main game", "Enable folder browser in classroom/new game browser", true, "Changes take effect on game restart");
+
+            _randomCharaSubfolders = config.Bind("Main game", "Search subfolders for random characters", true, "When filling the class with random characters (or in other cases where a random character is picked) choose random characters from the main directory AND all of its subdirectories. If false, only search in the main directory (UserData/chara/female).");
+
+            Overlord.Init();
+
+            harmony.PatchAll(typeof(Hooks));
+
+            return true;
         }
 
-        private static Rect GetFullscreenBrowserRect()
+        protected override void DrawControlButtons()
+        {
+            if (BrowserFoldersPlugin.DrawDefaultCardsToggle())
+                OnListRefresh();
+
+            base.DrawControlButtons();
+        }
+
+        protected override int IsVisible()
+        {
+            return EnableClassroom.Value && _customCharaFile != null && _customCharaFile.isVisible && _targetScene == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade ? 1 : 0;
+        }
+
+        protected override void OnListRefresh()
+        {
+            _customCharaFile.SafeProc(ccf => ccf.CharFile.SafeProc(cf => cf.Initialize()));
+        }
+
+        public override Rect GetDefaultRect()
         {
             return new Rect((int)(Screen.width * 0.015), (int)(Screen.height * 0.35f), (int)(Screen.width * 0.16), (int)(Screen.height * 0.4));
         }
 
-        private static void OnFolderChanged()
+        private static class Hooks
         {
-            _customCharaFile.SafeProc(ccf => ccf.CharFile.SafeProc(cf => cf.Initialize()));
+            /// <summary>
+            /// Make it possible to fill in class with random characters from all subfolders
+            /// ChaFileControl[] GetRandomUserDataFemaleCard(int num)
+            /// </summary>
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(Localize.Translate.Manager), nameof(Localize.Translate.Manager.GetRandomUserDataFemaleCard), typeof(int))]
+            internal static bool RandomCharaPickOverride(int num, ref ChaFileControl[] __result)
+            {
+                if (!_randomCharaSubfolders.Value) return true;
+
+                try
+                {
+                    var path = Path.Combine(UserData.Path, "chara/female");
+                    if (!Directory.Exists(path))
+                    {
+                        __result = Array.Empty<ChaFileControl>();
+                        return false;
+                    }
+
+                    // Grab from all subdirs
+                    var results = Directory.GetFiles(path, "*.png", SearchOption.AllDirectories);
+                    // Try to load cards until enough load successfully
+                    __result = results.Shuffle().Attempt(f =>
+                    {
+                        var chaFileControl = new ChaFileControl();
+                        if (chaFileControl.LoadCharaFile(f, 1, true, true))
+                        {
+                            if (chaFileControl.parameter.sex != 0)
+                                return chaFileControl;
+                        }
+
+                        return null;
+                    }).Where(x => x != null).Take(num).ToArray();
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.LogError(e);
+                    return true;
+                }
+            }
         }
     }
 }

@@ -1,33 +1,24 @@
-﻿using Manager;
+﻿using BepInEx.Configuration;
+using HarmonyLib;
+using Manager;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KKS
 {
-    [BrowserType(BrowserType.NewGame)]
     public class NewGameFolders : IFolderBrowser
     {
+        private bool _guiVisible;
         private static FolderTreeView _folderTreeView;
 
         private static string _targetScene;
 
         private static EntryPlayer _newGame;
-        private Rect _windowRect;
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
-        public NewGameFolders()
-        {
-            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0))
-            {
-                CurrentFolderChanged = OnFolderChanged
-            };
-
-            Overlord.Init();
-        }
-
         public static void Init(EntryPlayer list, int sex)
         {
-            if (_newGame != list)
+            if (_newGame != list && _folderTreeView != null)
             {
                 // Stop events from firing
                 _newGame = null;
@@ -40,26 +31,44 @@ namespace BrowserFolders.Hooks.KKS
             }
         }
 
-        public void OnGui()
+        public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            if (_newGame != null && _targetScene == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade)
-            {
-                if (_windowRect.IsEmpty())
-                    _windowRect = GetFullscreenBrowserRect();
+            if (isStudio) return false;
 
-                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Character folder", OnFolderChanged, drawAdditionalButtons: () =>
-                {
-                    if (Overlord.DrawDefaultCardsToggle())
-                        OnFolderChanged();
-                });
-            }
-            else
+            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0))
             {
-                _folderTreeView?.StopMonitoringFiles();
-            }
+                CurrentFolderChanged = OnFolderChanged
+            };
+
+            Overlord.Init();
+
+            return true;
         }
 
-        private static Rect GetFullscreenBrowserRect()
+        public void Update()
+        {
+            var visible = ClassroomFolders.EnableClassroom.Value && _newGame != null && _targetScene == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade;
+            
+            if(_guiVisible && !visible)
+                _folderTreeView?.StopMonitoringFiles();
+
+            _guiVisible = visible;
+        }
+
+        public void OnGui()
+        {
+            if (!_guiVisible) return;
+
+            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => WindowRect, r => WindowRect = r, "Character folder", OnFolderChanged, drawAdditionalButtons: () =>
+            {
+                if (BrowserFoldersPlugin.DrawDefaultCardsToggle())
+                    OnFolderChanged();
+            }, getDefaultRect:GetDefaultRect);
+        }
+
+        public Rect WindowRect { get; set; }
+
+        public Rect GetDefaultRect()
         {
             return new Rect(0, (int)(Screen.height * 0.35f), (int)(Screen.width * 0.133), (int)(Screen.height * 0.5));
         }

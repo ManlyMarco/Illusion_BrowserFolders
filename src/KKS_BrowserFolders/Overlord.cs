@@ -37,7 +37,7 @@ namespace BrowserFolders.Hooks.KKS
         {
             var sex = path == "chara/female/" ? 1 : 0;
 
-            useDefaultData = useDefaultData && KKS_BrowserFolders.ShowDefaultCharas.Value;
+            useDefaultData = useDefaultData && BrowserFoldersPlugin.ShowDefaultCharas.Value;
 
             var freeh = Object.FindObjectOfType<FreeHPreviewCharaList>();
             if (freeh != null)
@@ -113,18 +113,6 @@ namespace BrowserFolders.Hooks.KKS
         public static string GetUserDataRootPath()
         {
             return Utils.NormalizePath(UserData.Path);
-        }
-
-        public static bool DrawDefaultCardsToggle()
-        {
-            GUI.changed = false;
-            var newVal = GUILayout.Toggle(KKS_BrowserFolders.ShowDefaultCharas.Value, "Show default cards");
-            if (GUI.changed)
-            {
-                KKS_BrowserFolders.ShowDefaultCharas.Value = newVal;
-                return true;
-            }
-            return false;
         }
     }
 }

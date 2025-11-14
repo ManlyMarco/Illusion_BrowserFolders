@@ -69,7 +69,7 @@ namespace BrowserFolders.Hooks.KKS
                     // backup existing entries and restore if something goes wrong
                     backupFiles = files.ToArray();
 
-                    if (KKS_BrowserFolders.ShowDefaultCharas.Value)
+                    if (BrowserFoldersPlugin.ShowDefaultCharas.Value)
                     {
                         var defaultDataSubfolder = ToDefaultDataPath(overrideFolder, true);
                         if (defaultDataSubfolder != null)
