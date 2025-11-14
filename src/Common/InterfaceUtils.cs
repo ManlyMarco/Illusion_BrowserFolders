@@ -31,7 +31,7 @@ namespace BrowserFolders
             {
                 tree.DrawDirectoryTree();
 
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
+                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
                 {
                     drawAdditionalButtons?.Invoke();
 

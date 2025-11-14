@@ -124,8 +124,8 @@ namespace BrowserFolders
             {
                 _treeScrollPosition = GUILayout.BeginScrollView(_treeScrollPosition, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
                 {
-                    var itemsDrawn = 0;
-                    DisplayObjectTreeHelper(DefaultPathTree, 0, ref itemsDrawn);
+                    var totalHeight = 0;
+                    DisplayObjectTreeHelper(DefaultPathTree, 0, ref totalHeight);
                 }
                 GUILayout.EndScrollView();
 
@@ -336,8 +336,8 @@ namespace BrowserFolders
                         _scrollTreeToSelected ||
                         itemHeight == 0 || _scrollviewHeight == 0 ||
                         // Only draw items that are visible at current scroll position
-                        drawnItemTotalHeight >= _treeScrollPosition.y - itemHeight &&
-                        drawnItemTotalHeight <= _treeScrollPosition.y + _scrollviewHeight + itemHeight;
+                        drawnItemTotalHeight >= _treeScrollPosition.y - itemHeight * 3 &&
+                        drawnItemTotalHeight <= _treeScrollPosition.y + _scrollviewHeight + itemHeight * 3;
 
                     if (draw)
                         _displayItems.Add(dirFullName);
