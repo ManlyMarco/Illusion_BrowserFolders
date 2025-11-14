@@ -15,8 +15,17 @@ namespace BrowserFolders
 {
     [BepInPlugin(Guid, "Maker/Studio Browser Folders", Version)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
+#if KKP
+    // KKP needs a completely different set of hooks !!only for its main exe!!
+    // The studio exe needs hooks from base KK instead.
+    // Don't need to care about AIS steam since it is handled by a compatibility layer.
+    [BepInProcess(KoikatuAPI.GameProcessNameSteam)]
+#else
     [BepInProcess(KoikatuAPI.GameProcessName)]
+#if !EC
     [BepInProcess(KoikatuAPI.StudioProcessName)]
+#endif
+#endif
     public class BrowserFoldersPlugin : BaseUnityPlugin
     {
         public const string Guid = Constants.Guid;
@@ -129,7 +138,7 @@ namespace BrowserFolders
 
             var newScreenWidth = Screen.width;
             var screenRect = new Rect(0, 0, newScreenWidth, newScreenHeight);
-            
+
             // Game UI mostly scales based on height
             var scaleChange = _lastScreenHeight > 0 ? newScreenHeight / (float)_lastScreenHeight : 0;
 

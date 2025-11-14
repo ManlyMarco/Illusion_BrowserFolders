@@ -9,7 +9,6 @@
     <Import_RootNamespace>Common_AIHS2</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)BrowserFolders.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MakerOutfitFolders.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MakerFolders.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SceneFolders.cs" />

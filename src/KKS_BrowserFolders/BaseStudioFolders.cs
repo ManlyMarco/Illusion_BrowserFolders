@@ -2,39 +2,43 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BepInEx.Configuration;
+using HarmonyLib;
 using Studio;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KKS
 {
-    public class BaseStudioFolders<T, TSub, THelper>
+    public abstract class BaseStudioFolders<T, TSub, THelper> : IFolderBrowser
         where THelper : BaseStudioFoldersHelper<T, TSub>, new()
         where T : BaseListEntry<TSub>
     {
         private static T _lastEntry;
 
-        private static readonly THelper Helper = new THelper();
-        protected string RefreshLabel = "Refresh files";
+        private static readonly THelper _Helper = new THelper();
 
+        protected string RefreshLabel = "Refresh files";
         protected string WindowLabel = "Select folder to view";
-        private Rect _windowRect;
+
+        public Rect WindowRect { get; set; }
+
+        public abstract bool Initialize(bool isStudio, ConfigFile config, Harmony harmony);
+
+        public void Update()
+        {
+            var entry = _Helper.GetActiveEntry();
+            if (_lastEntry != null && entry == null)
+                _lastEntry.FolderTreeView?.StopMonitoringFiles();
+
+            _lastEntry = entry;
+        }
 
         public void OnGui()
         {
-            var entry = Helper.GetActiveEntry();
-            if (_lastEntry != null && _lastEntry != entry)
-            {
-                _lastEntry.FolderTreeView?.StopMonitoringFiles();
-                _lastEntry = null;
-            }
-
+            var entry = _lastEntry;
             if (entry == null) return;
-            _lastEntry = entry;
 
-            if (_windowRect.IsEmpty())
-                _windowRect = GetMainRect();
-
-            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => _windowRect, r => _windowRect = r, WindowLabel, () =>
+            InterfaceUtils.DisplayFolderWindow(tree: entry.FolderTreeView, getWindowRect: () => WindowRect, setWindowRect: r => WindowRect = r, title: WindowLabel, onRefresh: () =>
             {
                 entry.InitListRefresh();
                 entry.FolderTreeView.CurrentFolderChanged.Invoke();
@@ -42,34 +46,33 @@ namespace BrowserFolders.Hooks.KKS
             {
                 if (Overlord.DrawDefaultCardsToggle())
                     entry.InitListRefresh();
-            });
+            }, getDefaultRect: GetDefaultRect);
         }
 
-        // override to change layout of main window
-        protected virtual Rect GetMainRect()
+        public virtual Rect GetDefaultRect()
         {
             return new Rect((int)(Screen.width * 0.06f), (int)(Screen.height * 0.32f),
-                (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
+                            (int)(Screen.width * 0.13f), (int)(Screen.height * 0.4f));
         }
 
         public static T GetListEntry(TSub gameList)
         {
-            return Helper.GetListEntry(gameList);
+            return _Helper.GetListEntry(gameList);
         }
 
         public static bool TryGetListEntry(TSub gameList, out T listEntry)
         {
-            return Helper.TryGetListEntry(gameList, out listEntry);
+            return _Helper.TryGetListEntry(gameList, out listEntry);
         }
 
         protected static void SetRefilterOnly(TSub gameList, bool globalCheck)
         {
-            Helper.RefilterOnly = globalCheck && gameList != null && GetListEntry(gameList).RefilterInProgress;
+            _Helper.RefilterOnly = globalCheck && gameList != null && GetListEntry(gameList).RefilterInProgress;
         }
 
         protected static bool GetRefilterOnly(TSub gameList)
         {
-            return gameList != null && Helper.RefilterOnly;
+            return gameList != null && _Helper.RefilterOnly;
         }
 
         protected static bool InitListPrefix(TSub gameList)

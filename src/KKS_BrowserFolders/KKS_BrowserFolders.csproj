@@ -138,9 +138,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BrowserType.cs" />
-    <Compile Include="BrowserTypeAttribute.cs" />
+    <Compile Include="BaseStudioFolders.cs" />
+    <Compile Include="ClassroomFolders.cs" />
+    <Compile Include="FreeHFolders.cs" />
+    <Compile Include="HOutfitFolders.cs" />
     <Compile Include="KKS_BrowserFolders.cs" />
+    <Compile Include="MakerFolders.cs" />
+    <Compile Include="MakerOutfitFolder.cs" />
+    <Compile Include="NewGameFolders.cs" />
+    <Compile Include="Overlord.cs" />
+    <Compile Include="Overlord.ImportHooks.cs" />
+    <Compile Include="SceneFolders.cs" />
+    <Compile Include="StudioCharaFolders.cs" />
+    <Compile Include="StudioFileHelper.cs" />
+    <Compile Include="StudioOutfitFolders.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
