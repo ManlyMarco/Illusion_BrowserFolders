@@ -40,7 +40,7 @@ namespace BrowserFolders.MainGame
             return _freeHFile != null && !_isLive && _targetScene == Scene.Instance.AddSceneName ? 1 : 0;
         }
 
-        protected override void OnListRefresh()
+        public override void OnListRefresh()
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 

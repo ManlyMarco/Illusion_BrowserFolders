@@ -37,7 +37,7 @@ namespace BrowserFolders.Studio
             return _studioInitObject != null ? 1 : 0;
         }
 
-        protected override void OnListRefresh()
+        public override void OnListRefresh()
         {
             _currentRelativeFolder = TreeView.CurrentRelativeFolder;
 

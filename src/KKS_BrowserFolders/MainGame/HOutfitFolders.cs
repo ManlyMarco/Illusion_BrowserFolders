@@ -45,7 +45,7 @@ namespace BrowserFolders.MainGame
             return _uiObject && _uiObject.activeSelf && _sceneName == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade ? 1 : 0;
         }
 
-        protected override void OnListRefresh()
+        public override void OnListRefresh()
         {
             if (_customCoordinateFile != null)
                 _customCoordinateFile.Initialize();

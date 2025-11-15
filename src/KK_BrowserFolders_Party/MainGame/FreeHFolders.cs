@@ -58,7 +58,7 @@ namespace BrowserFolders.MainGame
         {
             return _freeHFile != null && _targetScene == Scene.Instance.AddSceneName ? 1 : 0;
         }
-        protected override void OnListRefresh()
+        public override void OnListRefresh()
         {
             if (_freeHFile != null)
                 _customFileListSelecter?.Initialize();

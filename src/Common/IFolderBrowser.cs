@@ -9,7 +9,10 @@ namespace BrowserFolders
         bool Initialize(bool isStudio, ConfigFile config, Harmony harmony);
         void Update();
         void OnGui();
-        Rect WindowRect { get; set; }
+        void OnListRefresh();
         Rect GetDefaultRect();
+        FolderTreeView TreeView { get; }
+        string Title { get; }
+        Rect WindowRect { get; set; }
     }
 }

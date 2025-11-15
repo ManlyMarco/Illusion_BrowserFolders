@@ -16,6 +16,9 @@ namespace BrowserFolders
         private bool _guiActive;
         public Rect WindowRect { get; set; }
 
+        public FolderTreeView TreeView => _costumeInfoEntry?.FolderTreeView;
+        public string Title => "Outfit folder";
+
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
             var enable = config.Bind("Chara Studio", "Enable folder browser in outfit browser", true, "Changes take effect on game restart");
@@ -42,12 +45,16 @@ namespace BrowserFolders
         {
             if (!_guiActive) return;
 
-            var entry = _costumeInfoEntry;
-            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => WindowRect, r => WindowRect = r, "Folder with outfits to view", () =>
+            BaseFolderBrowser.DisplayFolderWindow(this);
+        }
+
+        public void OnListRefresh()
+        {
+            if (_costumeInfoEntry != null)
             {
-                entry.InitOutfitList();
-                entry.FolderTreeView.CurrentFolderChanged.Invoke();
-            }, GetDefaultRect);
+                _costumeInfoEntry.InitOutfitList();
+                _costumeInfoEntry.FolderTreeView.CurrentFolderChanged.Invoke();
+            }
         }
 
         public Rect GetDefaultRect()

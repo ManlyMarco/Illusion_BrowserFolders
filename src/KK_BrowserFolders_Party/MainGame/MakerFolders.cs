@@ -70,7 +70,7 @@ namespace BrowserFolders.MainGame
             return 0;
         }
 
-        protected override void OnListRefresh()
+        public override void OnListRefresh()
         {
             if (_customCharaFile == null) return;
 

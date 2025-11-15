@@ -47,7 +47,7 @@ namespace BrowserFolders.MainGame
             return EnableClassroom.Value && _canvas != null && _canvas.enabled && _targetScene == Scene.Instance.AddSceneName ? 1 : 0;
         }
 
-        protected override void OnListRefresh()
+        public override void OnListRefresh()
         {
             _currentRelativeFolder = TreeView.CurrentRelativeFolder;
 

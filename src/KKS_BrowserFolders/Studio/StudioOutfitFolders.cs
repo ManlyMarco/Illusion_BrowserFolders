@@ -15,6 +15,8 @@ namespace BrowserFolders.Studio
 
         private bool _guiActive;
         public Rect WindowRect { get; set; }
+        public FolderTreeView TreeView => _costumeInfoEntry?.FolderTreeView;
+        public string Title => "Outfit folder";
 
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -42,15 +44,20 @@ namespace BrowserFolders.Studio
             if (!_guiActive) return;
 
             var entry = _costumeInfoEntry;
-            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => WindowRect, r => WindowRect = r, "Outfit folder", () =>
-            {
-                entry.InitOutfitList();
-                entry.FolderTreeView.CurrentFolderChanged.Invoke();
-            }, drawAdditionalButtons: () =>
+            BaseFolderBrowser.DisplayFolderWindow(this, drawAdditionalButtons: () =>
             {
                 if (BrowserFoldersPlugin.DrawDefaultCardsToggle())
                     entry.InitOutfitList();
-            }, getDefaultRect: GetDefaultRect);
+            });
+        }
+
+        public void OnListRefresh()
+        {
+            if (_costumeInfoEntry != null)
+            {
+                _costumeInfoEntry.InitOutfitList();
+                _costumeInfoEntry.FolderTreeView.CurrentFolderChanged.Invoke();
+            }
         }
 
         public Rect GetDefaultRect()

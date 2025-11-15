@@ -15,8 +15,7 @@ namespace BrowserFolders.Studio
 
             if (!isStudio || !enable.Value) return false;
 
-            WindowLabel = "Select folder with cards to view";
-            RefreshLabel = "Refresh characters";
+            Title = "Character folder";
 
             harmony.PatchAll(typeof(StudioCharaFolders));
 

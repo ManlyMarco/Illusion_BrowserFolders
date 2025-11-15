@@ -17,10 +17,9 @@ namespace BrowserFolders.Studio
 
         private static readonly THelper _Helper = new THelper();
 
-        protected string RefreshLabel = "Refresh files";
-        protected string WindowLabel = "Select folder to view";
-
         public Rect WindowRect { get; set; }
+        public string Title { get; protected set; } = "Select folder to view";
+        public FolderTreeView TreeView => _lastEntry?.FolderTreeView;
 
         public abstract bool Initialize(bool isStudio, ConfigFile config, Harmony harmony);
 
@@ -35,18 +34,22 @@ namespace BrowserFolders.Studio
 
         public void OnGui()
         {
-            var entry = _lastEntry;
-            if (entry == null) return;
+            if (_lastEntry == null) return;
 
-            InterfaceUtils.DisplayFolderWindow(tree: entry.FolderTreeView, getWindowRect: () => WindowRect, setWindowRect: r => WindowRect = r, title: WindowLabel, onRefresh: () =>
-            {
-                entry.InitListRefresh();
-                entry.FolderTreeView.CurrentFolderChanged.Invoke();
-            }, drawAdditionalButtons: () =>
+            BaseFolderBrowser.DisplayFolderWindow(this, drawAdditionalButtons: () =>
             {
                 if (BrowserFoldersPlugin.DrawDefaultCardsToggle())
-                    entry.InitListRefresh();
-            }, getDefaultRect: GetDefaultRect);
+                    _lastEntry.InitListRefresh();
+            });
+        }
+
+        public void OnListRefresh()
+        {
+            if (_lastEntry != null)
+            {
+                _lastEntry.InitListRefresh();
+                _lastEntry.FolderTreeView.CurrentFolderChanged.Invoke();
+            }
         }
 
         public virtual Rect GetDefaultRect()

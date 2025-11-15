@@ -36,6 +36,9 @@ namespace BrowserFolders
         }
 
         protected abstract bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony);
+        protected abstract int IsVisible();
+        public abstract void OnListRefresh();
+        public abstract Rect GetDefaultRect();
 
         public virtual void Update()
         {
@@ -62,21 +65,57 @@ namespace BrowserFolders
                 GUI.skin = orig;
             }
         }
-        protected abstract int IsVisible();
-        protected abstract void OnListRefresh();
+
+        protected void DrawFolderWindow(int id)
+        {
+            DrawFolderWindow(id, this, DrawControlButtons);
+        }
 
         protected virtual void DrawControlButtons()
         {
+            DrawBaseControlButtons(this);
+        }
+
+        private static void DrawFolderWindow(int id, IFolderBrowser instance, Action drawControlButtons)
+        {
+            var borderTop = GUI.skin.window.border.top - 4;
+            if (GUI.Button(new Rect(instance.WindowRect.width - borderTop - 2, 2, borderTop + 4, borderTop), "R"))
+                instance.WindowRect = instance.GetDefaultRect();
+
+            var isHorizontal = instance.WindowRect.width > instance.WindowRect.height;
+            if (isHorizontal)
+                GUILayout.BeginHorizontal();
+            else
+                GUILayout.BeginVertical();
+            {
+                instance.TreeView.DrawDirectoryTree();
+
+                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
+                {
+                    drawControlButtons();
+                }
+                GUILayout.EndVertical();
+            }
+            if (isHorizontal)
+                GUILayout.EndHorizontal();
+            else
+                GUILayout.EndVertical();
+
+            instance.WindowRect = IMGUIUtils.DragResizeEatWindow(id, instance.WindowRect);
+        }
+
+        private static void DrawBaseControlButtons(IFolderBrowser instance)
+        {
             if (GUILayout.Button("Refresh thumbnails"))
             {
-                TreeView.ResetTreeCache();
-                OnListRefresh();
+                instance.TreeView.ResetTreeCache();
+                instance.OnListRefresh();
             }
 
             GUILayout.Space(1);
 
             if (GUILayout.Button("Current folder"))
-                Utils.OpenDirInExplorer(TreeView.CurrentFolder);
+                Utils.OpenDirInExplorer(instance.TreeView.CurrentFolder);
 
             // todo dial in the constant, or better measure height
             //if (WindowRect.height > 400 || isHorizontal && WindowRect.height > 200)
@@ -88,36 +127,21 @@ namespace BrowserFolders
             }
         }
 
-        public abstract Rect GetDefaultRect();
-
-        protected virtual void DrawFolderWindow(int id)
+        public static void DisplayFolderWindow(IFolderBrowser instance, Action drawAdditionalButtons = null)
         {
-            var borderTop = GUI.skin.window.border.top - 4;
-            if (GUI.Button(new Rect(WindowRect.width - borderTop - 2, 2, borderTop + 4, borderTop), "R"))
-                WindowRect = GetDefaultRect();
+            var orig = GUI.skin;
+            GUI.skin = IMGUIUtils.SolidBackgroundGuiSkin;
 
-            //TODO fix searchbox losing focus
-
-            var isHorizontal = WindowRect.width > WindowRect.height;
-            if (isHorizontal)
-                GUILayout.BeginHorizontal();
-            else
-                GUILayout.BeginVertical();
+            instance.WindowRect = GUILayout.Window(WindowID, instance.WindowRect, id =>
             {
-                TreeView.DrawDirectoryTree();
-
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
+                DrawFolderWindow(id, instance, () =>
                 {
-                    DrawControlButtons();
-                }
-                GUILayout.EndVertical();
-            }
-            if (isHorizontal)
-                GUILayout.EndHorizontal();
-            else
-                GUILayout.EndVertical();
+                    drawAdditionalButtons?.Invoke();
+                    DrawBaseControlButtons(instance);
+                });
+            }, instance.Title);
 
-            WindowRect = IMGUIUtils.DragResizeEatWindow(id, WindowRect);
+            GUI.skin = orig;
         }
     }
 }

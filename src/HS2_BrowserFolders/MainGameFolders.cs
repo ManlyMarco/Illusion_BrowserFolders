@@ -22,6 +22,8 @@ namespace BrowserFolders
         private bool _guiActive;
 
         public Rect WindowRect { get; set; }
+        public FolderTreeView TreeView => _folderTreeView;
+        public string Title => "Character folder";
 
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -33,7 +35,7 @@ namespace BrowserFolders
             _folderTreeView = new FolderTreeView(pathDefault, pathDefault)
             {
                 CurrentFolder = pathDefault,
-                CurrentFolderChanged = RefreshCurrentWindow
+                CurrentFolderChanged = OnListRefresh
             };
 
             //todo split out into a separate thing?
@@ -54,14 +56,14 @@ namespace BrowserFolders
             }
 
             _guiActive = true;
-            if (_lastVisibleWindow != visibleWindow) RefreshCurrentWindow();
+            if (_lastVisibleWindow != visibleWindow) OnListRefresh();
         }
 
         public void OnGui()
         {
             if (!_guiActive) return;
 
-            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => WindowRect, r => WindowRect = r, "Character folder", RefreshCurrentWindow, GetDefaultRect);
+            BaseFolderBrowser.DisplayFolderWindow(this);
         }
 
         public Rect GetDefaultRect()
@@ -70,7 +72,7 @@ namespace BrowserFolders
             return new Rect((int)(Screen.width * x), (int)(Screen.height * y), (int)(Screen.width * w), (int)(Screen.height * h));
         }
 
-        private static void RefreshCurrentWindow()
+        public void OnListRefresh()
         {
             var visibleWindow = IsVisible();
             _lastVisibleWindow = visibleWindow;

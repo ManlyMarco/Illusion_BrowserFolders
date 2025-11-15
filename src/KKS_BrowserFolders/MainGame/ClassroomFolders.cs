@@ -68,7 +68,7 @@ namespace BrowserFolders.MainGame
             return EnableClassroom.Value && _customCharaFile != null && _customCharaFile.isVisible && _targetScene == Scene.AddSceneName && !Scene.IsOverlap && !Scene.IsNowLoadingFade ? 1 : 0;
         }
 
-        protected override void OnListRefresh()
+        public override void OnListRefresh()
         {
             _customCharaFile.SafeProc(ccf => ccf.CharFile.SafeProc(cf => cf.Initialize()));
         }

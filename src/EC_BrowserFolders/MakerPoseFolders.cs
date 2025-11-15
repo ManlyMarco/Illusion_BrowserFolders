@@ -36,7 +36,7 @@ namespace BrowserFolders
             return _poseLoadScene != null && _targetScene == Scene.Instance.AddSceneName ? 1 : 0;
         }
 
-        protected override void OnListRefresh()
+        public override void OnListRefresh()
         {
             _currentRelativeFolder = TreeView.CurrentRelativeFolder;
 

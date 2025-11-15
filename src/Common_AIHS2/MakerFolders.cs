@@ -50,7 +50,7 @@ namespace BrowserFolders
             return (int)_currentlyVisible;
         }
 
-        protected override void OnListRefresh()
+        public override void OnListRefresh()
         {
             var visibleWindow = WhatIsVisible();
             var resetTree = false;

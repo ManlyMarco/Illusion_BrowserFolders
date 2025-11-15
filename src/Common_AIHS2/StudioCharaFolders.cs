@@ -15,6 +15,8 @@ namespace BrowserFolders
         private static CharaListEntry _lastEntry;
 
         public Rect WindowRect { get; set; }
+        public FolderTreeView TreeView => _lastEntry?.FolderTreeView;
+        public string Title => "Character folder";
 
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -41,14 +43,18 @@ namespace BrowserFolders
 
         public void OnGui()
         {
-            var entry = _lastEntry;
-            if (entry == null) return;
+            if (_lastEntry == null) return;
 
-            InterfaceUtils.DisplayFolderWindow(entry.FolderTreeView, () => WindowRect, r => WindowRect = r, "Character folder", () =>
+            BaseFolderBrowser.DisplayFolderWindow(this);
+        }
+
+        public void OnListRefresh()
+        {
+            if (_lastEntry != null)
             {
-                entry.InitCharaList(true);
-                entry.FolderTreeView.CurrentFolderChanged.Invoke();
-            }, GetDefaultRect);
+                _lastEntry.InitCharaList(true);
+                _lastEntry.FolderTreeView.CurrentFolderChanged.Invoke();
+            }
         }
 
         public Rect GetDefaultRect()

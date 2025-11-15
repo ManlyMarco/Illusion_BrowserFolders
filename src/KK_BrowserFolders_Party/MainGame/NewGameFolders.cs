@@ -36,7 +36,7 @@ namespace BrowserFolders.MainGame
 
             _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0))
             {
-                CurrentFolderChanged = OnFolderChanged
+                CurrentFolderChanged = OnListRefresh
             };
 
             Overlord.Init();
@@ -58,13 +58,15 @@ namespace BrowserFolders.MainGame
         {
             if (!_guiVisible) return;
 
-            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => WindowRect, r => WindowRect = r, "Character folder", OnFolderChanged, drawAdditionalButtons: () =>
+            BaseFolderBrowser.DisplayFolderWindow(this, drawAdditionalButtons: () =>
             {
                 if (BrowserFoldersPlugin.DrawDefaultCardsToggle())
-                    OnFolderChanged();
-            }, getDefaultRect: GetDefaultRect);
+                    OnListRefresh();
+            });
         }
 
+        public FolderTreeView TreeView => _folderTreeView;
+        public string Title => "Character folder";
         public Rect WindowRect { get; set; }
 
         public Rect GetDefaultRect()
@@ -73,7 +75,7 @@ namespace BrowserFolders.MainGame
                             (int)(Screen.width * 0.2), (int)(Screen.height * 0.3));
         }
 
-        private static void OnFolderChanged()
+        public void OnListRefresh()
         {
             if (_newGame != null)
                 _newGame.CreateMaleList();

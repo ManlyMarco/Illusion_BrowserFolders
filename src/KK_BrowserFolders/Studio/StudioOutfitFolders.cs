@@ -16,8 +16,7 @@ namespace BrowserFolders.Studio
 
             if (!isStudio || !enable.Value) return false;
             
-            WindowLabel = "Folder with outfits to view";
-            RefreshLabel = "Refresh outfits";
+            Title = "Outfit folder";
 
             harmony.PatchAll(typeof(StudioOutfitFolders));
 
