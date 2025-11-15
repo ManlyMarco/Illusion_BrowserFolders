@@ -38,7 +38,6 @@ namespace BrowserFolders
                 CurrentFolderChanged = OnListRefresh
             };
 
-            //todo split out into a separate thing?
             harmony.PatchAll(typeof(Hooks));
             harmony.PatchAll(typeof(NestedFilenamesMainGamePatch));
             return true;

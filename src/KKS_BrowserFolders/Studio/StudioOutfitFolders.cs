@@ -70,7 +70,6 @@ namespace BrowserFolders.Studio
         {
             public static void Apply(Harmony harmony)
             {
-                //todo this could just be attributes
                 var type = typeof(MPCharCtrl.CostumeInfo);
                 {
                     var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitList));

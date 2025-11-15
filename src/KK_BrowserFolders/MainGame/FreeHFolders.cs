@@ -115,7 +115,6 @@ namespace BrowserFolders.MainGame
 
                 _freeHFile = __instance;
 
-                // todo Actually fix this instead of the workaround? Difficult
                 _isLive = GameObject.Find("LiveStage") != null;
 
                 _targetScene = Scene.Instance.AddSceneName;

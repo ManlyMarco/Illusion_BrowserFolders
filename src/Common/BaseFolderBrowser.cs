@@ -129,15 +129,10 @@ namespace BrowserFolders
 
             if (GUILayout.Button("Current folder"))
                 Utils.OpenDirInExplorer(instance.TreeView.CurrentFolder);
-
-            // todo dial in the constant, or better measure height
-            //if (WindowRect.height > 400 || isHorizontal && WindowRect.height > 200)
-            {
-                if (GUILayout.Button("Screenshot folder"))
-                    Utils.OpenDirInExplorer(Path.Combine(BrowserFoldersPlugin.UserDataPath, "cap"));
-                if (GUILayout.Button("Main game folder"))
-                    Utils.OpenDirInExplorer(Path.GetDirectoryName(BrowserFoldersPlugin.UserDataPath));
-            }
+            if (GUILayout.Button("Screenshot folder"))
+                Utils.OpenDirInExplorer(Path.Combine(BrowserFoldersPlugin.UserDataPath, "cap"));
+            if (GUILayout.Button("Main game folder"))
+                Utils.OpenDirInExplorer(Path.GetDirectoryName(BrowserFoldersPlugin.UserDataPath));
         }
 
         public static void DisplayFolderWindow(IFolderBrowser instance, Action drawAdditionalButtons = null)
