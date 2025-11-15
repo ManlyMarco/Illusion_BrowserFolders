@@ -18,7 +18,7 @@ namespace BrowserFolders
         private static string _currentRelativeFolder;
         private static string _targetScene;
 
-        public MakerSceneFolders() : base("Scene folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
+        public MakerSceneFolders() : base("Scene folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -61,7 +61,7 @@ namespace BrowserFolders
             internal static void InitHook(HEditLoadSceneWindow __instance)
             {
                 var treeView = Instance.TreeView;
-                treeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), "edit/scene");
+                treeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, "edit/scene");
                 treeView.CurrentFolder = treeView.DefaultPath;
 
                 _hEditLoadSceneWindow = __instance;

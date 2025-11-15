@@ -18,7 +18,7 @@ namespace BrowserFolders
         private static string _currentRelativeFolder;
         private static string _targetScene;
 
-        public MakerPoseSaveFolders() : base("Pose folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
+        public MakerPoseSaveFolders() : base("Pose folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -61,7 +61,7 @@ namespace BrowserFolders
             internal static void InitHook(PoseSaveScene __instance)
             {
                 var treeView = Instance.TreeView;
-                treeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), "pose/data");
+                treeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, "pose/data");
                 treeView.CurrentFolder = treeView.DefaultPath;
 
                 _poseSaveScene = __instance;

@@ -25,7 +25,7 @@ namespace BrowserFolders.MainGame
         private static string _currentRelativeFolder;
         private static string _targetScene;
 
-        public MakerFolders() : base("Character folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
+        public MakerFolders() : base("Character folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         private static string DirectoryPathModifier(string currentDirectoryPath)
         {
@@ -94,7 +94,7 @@ namespace BrowserFolders.MainGame
             internal static void InitHook(CustomCharaFile __instance)
             {
                 var instance = CustomBase.Instance;
-                _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), instance.modeSex != 0 ? @"chara/female" : "chara/male");
+                _folderTreeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, instance.modeSex != 0 ? @"chara/female" : "chara/male");
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
                 _customCharaFile = __instance;

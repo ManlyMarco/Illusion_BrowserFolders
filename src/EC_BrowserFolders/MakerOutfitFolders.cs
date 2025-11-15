@@ -24,7 +24,7 @@ namespace BrowserFolders
         private static string _currentRelativeFolder;
         private static string _targetScene;
 
-        public MakerOutfitFolders() : base("Outfit folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
+        public MakerOutfitFolders() : base("Outfit folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {

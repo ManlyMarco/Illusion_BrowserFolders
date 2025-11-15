@@ -21,7 +21,7 @@ namespace BrowserFolders.MainGame
         private static string _targetScene;
         private static bool _refreshing;
 
-        public FreeHFolders() : base("Character folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
+        public FreeHFolders() : base("Character folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -110,7 +110,7 @@ namespace BrowserFolders.MainGame
             {
                 if (_refreshing) return;
 
-                _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), __instance.sex != 0 ? @"chara/female" : "chara/male");
+                _folderTreeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, __instance.sex != 0 ? @"chara/female" : "chara/male");
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
                 _freeHFile = __instance;

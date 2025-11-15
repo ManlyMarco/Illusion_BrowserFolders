@@ -17,7 +17,7 @@ namespace BrowserFolders.Studio
         private static FolderTreeView _folderTreeView;
         private static SceneLoadScene _studioInitObject;
 
-        public SceneFolders() : base("Scene folder", Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), @"studio\scene")) { }
+        public SceneFolders() : base("Scene folder", BrowserFoldersPlugin.UserDataPath, Path.Combine(BrowserFoldersPlugin.UserDataPath, @"studio\scene")) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {

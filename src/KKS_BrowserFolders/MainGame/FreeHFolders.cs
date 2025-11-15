@@ -16,7 +16,7 @@ namespace BrowserFolders.MainGame
         private static FreeHPreviewCharaList _freeHFile;
         private static CustomFileListSelecter _customFileListSelecter;
 
-        public FreeHFolders() : base("Character folder", Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0)) { }
+        public FreeHFolders() : base("Character folder", BrowserFoldersPlugin.UserDataPath, Overlord.GetDefaultPath(0)) { }
 
         public static void Init(FreeHPreviewCharaList list, int sex)
         {

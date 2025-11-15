@@ -31,7 +31,7 @@ namespace BrowserFolders
 
             if (isStudio || !enable.Value) return false;
 
-            var pathDefault = Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female");
+            var pathDefault = Path.Combine(BrowserFoldersPlugin.UserDataPath, "chara/female");
             _folderTreeView = new FolderTreeView(pathDefault, pathDefault)
             {
                 CurrentFolder = pathDefault,

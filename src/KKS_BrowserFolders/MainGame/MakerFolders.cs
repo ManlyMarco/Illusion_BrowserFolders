@@ -23,7 +23,7 @@ namespace BrowserFolders.MainGame
 
         private static string _targetScene;
 
-        public MakerFolders() : base("Character folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
+        public MakerFolders() : base("Character folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         private static string DirectoryPathModifier(string currentDirectoryPath)
         {

@@ -165,7 +165,7 @@ namespace BrowserFolders
             {
                 var treeView = _instance?.TreeView;
                 if (treeView == null) return;
-                treeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), MakerAPI.GetMakerSex() == 0 ? "chara/male" : "chara/female");
+                treeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, MakerAPI.GetMakerSex() == 0 ? "chara/male" : "chara/female");
                 treeView.CurrentFolder = treeView.DefaultPath;
                 //_targetScene = GetAddSceneName();
 

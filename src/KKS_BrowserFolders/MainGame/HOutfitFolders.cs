@@ -17,7 +17,7 @@ namespace BrowserFolders.MainGame
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
-        public HOutfitFolders() : base("Outfit folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
+        public HOutfitFolders() : base("Outfit folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {

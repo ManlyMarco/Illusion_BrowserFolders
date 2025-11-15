@@ -149,7 +149,7 @@ namespace BrowserFolders.Studio
                 if (_folderTreeView == null)
                 {
                     _folderTreeView = new FolderTreeView(
-                        Utils.NormalizePath(UserData.Path),
+                        BrowserFoldersPlugin.UserDataPath,
                         Utils.NormalizePath(GetRoot()));
                     _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
                     _folderTreeView.CurrentFolderChanged = OnFolderChanged;

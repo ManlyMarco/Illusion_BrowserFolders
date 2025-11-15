@@ -166,8 +166,8 @@ namespace BrowserFolders.Studio
                     if (_folderTreeView == null)
                     {
                         _folderTreeView = new FolderTreeView(
-                            Utils.NormalizePath(UserData.Path),
-                            Path.Combine(Utils.NormalizePath(UserData.Path), "coordinate/"));
+                            BrowserFoldersPlugin.UserDataPath,
+                            Path.Combine(BrowserFoldersPlugin.UserDataPath, "coordinate/"));
                         _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
                         _folderTreeView.CurrentFolderChanged = OnFolderChanged;
                         OnFolderChanged();
@@ -222,7 +222,7 @@ namespace BrowserFolders.Studio
             {
                 _currentFolder = Utils.NormalizePath(FolderTreeView.CurrentFolder);
 
-                var normalizedUserData = Utils.NormalizePath(UserData.Path);
+                var normalizedUserData = BrowserFoldersPlugin.UserDataPath;
                 _currentDefaultDataFolder = Utils.NormalizePath(normalizedUserData + "/../DefaultData/" + _currentFolder.Remove(0, normalizedUserData.Length));
                 Debug.Log(_currentDefaultDataFolder);
 

@@ -23,7 +23,7 @@ namespace BrowserFolders.MainGame
         private static bool _refreshList;
         private static string _targetScene;
 
-        public MakerOutfitFolders() : base("Outfit folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
+        public MakerOutfitFolders() : base("Outfit folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         private static string DirectoryPathModifier(string currentDirectoryPath)
         {

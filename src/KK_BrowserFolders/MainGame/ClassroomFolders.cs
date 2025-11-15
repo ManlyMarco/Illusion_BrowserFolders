@@ -25,7 +25,7 @@ namespace BrowserFolders.MainGame
         private static string _currentRelativeFolder;
         private static string _targetScene;
 
-        public ClassroomFolders() : base("Character folder", Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/female/")) { }
+        public ClassroomFolders() : base("Character folder", BrowserFoldersPlugin.UserDataPath, Path.Combine(BrowserFoldersPlugin.UserDataPath, "chara/female/")) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {

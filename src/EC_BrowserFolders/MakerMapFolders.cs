@@ -20,7 +20,7 @@ namespace BrowserFolders
         private static string _currentRelativeFolder;
         private static string _targetScene;
 
-        public MakerMapFolders() : base("Map folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
+        public MakerMapFolders() : base("Map folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
@@ -62,7 +62,7 @@ namespace BrowserFolders
             internal static void InitHook(MapLoadScene __instance)
 
             {
-                _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), "map/data");
+                _folderTreeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, "map/data");
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
                 _mapLoadScene = __instance;

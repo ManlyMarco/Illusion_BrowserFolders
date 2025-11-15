@@ -35,7 +35,7 @@ namespace BrowserFolders.MainGame
         {
             if (isStudio) return false;
 
-            _folderTreeView = new FolderTreeView(Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0))
+            _folderTreeView = new FolderTreeView(BrowserFoldersPlugin.UserDataPath, Overlord.GetDefaultPath(0))
             {
                 CurrentFolderChanged = OnListRefresh
             };

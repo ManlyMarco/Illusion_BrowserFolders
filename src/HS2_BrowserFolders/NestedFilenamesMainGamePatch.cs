@@ -80,9 +80,10 @@ namespace BrowserFolders
                 return false;
             }
 
-            if (File.Exists(UserData.Path + "chara/female/" + path))
+            var charaPath = UserData.Path + "chara/female/" + path;
+            if (File.Exists(charaPath))
             {
-                __result = UserData.Path + "chara/female/" + path;
+                __result = charaPath;
                 return false;
             }
 

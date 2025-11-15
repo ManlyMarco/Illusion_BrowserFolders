@@ -153,8 +153,8 @@ namespace BrowserFolders
                     if (_folderTreeView == null)
                     {
                         _folderTreeView = new FolderTreeView(
-                            Utils.NormalizePath(UserData.Path),
-                            Path.Combine(Utils.NormalizePath(UserData.Path), GetSex() != 0 ? "coordinate/female" : "coordinate/male"));
+                            BrowserFoldersPlugin.UserDataPath,
+                            Path.Combine(BrowserFoldersPlugin.UserDataPath, GetSex() != 0 ? "coordinate/female" : "coordinate/male"));
                         _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
                         _folderTreeView.CurrentFolderChanged = OnFolderChanged;
                         OnFolderChanged();

@@ -18,7 +18,7 @@ namespace BrowserFolders.MainGame
         private static EntryPlayer _customCharaFile;
         private static string _targetScene;
 
-        public NewGameFolders() : base("New Game Folders", Utils.NormalizePath(UserData.Path), Path.Combine(Utils.NormalizePath(UserData.Path), "chara/male/")){}
+        public NewGameFolders() : base("New Game Folders", BrowserFoldersPlugin.UserDataPath, Path.Combine(BrowserFoldersPlugin.UserDataPath, "chara/male/")){}
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {

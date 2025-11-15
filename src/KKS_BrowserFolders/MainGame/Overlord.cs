@@ -106,12 +106,7 @@ namespace BrowserFolders.MainGame
 
         public static string GetDefaultPath(int sex)
         {
-            return Path.Combine(Utils.NormalizePath(UserData.Path), sex == 0 ? "chara/male" : @"chara/female");
-        }
-
-        public static string GetUserDataRootPath()
-        {
-            return Utils.NormalizePath(UserData.Path);
+            return Path.Combine(BrowserFoldersPlugin.UserDataPath, sex == 0 ? "chara/male" : @"chara/female");
         }
     }
 }

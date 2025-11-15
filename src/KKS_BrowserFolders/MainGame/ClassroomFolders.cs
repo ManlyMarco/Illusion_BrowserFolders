@@ -21,7 +21,7 @@ namespace BrowserFolders.MainGame
         private static string _targetScene;
         private static PreviewCharaList _customCharaFile;
 
-        public ClassroomFolders() : base("Character folder", Overlord.GetUserDataRootPath(), Overlord.GetDefaultPath(0)) { }
+        public ClassroomFolders() : base("Character folder", BrowserFoldersPlugin.UserDataPath, Overlord.GetDefaultPath(0)) { }
 
         public static void Init(PreviewCharaList list, int sex)
         {
