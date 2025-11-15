@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders", "KK_FolderBrowser\KK_BrowserFolders.csproj", "{74C2DB86-55BB-47B4-9805-51B5B992EF35}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders delete me", "KK_FolderBrowser\KK_BrowserFolders delete me.csproj", "{74C2DB86-55BB-47B4-9805-51B5B992EF35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders_Hooks_KK", "KK_Hooks_KK\KK_BrowserFolders_Hooks_KK.csproj", "{6A22392A-EBC1-4E86-9DBC-591715A1C799}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders", "KK_Hooks_KK\KK_BrowserFolders.csproj", "{6A22392A-EBC1-4E86-9DBC-591715A1C799}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders_Hooks_KKP", "KK_Hooks_KKP\KK_BrowserFolders_Hooks_KKP.csproj", "{3D441F96-C387-473E-BB0E-5E4EC205D2E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KKP_BrowserFolders", "KK_Hooks_KKP\KKP_BrowserFolders.csproj", "{3D441F96-C387-473E-BB0E-5E4EC205D2E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AI_BrowserFolders", "AI_BrowserFolders\AI_BrowserFolders.csproj", "{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43}"
 EndProject
@@ -84,6 +84,8 @@ Global
 		Common\Common.projitems*{206d2e71-0933-4b96-b74d-d07521eb58db}*SharedItemsImports = 4
 		Common_AIHS2\Common_AIHS2.projitems*{206d2e71-0933-4b96-b74d-d07521eb58db}*SharedItemsImports = 4
 		Common\Common.projitems*{30773058-5a9c-43a2-9e43-ce8b0b77140c}*SharedItemsImports = 4
+		Common\Common.projitems*{3d441f96-c387-473e-bb0e-5e4ec205d2e3}*SharedItemsImports = 4
+		Common\Common.projitems*{6a22392a-ebc1-4e86-9dbc-591715a1c799}*SharedItemsImports = 4
 		Common\Common.projitems*{74c2db86-55bb-47b4-9805-51b5b992ef35}*SharedItemsImports = 4
 		Common\Common.projitems*{867db9df-f1f2-43ef-98e7-f92cd2d01e49}*SharedItemsImports = 4
 		Common\Common.projitems*{9303fd5b-13ed-4bbe-9625-b1eaf4287802}*SharedItemsImports = 13

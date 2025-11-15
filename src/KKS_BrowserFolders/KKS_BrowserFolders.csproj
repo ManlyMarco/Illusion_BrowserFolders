@@ -138,19 +138,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseStudioFolders.cs" />
-    <Compile Include="ClassroomFolders.cs" />
-    <Compile Include="FreeHFolders.cs" />
-    <Compile Include="HOutfitFolders.cs" />
-    <Compile Include="MakerFolders.cs" />
-    <Compile Include="MakerOutfitFolder.cs" />
-    <Compile Include="NewGameFolders.cs" />
-    <Compile Include="Overlord.cs" />
-    <Compile Include="Overlord.ImportHooks.cs" />
-    <Compile Include="SceneFolders.cs" />
-    <Compile Include="StudioCharaFolders.cs" />
-    <Compile Include="StudioFileHelper.cs" />
-    <Compile Include="StudioOutfitFolders.cs" />
+    <Compile Include="Studio\BaseStudioFolders.cs" />
+    <Compile Include="MainGame\ClassroomFolders.cs" />
+    <Compile Include="MainGame\FreeHFolders.cs" />
+    <Compile Include="MainGame\HOutfitFolders.cs" />
+    <Compile Include="MainGame\MakerFolders.cs" />
+    <Compile Include="MainGame\MakerOutfitFolder.cs" />
+    <Compile Include="MainGame\NewGameFolders.cs" />
+    <Compile Include="MainGame\Overlord.cs" />
+    <Compile Include="MainGame\Overlord.ImportHooks.cs" />
+    <Compile Include="Studio\SceneFolders.cs" />
+    <Compile Include="Studio\StudioCharaFolders.cs" />
+    <Compile Include="Studio\StudioFileHelper.cs" />
+    <Compile Include="Studio\StudioOutfitFolders.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
