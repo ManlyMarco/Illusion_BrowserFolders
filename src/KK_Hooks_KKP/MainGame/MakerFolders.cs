@@ -1,4 +1,5 @@
-﻿using ChaCustom;
+﻿using BepInEx.Configuration;
+using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
 using Manager;
@@ -7,8 +8,7 @@ using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KKP
 {
-    [BrowserType(BrowserType.Maker)]
-    public class MakerFolders : IFolderBrowser
+    public class MakerFolders : BaseFolderBrowser
     {
         private static Toggle _catToggle;
         private static CustomCharaFile _customCharaFile;
@@ -19,53 +19,42 @@ namespace BrowserFolders.Hooks.KKP
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
-        private static bool _refreshList;
         private static string _targetScene;
-        private Rect _windowRect;
 
-        public MakerFolders()
-        {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
-            {
-                CurrentFolderChanged = OnFolderChanged
-            };
-
-            Harmony.CreateAndPatchAll(typeof(MakerFolders));
-
-            MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
-
-            Overlord.Init();
-        }
+        public MakerFolders() : base("Character folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
 
         private static string DirectoryPathModifier(string currentDirectoryPath)
         {
             return _folderTreeView != null ? _folderTreeView.CurrentFolder : currentDirectoryPath;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CustomCharaFile), "Start")]
-        public static void InitHook(CustomCharaFile __instance)
+        protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            _folderTreeView.DefaultPath = Overlord.GetDefaultPath(CustomBase.Instance.modeSex);
-            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+            var enable = config.Bind("Main game", "Enable folder browser in maker", true, "Changes take effect on game restart");
 
-            _customCharaFile = __instance;
+            if (isStudio || !enable.Value) return false;
 
-            var gt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop");
-            _loadCharaToggle = gt.transform.Find("tglLoadChara").GetComponent<Toggle>();
-            _saveCharaToggle = gt.transform.Find("tglSaveChara").GetComponent<Toggle>();
+            _folderTreeView = TreeView;
 
-            var mt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMainMenu/BaseTop/tglSystem");
-            _catToggle = mt.GetComponent<Toggle>();
+            harmony.PatchAll(typeof(Hooks));
 
-            _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
+            MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
 
-            _targetScene = Scene.Instance.AddSceneName;
+            Overlord.Init();
+
+            return true;
         }
 
-        public void OnGui()
+        protected override void DrawControlButtons()
         {
-            var guiShown = false;
+            if (BrowserFoldersPlugin.DrawDefaultCardsToggle())
+                OnListRefresh();
+
+            base.DrawControlButtons();
+        }
+
+        protected override int IsVisible()
+        {
             // Check the opened category
             if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.Instance.AddSceneName)
             {
@@ -74,42 +63,52 @@ namespace BrowserFolders.Hooks.KKP
                 {
                     // Check if the character picture take screen is displayed
                     if (_saveFront == null || !_saveFront.activeSelf)
-                    {
-                        if (_refreshList)
-                        {
-                            _folderTreeView.ResetTreeCache();
-                            OnFolderChanged();
-                            _refreshList = false;
-                        }
-
-                        if (_windowRect.IsEmpty())
-                            _windowRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
-
-                        InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Character folder", OnFolderChanged, drawAdditionalButtons: () =>
-                        {
-                            if (Overlord.DrawDefaultCardsToggle())
-                                OnFolderChanged();
-                        });
-
-                        guiShown = true;
-                    }
+                        return 1;
                 }
             }
 
-            if (!guiShown)
-            {
-                _folderTreeView?.StopMonitoringFiles();
-            }
+            return 0;
         }
 
-        private static void OnFolderChanged()
+        protected override void OnListRefresh()
         {
             if (_customCharaFile == null) return;
 
             var loadCharaToggleIsOn = _loadCharaToggle != null && _loadCharaToggle.isOn;
             if (loadCharaToggleIsOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
             {
-                _customCharaFile.Initialize(loadCharaToggleIsOn == true, false);
+                _customCharaFile.Initialize(loadCharaToggleIsOn, false);
+            }
+        }
+
+        public override Rect GetDefaultRect()
+        {
+            return new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f),
+                            (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
+        }
+
+        private static class Hooks
+        {
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(CustomCharaFile), nameof(CustomCharaFile.Start))]
+            public static void InitHook(CustomCharaFile __instance)
+            {
+                _folderTreeView.DefaultPath = Overlord.GetDefaultPath(CustomBase.Instance.modeSex);
+                _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+
+                _customCharaFile = __instance;
+
+                var gt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop");
+                _loadCharaToggle = gt.transform.Find("tglLoadChara").GetComponent<Toggle>();
+                _saveCharaToggle = gt.transform.Find("tglSaveChara").GetComponent<Toggle>();
+
+                var mt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMainMenu/BaseTop/tglSystem");
+                _catToggle = mt.GetComponent<Toggle>();
+
+                _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
+
+                _targetScene = Scene.Instance.AddSceneName;
             }
         }
     }

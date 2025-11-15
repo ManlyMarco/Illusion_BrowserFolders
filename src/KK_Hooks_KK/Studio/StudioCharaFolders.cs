@@ -1,19 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepInEx.Configuration;
 using HarmonyLib;
 using Studio;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KK
 {
-    [BrowserType(BrowserType.StudioChara)]
-    public class StudioCharaFolders : BaseStudioFolders<CharaListEntry, CharaList, StudioCharaFoldersHelper>, IFolderBrowser
+    public class StudioCharaFolders : BaseStudioFolders<CharaListEntry, CharaList, StudioCharaFoldersHelper>
     {
-        public StudioCharaFolders()
+        public override bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
+            var enable = config.Bind("Chara Studio", "Enable folder browser in character browser", true, "Changes take effect on game restart");
+
+            if (!isStudio || !enable.Value) return false;
+
             WindowLabel = "Select folder with cards to view";
             RefreshLabel = "Refresh characters";
-            Harmony.CreateAndPatchAll(typeof(StudioCharaFolders));
+
+            harmony.PatchAll(typeof(StudioCharaFolders));
+
+            return true;
         }
 
         [HarmonyPrefix]

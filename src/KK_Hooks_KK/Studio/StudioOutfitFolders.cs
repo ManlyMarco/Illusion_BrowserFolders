@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepInEx.Configuration;
 using HarmonyLib;
 using Studio;
 using UnityEngine;
@@ -7,17 +8,21 @@ using static Studio.MPCharCtrl;
 
 namespace BrowserFolders.Hooks.KK
 {
-    [BrowserType(BrowserType.StudioOutfit)]
-    public class StudioOutfitFolders : BaseStudioFolders<CostumeInfoEntry, CostumeInfo, StudioOutfitFoldersHelper>,
-        IFolderBrowser
+    public class StudioOutfitFolders : BaseStudioFolders<CostumeInfoEntry, CostumeInfo, StudioOutfitFoldersHelper>
     {
-        public StudioOutfitFolders()
+        public override bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
+            var enable = config.Bind("Chara Studio", "Enable folder browser in outfit browser", true, "Changes take effect on game restart");
+
+            if (!isStudio || !enable.Value) return false;
+            
             WindowLabel = "Folder with outfits to view";
             RefreshLabel = "Refresh outfits";
-            Harmony.CreateAndPatchAll(typeof(StudioOutfitFolders));
-        }
 
+            harmony.PatchAll(typeof(StudioOutfitFolders));
+
+            return true;
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CostumeInfo), nameof(CostumeInfo.InitList))]

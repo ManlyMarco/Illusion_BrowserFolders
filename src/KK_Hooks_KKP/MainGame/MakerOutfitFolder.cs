@@ -1,14 +1,14 @@
-﻿using ChaCustom;
+﻿using System.IO;
+using BepInEx.Configuration;
+using ChaCustom;
 using HarmonyLib;
 using Manager;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace BrowserFolders.Hooks.KKP
 {
-    [BrowserType(BrowserType.MakerOutfit)]
-    public class MakerOutfitFolders : IFolderBrowser
+    public class MakerOutfitFolders : BaseFolderBrowser
     {
         private static Toggle _catToggle;
         private static CustomCoordinateFile _customCoordinateFile;
@@ -21,61 +21,49 @@ namespace BrowserFolders.Hooks.KKP
 
         private static bool _refreshList;
         private static string _targetScene;
-        private Rect _windowRect;
 
-        public MakerOutfitFolders()
-        {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
-            {
-                CurrentFolderChanged = OnFolderChanged
-            };
-
-            Harmony.CreateAndPatchAll(typeof(MakerOutfitFolders));
-
-            //MakerCardSave.RegisterNewCardSavePathModifier(DirectoryPathModifier, null);
-
-            //Overlord.Init();
-        }
+        public MakerOutfitFolders() : base("Outfit folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
 
         private static string DirectoryPathModifier(string currentDirectoryPath)
         {
             return _folderTreeView != null ? _folderTreeView.CurrentFolder : currentDirectoryPath;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CustomCoordinateFile), "Start")]
-        public static void InitHook(CustomCoordinateFile __instance)
+        protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            _folderTreeView.DefaultPath = Path.Combine((UserData.Path), "coordinate/");
-            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+            var enable = config.Bind("Main game", "Enable folder browser in maker for outfits", true, "Changes take effect on game restart");
 
-            _customCoordinateFile = __instance;
+            if (isStudio || !enable.Value) return false;
 
-            var gt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop");
-            _loadOutfitToggle = gt.transform.Find("tglLoadCos").GetComponent<Toggle>();
-            _saveOutfitToggle = gt.transform.Find("tglSaveCos").GetComponent<Toggle>();
+            _folderTreeView = TreeView;
 
-            var mt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMainMenu/BaseTop/tglSystem");
-            _catToggle = mt.GetComponent<Toggle>();
+            harmony.PatchAll(typeof(Hooks));
 
-            _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
-
-            _targetScene = Scene.Instance.AddSceneName;
+            return true;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ChaFileCoordinate), "SaveFile")]
-        internal static void SaveFilePatch(ref string path)
+        public override void Update()
         {
-            var name = Path.GetFileName(path);
-            path = Path.Combine(DirectoryPathModifier(path), name);
+            base.Update();
 
-            _refreshList = true;
+            if (_refreshList && GuiVisible != 0)
+            {
+                _folderTreeView.ResetTreeCache();
+                OnListRefresh();
+                _refreshList = false;
+            }
         }
 
-        public void OnGui()
+        protected override void DrawControlButtons()
         {
-            bool guiShown = false;
+            if (BrowserFoldersPlugin.DrawDefaultCardsToggle())
+                OnListRefresh();
+
+            base.DrawControlButtons();
+        }
+
+        protected override int IsVisible()
+        {
             // Check the opened category
             if (_catToggle != null && _catToggle.isOn && _targetScene == Scene.Instance.AddSceneName)
             {
@@ -84,36 +72,14 @@ namespace BrowserFolders.Hooks.KKP
                 {
                     // Check if the character picture take screen is displayed
                     if (_saveFront == null || !_saveFront.activeSelf)
-                    {
-                        if (_refreshList)
-                        {
-                            _folderTreeView.ResetTreeCache();
-                            OnFolderChanged();
-                            _refreshList = false;
-                        }
-
-                        if (_windowRect.IsEmpty())
-                            _windowRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
-
-                        InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Outfit folder", OnFolderChanged, drawAdditionalButtons: () =>
-                        {
-                            if (Overlord.DrawDefaultCardsToggle())
-                                OnFolderChanged();
-                        });
-
-                        guiShown = true;
-                    }
+                        return 1;
                 }
             }
 
-            if (!guiShown)
-            {
-                _folderTreeView?.StopMonitoringFiles();
-            }
-
+            return 0;
         }
 
-        private static void OnFolderChanged()
+        protected override void OnListRefresh()
         {
             if (_customCoordinateFile == null) return;
 
@@ -121,6 +87,47 @@ namespace BrowserFolders.Hooks.KKP
             if (loadOutfitToggleIsOn || _saveOutfitToggle != null && _saveOutfitToggle.isOn)
             {
                 _customCoordinateFile.Initialize(loadOutfitToggleIsOn, false);
+            }
+        }
+
+        public override Rect GetDefaultRect()
+        {
+            return new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f),
+                            (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
+        }
+
+        private static class Hooks
+        {
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(CustomCoordinateFile), nameof(CustomCoordinateFile.Start))]
+            public static void InitHook(CustomCoordinateFile __instance)
+            {
+                _folderTreeView.DefaultPath = Path.Combine((UserData.Path), "coordinate/");
+                _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+
+                _customCoordinateFile = __instance;
+
+                var gt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop");
+                _loadOutfitToggle = gt.transform.Find("tglLoadCos").GetComponent<Toggle>();
+                _saveOutfitToggle = gt.transform.Find("tglSaveCos").GetComponent<Toggle>();
+
+                var mt = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMainMenu/BaseTop/tglSystem");
+                _catToggle = mt.GetComponent<Toggle>();
+
+                _saveFront = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CvsCaptureFront");
+
+                _targetScene = Scene.Instance.AddSceneName;
+            }
+
+            [HarmonyPrefix]
+            [HarmonyWrapSafe]
+            [HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.SaveFile))]
+            internal static void SaveFilePatch(ref string path)
+            {
+                var name = Path.GetFileName(path);
+                path = Path.Combine(DirectoryPathModifier(path), name);
+
+                _refreshList = true;
             }
         }
     }

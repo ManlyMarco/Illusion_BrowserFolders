@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using BepInEx.Configuration;
 using ChaCustom;
 using HarmonyLib;
 using UnityEngine;
@@ -6,62 +7,68 @@ using UnityEngine;
 namespace BrowserFolders.Hooks.KKP
 {
     // Handles both h scene outfits and dance mode
-    [BrowserType(BrowserType.HOutfit)]
-    public class HOutfitFolders : IFolderBrowser
+    public class HOutfitFolders : BaseFolderBrowser
     {
         private static clothesFileControl _customCoordinateFile;
         private static FolderTreeView _folderTreeView;
         private static GameObject _uiObject;
         private static string _sceneName;
-        private Rect _windowRect;
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
-        public HOutfitFolders()
-        {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
-            {
-                CurrentFolderChanged = OnFolderChanged
-            };
+        public HOutfitFolders() : base("Outfit folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
 
-            Harmony.CreateAndPatchAll(typeof(HOutfitFolders));
+        protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
+        {
+            var enable = config.Bind("Main game", "Enable folder browser in H preset browser", true, "Changes take effect on game restart.\n Kplug doesn't support this and will restore previous outfit when not main or out of H.");
+
+            if (isStudio || !enable.Value) return false;
+
+            _folderTreeView = TreeView;
+
+            harmony.PatchAll(typeof(Hooks));
+
+            return true;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(clothesFileControl), "Start")]
-        public static void InitHook(clothesFileControl __instance)
+        protected override void DrawControlButtons()
         {
-            _folderTreeView.DefaultPath = Path.Combine((UserData.Path), "coordinate/");
-            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+            if (BrowserFoldersPlugin.DrawDefaultCardsToggle())
+                OnListRefresh();
 
-            _customCoordinateFile = __instance;
-            _uiObject = __instance.gameObject;
-            _sceneName = Manager.Scene.Instance.AddSceneName;
+            base.DrawControlButtons();
         }
 
-        public void OnGui()
+        protected override int IsVisible()
         {
-            if (_uiObject && _uiObject.activeSelf && _sceneName == Manager.Scene.Instance.AddSceneName)
-            {
-                if (_windowRect.IsEmpty())
-                    _windowRect = new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
+            return _uiObject && _uiObject.activeSelf && _sceneName == Manager.Scene.Instance.AddSceneName ? 1 : 0;
+        }
 
-                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Outfit folder", OnFolderChanged, drawAdditionalButtons: () =>
-                {
-                    if (Overlord.DrawDefaultCardsToggle())
-                        OnFolderChanged();
-                });
+        protected override void OnListRefresh()
+        {
+            if (_customCoordinateFile != null)
+                _customCoordinateFile.Initialize();
+        }
+
+        public override Rect GetDefaultRect()
+        {
+            return new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f),
+                            (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
+        }
+
+        private static class Hooks
+        {
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(clothesFileControl), nameof(clothesFileControl.Start))]
+            public static void InitHook(clothesFileControl __instance)
+            {
+                _folderTreeView.DefaultPath = Path.Combine(UserData.Path, "coordinate/");
+                _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
+
+                _customCoordinateFile = __instance;
+                _uiObject = __instance.gameObject;
+                _sceneName = Manager.Scene.Instance.AddSceneName;
             }
-            else
-            {
-                _folderTreeView?.StopMonitoringFiles();
-            }
-        }
-
-        private static void OnFolderChanged()
-        {
-            if (_customCoordinateFile == null) return;
-            _customCoordinateFile.Initialize();
         }
     }
 }

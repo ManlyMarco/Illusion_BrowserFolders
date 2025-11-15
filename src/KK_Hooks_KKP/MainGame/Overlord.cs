@@ -26,13 +26,12 @@ namespace BrowserFolders.Hooks.KKP
         {
             var sex = path == "chara/female/" ? 1 : 0;
 
-            useDefaultData = useDefaultData && KK_BrowserFolders.ShowDefaultCharas.Value;
+            useDefaultData = useDefaultData && BrowserFoldersPlugin.ShowDefaultCharas.Value;
 
             var freeh = Object.FindObjectOfType<FreeHPreviewCharaList>();
             if (freeh != null)
             {
                 FreeHFolders.Init(freeh, sex);
-
                 var overridePath = FreeHFolders.CurrentRelativeFolder;
                 if (!string.IsNullOrEmpty(overridePath))
                     path = overridePath;
@@ -103,18 +102,6 @@ namespace BrowserFolders.Hooks.KKP
         public static string GetUserDataRootPath()
         {
             return Utils.NormalizePath(UserData.Path);
-        }
-
-        public static bool DrawDefaultCardsToggle()
-        {
-            GUI.changed = false;
-            var newVal = GUILayout.Toggle(KK_BrowserFolders.ShowDefaultCharas.Value, "Show default cards");
-            if (GUI.changed)
-            {
-                KK_BrowserFolders.ShowDefaultCharas.Value = newVal;
-                return true;
-            }
-            return false;
         }
     }
 }

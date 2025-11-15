@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
+using BepInEx.Configuration;
 using UnityEngine;
 
 namespace BrowserFolders.Hooks.KK
 {
-    [BrowserType(BrowserType.FreeH)]
-    public class FreeHFolders : IFolderBrowser
+    public class FreeHFolders : BaseFolderBrowser
     {
         private static FreeHClassRoomCharaFile _freeHFile;
         private static FolderTreeView _folderTreeView;
@@ -21,75 +21,38 @@ namespace BrowserFolders.Hooks.KK
         private static string _targetScene;
         private static bool _refreshing;
 
-        public FreeHFolders()
-        {
-            _folderTreeView = new FolderTreeView(Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path))
-            {
-                CurrentFolderChanged = OnFolderChanged
-            };
+        public FreeHFolders() : base("Character folder", Utils.NormalizePath(UserData.Path), Utils.NormalizePath(UserData.Path)) { }
 
-            Harmony.CreateAndPatchAll(typeof(FreeHFolders));
+        protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
+        {
+            var enable = config.Bind("Main game", "Enable folder browser in Free H browser", true, "Changes take effect on game restart");
+
+            if (isStudio || !enable.Value) return false;
+
+            _folderTreeView = TreeView;
+
+            harmony.PatchAll(typeof(Hooks));
+            return true;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(FreeHClassRoomCharaFile), "Start")]
-
-        internal static void InitHook(FreeHClassRoomCharaFile __instance)
+        protected override int IsVisible()
         {
-            if (_refreshing) return;
-
-            _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), __instance.sex != 0 ? @"chara/female" : "chara/male");
-            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
-
-            _freeHFile = __instance;
-
-            // todo Actually fix this instead of the workaround? Difficult
-            _isLive = GameObject.Find("LiveStage") != null;
-
-            _targetScene = Scene.Instance.AddSceneName;
+            return _freeHFile != null && !_isLive && _targetScene == Scene.Instance.AddSceneName ? 1 : 0;
         }
 
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(FreeHClassRoomCharaFile), "Start")]
-        internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
+        protected override void OnListRefresh()
         {
-            foreach (var instruction in instructions)
-            {
-                if (string.Equals(instruction.operand as string, "chara/female/", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(instruction.operand as string, "chara/male/", StringComparison.OrdinalIgnoreCase))
-                {
-                    //0x7E	ldsfld <field>	Push the value of the static field on the stack.
-                    instruction.opcode = OpCodes.Ldsfld;
-                    instruction.operand = typeof(FreeHFolders).GetField(nameof(_currentRelativeFolder), BindingFlags.NonPublic | BindingFlags.Static);
-                }
+            _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
 
-                yield return instruction;
-            }
+            if (_freeHFile == null) return;
+
+            RefreshList();
         }
-
-        private static void ClearEventInvocations(object obj, string eventName)
+        
+        public override Rect GetDefaultRect()
         {
-            var fi = GetEventField(obj.GetType(), eventName);
-            fi?.SetValue(obj, null);
-        }
-
-        private static FieldInfo GetEventField(Type type, string eventName)
-        {
-            FieldInfo field = null;
-            while (type != null)
-            {
-                /* Find events defined as field */
-                field = type.GetField(eventName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic);
-                if (field != null && (field.FieldType == typeof(MulticastDelegate) || field.FieldType.IsSubclassOf(typeof(MulticastDelegate))))
-                    break;
-
-                /* Find events defined as property { add; remove; } */
-                field = type.GetField("EVENT_" + eventName.ToUpper(), BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic);
-                if (field != null)
-                    break;
-                type = type.BaseType;
-            }
-            return field;
+            return new Rect((int)(Screen.width * 0.015), (int)(Screen.height * 0.35f),
+                            (int)(Screen.width * 0.16), (int)(Screen.height * 0.4));
         }
 
         private static void RefreshList()
@@ -112,36 +75,69 @@ namespace BrowserFolders.Hooks.KK
             {
                 _refreshing = false;
             }
+            
+            void ClearEventInvocations(object obj, string eventName)
+            {
+                var fi = GetEventField(obj.GetType(), eventName);
+                fi?.SetValue(obj, null);
+            }
+
+            FieldInfo GetEventField(Type type, string eventName)
+            {
+                FieldInfo field = null;
+                while (type != null)
+                {
+                    /* Find events defined as field */
+                    field = type.GetField(eventName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (field != null && (field.FieldType == typeof(MulticastDelegate) || field.FieldType.IsSubclassOf(typeof(MulticastDelegate))))
+                        break;
+
+                    /* Find events defined as property { add; remove; } */
+                    field = type.GetField("EVENT_" + eventName.ToUpper(), BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (field != null)
+                        break;
+                    type = type.BaseType;
+                }
+                return field;
+            }
         }
 
-        private bool _guiActive;
-        private Rect _windowRect;
-
-        public void OnGui()
+        private static class Hooks
         {
-            if (_freeHFile != null && !_isLive && _targetScene == Scene.Instance.AddSceneName)
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(FreeHClassRoomCharaFile), nameof(FreeHClassRoomCharaFile.Start))]
+            internal static void InitHook(FreeHClassRoomCharaFile __instance)
             {
-                _guiActive = true;
+                if (_refreshing) return;
 
-                if (_windowRect.IsEmpty())
-                    _windowRect = ClassroomFolders.GetFullscreenBrowserRect();
+                _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path), __instance.sex != 0 ? @"chara/female" : "chara/male");
+                _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
-                InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Character folder", OnFolderChanged);
+                _freeHFile = __instance;
+
+                // todo Actually fix this instead of the workaround? Difficult
+                _isLive = GameObject.Find("LiveStage") != null;
+
+                _targetScene = Scene.Instance.AddSceneName;
             }
-            else if (_guiActive)
+
+            [HarmonyTranspiler]
+            [HarmonyPatch(typeof(FreeHClassRoomCharaFile), nameof(FreeHClassRoomCharaFile.Start))]
+            internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
             {
-                _folderTreeView?.StopMonitoringFiles();
-                _guiActive = false;
+                foreach (var instruction in instructions)
+                {
+                    if (string.Equals(instruction.operand as string, "chara/female/", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(instruction.operand as string, "chara/male/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        //0x7E	ldsfld <field>	Push the value of the static field on the stack.
+                        instruction.opcode = OpCodes.Ldsfld;
+                        instruction.operand = typeof(FreeHFolders).GetField(nameof(_currentRelativeFolder), BindingFlags.NonPublic | BindingFlags.Static);
+                    }
+
+                    yield return instruction;
+                }
             }
-        }
-
-        private static void OnFolderChanged()
-        {
-            _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
-
-            if (_freeHFile == null) return;
-
-            RefreshList();
         }
     }
 }

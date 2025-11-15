@@ -93,7 +93,8 @@ namespace BrowserFolders.Hooks.KKS
 
         public override Rect GetDefaultRect()
         {
-            return new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f), (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
+            return new Rect((int)(Screen.width * 0.004), (int)(Screen.height * 0.57f),
+                            (int)(Screen.width * 0.125), (int)(Screen.height * 0.35));
         }
 
         private static class Hooks

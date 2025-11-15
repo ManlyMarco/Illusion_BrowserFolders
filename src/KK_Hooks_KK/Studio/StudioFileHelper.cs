@@ -22,18 +22,19 @@ namespace BrowserFolders.Hooks.KK
 
             // keyed by searchPattern, then defaultFolder to avoid any excess calls to NormalizePath
 
+            var normalizedDefaultFolder = Utils.NormalizePath(Path.GetFullPath(defaultFolder));
             if (overrideFolder.IsNullOrEmpty() && GetAllFilesOverrideFolders.TryGetValue(searchPattern, out var activeOverrides))
             {
-                activeOverrides.Remove(Utils.NormalizePath(defaultFolder));
+                activeOverrides.Remove(normalizedDefaultFolder);
             }
             else
             {
                 if (!GetAllFilesOverrideFolders.TryGetValue(searchPattern, out activeOverrides))
                 {
-                    GetAllFilesOverrideFolders[searchPattern] = activeOverrides = new Dictionary<string, string>();
+                    GetAllFilesOverrideFolders[searchPattern] = activeOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 }
 
-                activeOverrides[Utils.NormalizePath(defaultFolder)] = Utils.NormalizePath(overrideFolder);
+                activeOverrides[normalizedDefaultFolder] = Utils.NormalizePath(overrideFolder);
             }
         }
 
@@ -41,7 +42,7 @@ namespace BrowserFolders.Hooks.KK
         {
             overrideFolder = null;
             return GetAllFilesOverrideFolders.TryGetValue(searchPattern, out var activeOverrides) &&
-                   activeOverrides.TryGetValue(Utils.NormalizePath(defaultFolder), out overrideFolder);
+                   activeOverrides.TryGetValue(Utils.NormalizePath(Path.GetFullPath(defaultFolder)), out overrideFolder);
         }
 
         private static void InitHooks()
