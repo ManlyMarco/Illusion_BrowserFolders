@@ -114,7 +114,7 @@ namespace BrowserFolders.Studio
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    UnityEngine.Debug.LogError(ex);
                 }
             }
         }

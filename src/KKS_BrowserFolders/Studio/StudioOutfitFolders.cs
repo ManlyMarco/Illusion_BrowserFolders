@@ -217,7 +217,7 @@ namespace BrowserFolders.Studio
 
                 var normalizedUserData = Utils.NormalizePath(UserData.Path);
                 _currentDefaultDataFolder = Utils.NormalizePath(normalizedUserData + "/../DefaultData/" + _currentFolder.Remove(0, normalizedUserData.Length));
-                System.Console.WriteLine(_currentDefaultDataFolder);
+                Debug.Log(_currentDefaultDataFolder);
 
                 //RefilterInProgress = true;
                 InitOutfitList();

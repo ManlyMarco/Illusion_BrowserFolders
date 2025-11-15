@@ -114,7 +114,7 @@ namespace BrowserFolders
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    UnityEngine.Debug.LogError(ex);
                 }
             }
         }
