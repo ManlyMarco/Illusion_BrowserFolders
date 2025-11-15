@@ -10,10 +10,10 @@ namespace BrowserFolders
     public class FolderTreeView
     {
         private bool _scrollTreeToSelected;
-        private float _lastRefreshedTime = 0f;
-        private float _refreshRequestedTime = 0f;
-        private long _lastRefreshedFrame = 0;
-        private long _refreshRequestedFrame = 0;
+        private float _lastRefreshedTime;
+        private float _refreshRequestedTime;
+        private long _lastRefreshedFrame;
+        private long _refreshRequestedFrame;
         private FileSystemWatcher _fileSystemWatcher;
 
         private static GameObject _xua;
@@ -41,7 +41,7 @@ namespace BrowserFolders
 
         private readonly HashSet<string> _openedObjects = new HashSet<string>();
         private Vector2 _treeScrollPosition;
-        private float? _selectedTreeScrollPositionY = null;
+        private float? _selectedTreeScrollPositionY;
         private string _currentFolder;
 
         private DirectoryTree _defaultPathTree;
@@ -314,9 +314,9 @@ namespace BrowserFolders
             {
                 GUILayout.BeginVertical();
                 {
-                    GUILayout.Label(@"You can organize your files into folders and use this window to browse them.");
+                    GUILayout.Label("You can organize your files into folders and use this window to browse them.");
                     GUILayout.Space(5);
-                    GUILayout.Label($@"Folders placed inside your {DefaultPath.Substring(_topmostPath.Length)} folder will appear on this list.");
+                    GUILayout.Label($"Folders placed inside your {DefaultPath.Substring(_topmostPath.Length)} folder will appear on this list.");
                 }
                 GUILayout.EndVertical();
                 return;

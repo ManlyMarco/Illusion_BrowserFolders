@@ -77,6 +77,10 @@ namespace BrowserFolders
                         resetTree = true;
                     }
                     break;
+                case VisibleWindow.None:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(visibleWindow.ToString());
             }
 
             // clear tree cache

@@ -94,7 +94,7 @@ namespace BrowserFolders.MainGame
             internal static void InitHook(CustomCharaFile __instance)
             {
                 var instance = CustomBase.Instance;
-                _folderTreeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, instance.modeSex != 0 ? @"chara/female" : "chara/male");
+                _folderTreeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, instance.modeSex != 0 ? "chara/female" : "chara/male");
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
                 _customCharaFile = __instance;

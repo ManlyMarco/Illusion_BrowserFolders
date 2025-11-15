@@ -180,7 +180,7 @@ namespace BrowserFolders.Studio
             public void ApplyFilter()
             {
                 var currentFolder = CurrentFolder;
-                var currentDefaultFolder = BrowserFoldersPlugin.ShowDefaultCharas.Value ? _currentDefaultDataFolder : null;
+                var currentDefaultFolder = BrowserFoldersPlugin.ShowDefaultCards.Value ? _currentDefaultDataFolder : null;
                 GetCharaFileInfos().RemoveAll(cfi =>
                 {
                     var directoryName = Utils.GetNormalizedDirectoryName(cfi.file);

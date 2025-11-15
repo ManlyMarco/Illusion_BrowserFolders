@@ -119,7 +119,7 @@ namespace BrowserFolders.MainGame
 
                 _targetScene = Scene.AddSceneName;
 
-                _customControl = GameObject.FindObjectOfType<CustomControl>();
+                _customControl = UnityEngine.Object.FindObjectOfType<CustomControl>();
             }
 
             [HarmonyPrefix]

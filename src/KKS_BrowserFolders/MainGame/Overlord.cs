@@ -36,7 +36,7 @@ namespace BrowserFolders.MainGame
         {
             var sex = path == "chara/female/" ? 1 : 0;
 
-            useDefaultData = useDefaultData && BrowserFoldersPlugin.ShowDefaultCharas.Value;
+            useDefaultData = useDefaultData && BrowserFoldersPlugin.ShowDefaultCards.Value;
 
             var freeh = Object.FindObjectOfType<FreeHPreviewCharaList>();
             if (freeh != null)
@@ -106,7 +106,7 @@ namespace BrowserFolders.MainGame
 
         public static string GetDefaultPath(int sex)
         {
-            return Path.Combine(BrowserFoldersPlugin.UserDataPath, sex == 0 ? "chara/male" : @"chara/female");
+            return Path.Combine(BrowserFoldersPlugin.UserDataPath, sex == 0 ? "chara/male" : "chara/female");
         }
     }
 }

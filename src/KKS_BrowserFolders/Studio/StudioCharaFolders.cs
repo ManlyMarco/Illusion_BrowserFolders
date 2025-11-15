@@ -36,9 +36,12 @@ namespace BrowserFolders.Studio
                     // try to disable refilter only if something went wrong
                     SetRefilterOnly(__instance, false);
                 }
-                catch { }
+                catch
+                {
+                    // At this point just give up, this error can be ignored only log the outer one
+                }
 
-                Debug.LogException(err);
+                UnityEngine.Debug.LogException(err);
             }
         }
 
@@ -53,7 +56,7 @@ namespace BrowserFolders.Studio
             }
             catch (Exception err)
             {
-                Debug.LogException(err);
+                UnityEngine.Debug.LogException(err);
             }
         }
 
@@ -67,7 +70,7 @@ namespace BrowserFolders.Studio
             }
             catch (Exception err)
             {
-                Debug.LogException(err);
+                UnityEngine.Debug.LogException(err);
                 return true;
             }
         }
@@ -82,7 +85,7 @@ namespace BrowserFolders.Studio
             }
             catch (Exception err)
             {
-                Debug.LogException(err);
+                UnityEngine.Debug.LogException(err);
             }
         }
 
@@ -97,7 +100,7 @@ namespace BrowserFolders.Studio
             }
             catch (Exception err)
             {
-                Debug.LogException(err);
+                UnityEngine.Debug.LogException(err);
                 return true;
             }
         }
@@ -112,7 +115,7 @@ namespace BrowserFolders.Studio
             }
             catch (Exception err)
             {
-                Debug.LogException(err);
+                UnityEngine.Debug.LogException(err);
             }
         }
     }

@@ -94,7 +94,7 @@ namespace BrowserFolders
             internal static void InitHook(CustomCoordinateFile __instance)
             {
                 var treeView = Instance.TreeView;
-                treeView.DefaultPath = Path.Combine(UserData.Path, CustomBase.Instance.chaCtrl.sex != 0 ? @"coordinate/female" : "coordinate/male");
+                treeView.DefaultPath = Path.Combine(UserData.Path, CustomBase.Instance.chaCtrl.sex != 0 ? "coordinate/female" : "coordinate/male");
                 treeView.CurrentFolder = treeView.DefaultPath;
 
                 _customCoordinateFile = __instance;

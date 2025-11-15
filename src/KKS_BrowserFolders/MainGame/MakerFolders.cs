@@ -121,9 +121,9 @@ namespace BrowserFolders.MainGame
                 _targetScene = Scene.AddSceneName;
 
                 // Exit maker / save character dialog boxes
-                _ccwGo = GameObject.FindObjectOfType<CustomCheckWindow>()?.gameObject;
+                _ccwGo = UnityEngine.Object.FindObjectOfType<CustomCheckWindow>()?.gameObject;
 
-                _customControl = GameObject.FindObjectOfType<CustomControl>();
+                _customControl = UnityEngine.Object.FindObjectOfType<CustomControl>();
             }
         }
     }

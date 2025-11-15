@@ -8,9 +8,8 @@ namespace BrowserFolders.Studio
 {
     public static class StudioFileHelper
     {
-        private static bool _hooked = false;
         private static object _lock = new object();
-
+        private static bool _hooked;
 
         // GetAllFilesOverrideFolders[searchPattern][defaultFolder] => overrideFolder
         private static readonly Dictionary<string, Dictionary<string, string>> GetAllFilesOverrideFolders =
@@ -18,7 +17,11 @@ namespace BrowserFolders.Studio
 
         public static void SetGetAllFilesOverride(string defaultFolder, string searchPattern, string overrideFolder)
         {
-            if (!_hooked) InitHooks();
+            lock (_lock)
+            {
+                if (!_hooked) 
+                    InitHooks();
+            }
 
             // keyed by searchPattern, then defaultFolder to avoid any excess calls to NormalizePath
 
@@ -51,7 +54,7 @@ namespace BrowserFolders.Studio
             {
                 if (_hooked) return;
                 _hooked = true;
-                Harmony.CreateAndPatchAll(typeof(Hooks));
+                Harmony.CreateAndPatchAll(typeof(Hooks), "BrowserFolders_" + nameof(StudioFileHelper));
             }
         }
 

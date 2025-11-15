@@ -8,9 +8,8 @@ namespace BrowserFolders.Studio
 {
     public static class StudioFileHelper
     {
-        private static bool _hooked = false;
-        private static object _lock = new object();
-
+        private static bool _hooked;
+        private static readonly object _lock = new object();
 
         // GetAllFilesOverrideFolders[searchPattern][defaultFolder] => overrideFolder
         private static readonly Dictionary<string, Dictionary<string, string>> GetAllFilesOverrideFolders =
@@ -18,7 +17,11 @@ namespace BrowserFolders.Studio
 
         public static void SetGetAllFilesOverride(string defaultFolder, string searchPattern, string overrideFolder)
         {
-            if (!_hooked) InitHooks();
+            lock (_lock)
+            {
+                if (!_hooked) 
+                    InitHooks();
+            }
 
             // keyed by searchPattern, then defaultFolder to avoid any excess calls to NormalizePath
 
@@ -69,7 +72,7 @@ namespace BrowserFolders.Studio
                     // backup existing entries and restore if something goes wrong
                     backupFiles = files.ToArray();
 
-                    if (BrowserFoldersPlugin.ShowDefaultCharas.Value)
+                    if (BrowserFoldersPlugin.ShowDefaultCards.Value)
                     {
                         var defaultDataSubfolder = ToDefaultDataPath(overrideFolder, true);
                         if (defaultDataSubfolder != null)

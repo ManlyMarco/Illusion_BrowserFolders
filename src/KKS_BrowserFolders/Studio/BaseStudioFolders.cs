@@ -103,7 +103,7 @@ namespace BrowserFolders.Studio
             catch (Exception err)
             {
                 // if anything went wrong, just fall though to standard call
-                Debug.LogException(err);
+                UnityEngine.Debug.LogException(err);
             }
 
             return true;
@@ -186,7 +186,7 @@ namespace BrowserFolders.Studio
             // normally this does nothing, but in case something caused it to fall back to standard code path
             // this will allow per-folder filtering to still work
             var currentFolder = CurrentFolder;
-            var defaultFolder = BrowserFoldersPlugin.ShowDefaultCharas.Value ? Utils.GetNormalizedDirectoryName(Path.GetFullPath(global::Studio.DefaultData.Path)) : null;
+            var defaultFolder = BrowserFoldersPlugin.ShowDefaultCards.Value ? Utils.GetNormalizedDirectoryName(Path.GetFullPath(global::Studio.DefaultData.Path)) : null;
             GetCharaFileInfos().RemoveAll(cfi =>
             {
                 var directoryName = Utils.GetNormalizedDirectoryName(cfi.file);

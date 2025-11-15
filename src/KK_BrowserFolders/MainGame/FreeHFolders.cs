@@ -110,7 +110,7 @@ namespace BrowserFolders.MainGame
             {
                 if (_refreshing) return;
 
-                _folderTreeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, __instance.sex != 0 ? @"chara/female" : "chara/male");
+                _folderTreeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, __instance.sex != 0 ? "chara/female" : "chara/male");
                 _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
                 _freeHFile = __instance;

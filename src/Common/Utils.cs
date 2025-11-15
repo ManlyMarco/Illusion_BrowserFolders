@@ -17,7 +17,7 @@ namespace BrowserFolders
             if (_normalizedDirectoryNames.TryGetValue(filePath, out var result)) return result;
 
             var dir = Path.GetDirectoryName(filePath);
-            if (!dir.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(dir))
             {
                 if (!_normalizedDirectoryNames.TryGetValue(dir, out result))
                 {

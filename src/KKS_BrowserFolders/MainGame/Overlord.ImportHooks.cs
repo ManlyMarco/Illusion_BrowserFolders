@@ -39,7 +39,7 @@ namespace BrowserFolders.MainGame
             {
                 var cardName = Path.GetFileNameWithoutExtension(cardPath);
                 var origTargetDir = targetDir;
-                if (origTargetDir.StartsWith(UserData.Path))
+                if (origTargetDir.StartsWith(UserData.Path, StringComparison.OrdinalIgnoreCase))
                 {
                     targetDir = Path.GetFullPath(targetDir);
                     var oldIndex = targetDir.IndexOf(Path.DirectorySeparatorChar + "old" + Path.DirectorySeparatorChar, Path.GetFullPath(UserData.Path).Length, StringComparison.Ordinal);
@@ -49,17 +49,21 @@ namespace BrowserFolders.MainGame
 
                         targetDir = targetDir.Remove(oldIndex, "old/".Length);
 
-                        if (cardPath.StartsWith(targetDir))
+                        if (cardPath.StartsWith(targetDir, StringComparison.OrdinalIgnoreCase))
                         {
-                            // I hate working with paths, need that trim in case there ends up being a / at the start because Path.Combine will think it's a unix root
-                            var relativeCardDir = Path.GetDirectoryName(cardPath).Substring(targetDir.Length - 1).Trim('/', '\\');
+                            var cardDirectory = Path.GetDirectoryName(cardPath);
+                            if (cardDirectory != null)
+                            {
+                                // Need that trim in case there ends up being a / at the start because Path.Combine will think it's a unix root
+                                var relativeCardDir = cardDirectory.Substring(targetDir.Length - 1).Trim('/', '\\');
 
-                            // Create old directories to copy stuff into later, because game doesn't create subdirs
-                            var fullCardDir = Path.Combine(origTargetDir, relativeCardDir).TrimEnd('/', '\\');
-                            Utils.Logger.LogDebug("Setting import backup directory to " + fullCardDir + "/" + cardName + ".png");
-                            Directory.CreateDirectory(fullCardDir);
+                                // Create old directories to copy stuff into later, because game doesn't create subdirs
+                                var fullCardDir = Path.Combine(origTargetDir, relativeCardDir).TrimEnd('/', '\\');
+                                Utils.Logger.LogDebug("Setting import backup directory to " + fullCardDir + "/" + cardName + ".png");
+                                Directory.CreateDirectory(fullCardDir);
 
-                            return Path.Combine(relativeCardDir, cardName);
+                                return Path.Combine(relativeCardDir, cardName);
+                            }
                         }
                     }
                 }
