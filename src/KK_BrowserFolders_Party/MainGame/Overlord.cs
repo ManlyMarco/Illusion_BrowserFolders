@@ -25,7 +25,7 @@ namespace BrowserFolders.MainGame
         {
             var sex = path == "chara/female/" ? 1 : 0;
 
-            useDefaultData = useDefaultData && BrowserFoldersPlugin.ShowDefaultCharas.Value;
+            useDefaultData = useDefaultData && BrowserFoldersPlugin.ShowDefaultCards.Value;
 
             var freeh = Object.FindObjectOfType<FreeHPreviewCharaList>();
             if (freeh != null)

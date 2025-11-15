@@ -40,7 +40,18 @@ namespace BrowserFolders
         internal static string UserDataPath { get; } = Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")); // UserData.Path
 
 #if KKP || KKS
-        internal static ConfigEntry<bool> ShowDefaultCharas { get; private set; }
+        internal static ConfigEntry<bool> ShowDefaultCards { get; private set; }
+        internal static bool DrawDefaultCardsToggle()
+        {
+            GUI.changed = false;
+            var newVal = GUILayout.Toggle(ShowDefaultCards.Value, "Show default cards");
+            if (GUI.changed)
+            {
+                ShowDefaultCards.Value = newVal;
+                return true;
+            }
+            return false;
+        }
 #endif
 
         private IFolderBrowser[] _instances;
@@ -65,7 +76,7 @@ namespace BrowserFolders
             KoikatuAPI.Quitting += (o, e) => storedRects.Value = SerializeRects(_instances, storedRectsDic);
 
 #if KKP || KKS
-            ShowDefaultCharas = configFile.Bind("General", "Show default cards", true, "Default character and outfit cards will be added to the lists. They are visible in the root directory.");
+            ShowDefaultCards = configFile.Bind("General", "Show default cards", true, "Default character and outfit cards will be added to the lists. They are visible in the root directory.");
 #endif
 
             var enableFilesystemWatchers = configFile.Bind("General", "Automatically refresh when files change", true, "When files are added/deleted/updated the list will automatically update. If disabled you have to hit the refresh button manually when files are changed.");
@@ -89,20 +100,6 @@ namespace BrowserFolders
             for (var i = 0; i < _instances.Length; i++)
                 _instances[i].OnGui();
         }
-
-#if KKP || KKS
-        internal static bool DrawDefaultCardsToggle()
-        {
-            GUI.changed = false;
-            var newVal = GUILayout.Toggle(ShowDefaultCharas.Value, "Show default cards");
-            if (GUI.changed)
-            {
-                ShowDefaultCharas.Value = newVal;
-                return true;
-            }
-            return false;
-        }
-#endif
 
         private static IFolderBrowser[] LoadBrowsers(Harmony harmony, ConfigFile config, Dictionary<string, Rect> windowRects)
         {
@@ -151,6 +148,8 @@ namespace BrowserFolders
             return allInstances.ToArray();
         }
 
+        #region Storing window rects
+
         private static Dictionary<string, Rect> DeserializeRects(string storedRectsValue)
         {
             if (string.IsNullOrEmpty(storedRectsValue)) return new Dictionary<string, Rect>();
@@ -163,7 +162,6 @@ namespace BrowserFolders
                 return new KeyValuePair<string, Rect>(fullname, rect);
             }).ToDictionary(x => x.Key, x => x.Value);
         }
-
         private static string SerializeRects(IFolderBrowser[] instances, Dictionary<string, Rect> rectDict)
         {
             foreach (var instance in instances)
@@ -175,12 +173,12 @@ namespace BrowserFolders
                 return $"{x.Key},{rect.x:F0},{rect.y:F0},{rect.width:F0},{rect.height:F0}";
             }).ToArray());
         }
-
         private static string GetCacheKey(IFolderBrowser instance)
         {
-            //return instance?.GetType().FullName ?? throw new Exception("this should never happen " + instance);
             return instance?.GetType().Name ?? throw new Exception("this should never happen");
         }
+
+        #endregion
 
         private void CheckScreenSizeChange()
         {
