@@ -8,7 +8,7 @@ using Illusion.Extensions;
 using Manager;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKS
+namespace BrowserFolders.MainGame
 {
     public class ClassroomFolders : BaseFolderBrowser
     {

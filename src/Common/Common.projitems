@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BaseFolderBrowser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)BrowserFolders.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BrowserFoldersPlugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DirectoryTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FolderTreeView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IFolderBrowser.cs" />

@@ -6,7 +6,7 @@ using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BrowserFolders.Hooks.KKS
+namespace BrowserFolders.MainGame
 {
     public class MakerOutfitFolders : BaseFolderBrowser
     {

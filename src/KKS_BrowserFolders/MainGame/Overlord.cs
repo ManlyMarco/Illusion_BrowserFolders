@@ -4,10 +4,9 @@ using ActionGame;
 using ChaCustom;
 using FreeH;
 using HarmonyLib;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace BrowserFolders.Hooks.KKS
+namespace BrowserFolders.MainGame
 {
     internal static partial class Overlord
     {

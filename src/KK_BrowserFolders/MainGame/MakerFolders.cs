@@ -11,7 +11,7 @@ using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BrowserFolders.Hooks.KK
+namespace BrowserFolders.MainGame
 {
     public class MakerFolders : BaseFolderBrowser
     {

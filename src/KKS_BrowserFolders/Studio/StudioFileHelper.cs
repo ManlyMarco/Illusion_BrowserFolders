@@ -1,10 +1,10 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using HarmonyLib;
 
-namespace BrowserFolders.Hooks.KKS
+namespace BrowserFolders.Studio
 {
     public static class StudioFileHelper
     {
@@ -101,7 +101,7 @@ namespace BrowserFolders.Hooks.KKS
             var userDataRootPath = Path.GetFullPath(UserData.Path);
             if (userDataPath.StartsWith(userDataRootPath, StringComparison.OrdinalIgnoreCase))
             {
-                var defaultDataPath = Path.GetFullPath(Studio.DefaultData.Path);
+                var defaultDataPath = Path.GetFullPath(global::Studio.DefaultData.Path);
                 // Check if the subfolder is inside default data, add the defaul files if it is
                 var subfolder = userDataPath.Substring(userDataRootPath.Length);
                 var defaultDataSubfolder = Path.Combine(defaultDataPath.TrimEnd('/', '\\'), subfolder.TrimStart('/', '\\'));

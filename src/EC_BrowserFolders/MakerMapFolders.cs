@@ -9,7 +9,7 @@ using Manager;
 using Map;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks
+namespace BrowserFolders
 {
     public class MakerMapFolders : BaseFolderBrowser
     {

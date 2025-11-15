@@ -5,7 +5,7 @@ using HarmonyLib;
 using Studio;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KK
+namespace BrowserFolders.Studio
 {
     public class StudioCharaFolders : BaseStudioFolders<CharaListEntry, CharaList, StudioCharaFoldersHelper>
     {

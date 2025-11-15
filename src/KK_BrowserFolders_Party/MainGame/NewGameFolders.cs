@@ -3,7 +3,7 @@ using HarmonyLib;
 using Manager;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKP
+namespace BrowserFolders.MainGame
 {
     public class NewGameFolders : IFolderBrowser
     {

@@ -4,7 +4,7 @@ using ChaCustom;
 using HarmonyLib;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKP
+namespace BrowserFolders.MainGame
 {
     // Handles both h scene outfits and dance mode
     public class HOutfitFolders : BaseFolderBrowser

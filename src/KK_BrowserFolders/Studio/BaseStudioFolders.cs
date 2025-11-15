@@ -6,7 +6,7 @@ using HarmonyLib;
 using Studio;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KK
+namespace BrowserFolders.Studio
 {
     public abstract class BaseStudioFolders<T, TSub, THelper> : IFolderBrowser
         where THelper : BaseStudioFoldersHelper<T, TSub>, new()

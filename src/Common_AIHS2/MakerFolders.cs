@@ -40,7 +40,6 @@ namespace BrowserFolders
 
             harmony.PatchAll(typeof(Hooks));
             MakerCardSave.RegisterNewCardSavePathModifier(CardSavePathModifier, null);
-            //todo? MakerAPI.MakerFinishedLoading += (sender, args) => _windowRect = GetDefaultDisplayRect();
 
             return true;
         }

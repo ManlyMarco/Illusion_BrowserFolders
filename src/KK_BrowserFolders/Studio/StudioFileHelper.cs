@@ -1,10 +1,10 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using HarmonyLib;
 
-namespace BrowserFolders.Hooks.KK
+namespace BrowserFolders.Studio
 {
     public static class StudioFileHelper
     {

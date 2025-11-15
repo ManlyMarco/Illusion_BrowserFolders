@@ -1,9 +1,9 @@
-﻿using HarmonyLib;
-using Studio;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BepInEx.Configuration;
+using HarmonyLib;
+using Studio;
 using UnityEngine;
 
 namespace BrowserFolders

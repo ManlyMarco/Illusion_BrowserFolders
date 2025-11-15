@@ -6,7 +6,7 @@ using HarmonyLib;
 using Studio;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKS
+namespace BrowserFolders.Studio
 {
     public class StudioOutfitFolders : IFolderBrowser
     {

@@ -9,7 +9,7 @@ using HEdit;
 using Manager;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks
+namespace BrowserFolders
 {
     public class MakerSceneFolders : BaseFolderBrowser
     {

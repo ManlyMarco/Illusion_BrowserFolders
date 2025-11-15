@@ -5,7 +5,7 @@ using Localize.Translate;
 using Manager;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKP
+namespace BrowserFolders.MainGame
 {
     public class FreeHFolders : BaseFolderBrowser
     {

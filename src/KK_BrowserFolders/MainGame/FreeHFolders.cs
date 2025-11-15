@@ -1,15 +1,15 @@
-﻿using FreeH;
-using HarmonyLib;
-using Manager;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx.Configuration;
+using FreeH;
+using HarmonyLib;
+using Manager;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KK
+namespace BrowserFolders.MainGame
 {
     public class FreeHFolders : BaseFolderBrowser
     {

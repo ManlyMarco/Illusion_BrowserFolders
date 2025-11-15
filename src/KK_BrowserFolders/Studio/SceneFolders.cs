@@ -1,14 +1,14 @@
-﻿using HarmonyLib;
-using Studio;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx.Configuration;
+using HarmonyLib;
+using Studio;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KK
+namespace BrowserFolders.Studio
 {
     public class SceneFolders : BaseFolderBrowser
     {

@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection.Emit;
 using HarmonyLib;
 
-namespace BrowserFolders.Hooks.KKS
+namespace BrowserFolders.MainGame
 {
     internal static partial class Overlord
     {

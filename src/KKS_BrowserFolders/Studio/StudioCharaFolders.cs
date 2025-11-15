@@ -4,7 +4,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using Studio;
 
-namespace BrowserFolders.Hooks.KKS
+namespace BrowserFolders.Studio
 {
     public class StudioCharaFolders : BaseStudioFolders<CharaListEntry, CharaList, StudioCharaFoldersHelper>
     {

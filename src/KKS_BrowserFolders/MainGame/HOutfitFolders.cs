@@ -5,7 +5,7 @@ using HarmonyLib;
 using Manager;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKS
+namespace BrowserFolders.MainGame
 {
     // Handles both h scene outfits and dance mode
     public class HOutfitFolders : BaseFolderBrowser

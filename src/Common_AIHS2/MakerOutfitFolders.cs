@@ -1,13 +1,13 @@
-﻿using AIChara;
-using CharaCustom;
-using HarmonyLib;
-using KKAPI.Maker;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
+using AIChara;
 using BepInEx.Configuration;
+using CharaCustom;
+using HarmonyLib;
+using KKAPI.Maker;
 using UnityEngine;
 
 namespace BrowserFolders

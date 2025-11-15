@@ -7,7 +7,7 @@ using HarmonyLib;
 using Studio;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks.KKS
+namespace BrowserFolders.Studio
 {
     public abstract class BaseStudioFolders<T, TSub, THelper> : IFolderBrowser
         where THelper : BaseStudioFoldersHelper<T, TSub>, new()
@@ -183,7 +183,7 @@ namespace BrowserFolders.Hooks.KKS
             // normally this does nothing, but in case something caused it to fall back to standard code path
             // this will allow per-folder filtering to still work
             var currentFolder = CurrentFolder;
-            var defaultFolder = BrowserFoldersPlugin.ShowDefaultCharas.Value ? Utils.GetNormalizedDirectoryName(Path.GetFullPath(Studio.DefaultData.Path)) : null;
+            var defaultFolder = BrowserFoldersPlugin.ShowDefaultCharas.Value ? Utils.GetNormalizedDirectoryName(Path.GetFullPath(global::Studio.DefaultData.Path)) : null;
             GetCharaFileInfos().RemoveAll(cfi =>
             {
                 var directoryName = Utils.GetNormalizedDirectoryName(cfi.file);

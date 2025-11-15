@@ -1,17 +1,17 @@
-﻿using ChaCustom;
-using HarmonyLib;
-using KKAPI.Maker;
-using Manager;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx.Configuration;
+using ChaCustom;
+using HarmonyLib;
+using KKAPI.Maker;
+using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BrowserFolders.Hooks
+namespace BrowserFolders
 {
     public class MakerCharaFolders : BaseFolderBrowser
     {

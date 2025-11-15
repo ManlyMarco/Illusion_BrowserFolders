@@ -11,7 +11,7 @@ using Manager;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BrowserFolders.Hooks
+namespace BrowserFolders
 {
     public class MakerOutfitFolders : BaseFolderBrowser
     {

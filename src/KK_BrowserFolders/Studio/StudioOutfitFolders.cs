@@ -6,7 +6,7 @@ using Studio;
 using UnityEngine;
 using static Studio.MPCharCtrl;
 
-namespace BrowserFolders.Hooks.KK
+namespace BrowserFolders.Studio
 {
     public class StudioOutfitFolders : BaseStudioFolders<CostumeInfoEntry, CostumeInfo, StudioOutfitFoldersHelper>
     {

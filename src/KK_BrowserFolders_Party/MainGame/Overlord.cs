@@ -1,13 +1,12 @@
-﻿using ActionGame;
+﻿using System;
+using System.IO;
+using ActionGame;
 using ChaCustom;
 using FreeH;
 using HarmonyLib;
-using System;
-using System.IO;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace BrowserFolders.Hooks.KKP
+namespace BrowserFolders.MainGame
 {
     internal static class Overlord
     {

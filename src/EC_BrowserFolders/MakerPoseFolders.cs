@@ -9,7 +9,7 @@ using Manager;
 using Pose;
 using UnityEngine;
 
-namespace BrowserFolders.Hooks
+namespace BrowserFolders
 {
     public class MakerPoseFolders : BaseFolderBrowser
     {
