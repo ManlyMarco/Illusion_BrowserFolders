@@ -92,15 +92,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EC_BrowserFolders.cs" />
-    <Compile Include="Hooks\MakerCharaFolders.cs" />
-    <None Include="Hooks\MakerHPoseIKFolders.cs" />
-    <Compile Include="Hooks\MakerMapFolders.cs" />
-    <Compile Include="Hooks\MakerMapSaveFolders.cs" />
-    <Compile Include="Hooks\MakerOutfitFolders.cs" />
-    <Compile Include="Hooks\MakerPoseFolders.cs" />
-    <Compile Include="Hooks\MakerPoseSaveFolders.cs" />
-    <Compile Include="Hooks\MakerSceneFolders.cs" />
+    <Compile Include="MakerCharaFolders.cs" />
+    <None Include="MakerHPoseIKFolders.cs" />
+    <Compile Include="MakerMapFolders.cs" />
+    <Compile Include="MakerMapSaveFolders.cs" />
+    <Compile Include="MakerOutfitFolders.cs" />
+    <Compile Include="MakerPoseFolders.cs" />
+    <Compile Include="MakerPoseSaveFolders.cs" />
+    <Compile Include="MakerSceneFolders.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

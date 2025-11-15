@@ -8,7 +8,6 @@ using BepInEx.Logging;
 using Common;
 using HarmonyLib;
 using KKAPI;
-using KKAPI.Studio;
 using UnityEngine;
 
 namespace BrowserFolders
@@ -25,15 +24,19 @@ namespace BrowserFolders
 #if !EC
     [BepInProcess(KoikatuAPI.StudioProcessName)]
 #endif
-#endif
+#if KKS
     [BepInIncompatibility("KKS_StudioDefaultData")]
+#endif
+#endif
     public class BrowserFoldersPlugin : BaseUnityPlugin
     {
         public const string Guid = Constants.Guid;
         public const string Version = Constants.Version;
 
         internal static new ManualLogSource Logger { get; private set; }
+#if KKP || KKS
         internal static ConfigEntry<bool> ShowDefaultCharas { get; private set; }
+#endif
         internal static string UserDataPath { get; } = Utils.NormalizePath(Path.Combine(Paths.GameRootPath, "UserData")); // UserData.Path
 
         private IFolderBrowser[] _instances;
@@ -48,8 +51,9 @@ namespace BrowserFolders
             var storedRectsDic = DeserializeRects(storeRects.Value ? storedRects.Value : null);
             KoikatuAPI.Quitting += (o, e) => storedRects.Value = SerializeRects(_instances);
 
-            // todo only in games where applicable
+#if KKP || KKS
             ShowDefaultCharas = Config.Bind("General", "Show default cards", true, "Default character and outfit cards will be added to the lists. They are visible in the root directory.");
+#endif
 
             var enableFilesystemWatchers = Config.Bind("General", "Automatically refresh when files change", true, "When files are added/deleted/updated the list will automatically update. If disabled you have to hit the refresh button manually when files are changed.");
             enableFilesystemWatchers.SettingChanged += (s, e) => FolderTreeView.EnableFilesystemWatcher = enableFilesystemWatchers.Value;
@@ -73,6 +77,7 @@ namespace BrowserFolders
                 _instances[i].OnGui();
         }
 
+#if KKP || KKS
         internal static bool DrawDefaultCardsToggle()
         {
             GUI.changed = false;
@@ -84,6 +89,7 @@ namespace BrowserFolders
             }
             return false;
         }
+#endif
 
         private static IFolderBrowser[] LoadBrowsers(Harmony harmony, ConfigFile config, Dictionary<string, Rect> windowRects)
         {
@@ -104,13 +110,18 @@ namespace BrowserFolders
                 }
             }
 
+#if !EC
+            var insideStudio = KKAPI.Studio.StudioAPI.InsideStudio;
+#else
+            const bool insideStudio = false;
+#endif
             // Initialize IFolderBrowser instances
             allInstances.RemoveAll(instance =>
             {
                 var fullName = instance?.GetType().FullName ?? throw new Exception("huh " + instance);
                 try
                 {
-                    var success = instance.Initialize(StudioAPI.InsideStudio, config, harmony);
+                    var success = instance.Initialize(insideStudio, config, harmony);
                     if (success && windowRects.TryGetValue(fullName, out var storedRect))
                         instance.WindowRect = storedRect;
                     return !success;
@@ -122,7 +133,7 @@ namespace BrowserFolders
                 }
             });
 
-            Logger.LogInfo($"Loaded {allInstances.Count}/{allTypesCount} folder browsers: {string.Join(", ", allInstances.Select(x => x.GetType().Name))}");
+            Logger.LogInfo($"Loaded {allInstances.Count}/{allTypesCount} folder browsers: {string.Join(", ", allInstances.Select(x => x.GetType().Name).ToArray())}");
             return allInstances.ToArray();
         }
 
@@ -145,7 +156,7 @@ namespace BrowserFolders
             {
                 var rect = x.WindowRect;
                 return $"{x.GetType().FullName},{rect.x},{rect.y},{rect.width},{rect.height}";
-            }));
+            }).ToArray());
         }
 
         private void CheckScreenSizeChange()
