@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace BrowserFolders
 {
+    /// <inheritdoc cref="IFolderBrowser"/>
     public abstract class BaseFolderBrowser : IFolderBrowser
     {
         protected BaseFolderBrowser(string title, string topmostPath, string defaultPath)
@@ -22,10 +23,14 @@ namespace BrowserFolders
 
         protected int GuiVisible;
 
+        /// <inheritdoc/>
         public Rect WindowRect { get; set; }
+        /// <inheritdoc/>
         public FolderTreeView TreeView { get; protected set; }
+        /// <inheritdoc/>
         public string Title { get; protected set; }
 
+        /// <inheritdoc/>
         public bool Initialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
             TreeView = new FolderTreeView(_topmostPath, _defaultPath)
@@ -35,11 +40,20 @@ namespace BrowserFolders
             return OnInitialize(isStudio, config, harmony);
         }
 
+        /// <inheritdoc cref="IFolderBrowser.Initialize"/>
         protected abstract bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony);
+        /// <summary>
+        /// Check if this browser should be visible.
+        /// 0 = not visible, any number above is visible.
+        /// If the returned number changes the list is refreshed.
+        /// </summary>
         protected abstract int IsVisible();
+        /// <inheritdoc/>
         public abstract void OnListRefresh();
+        /// <inheritdoc/>
         public abstract Rect GetDefaultRect();
 
+        /// <inheritdoc/>
         public virtual void Update()
         {
             var newVisible = IsVisible();
@@ -53,6 +67,7 @@ namespace BrowserFolders
             GuiVisible = newVisible;
         }
 
+        /// <inheritdoc/>
         public virtual void OnGui()
         {
             if (GuiVisible != 0)
@@ -60,17 +75,15 @@ namespace BrowserFolders
                 var orig = GUI.skin;
                 GUI.skin = IMGUIUtils.SolidBackgroundGuiSkin;
 
-                WindowRect = GUILayout.Window(WindowID, WindowRect, DrawFolderWindow, Title);
+                WindowRect = GUILayout.Window(WindowID, WindowRect, id => DrawFolderWindow(id, this, DrawControlButtons), Title);
 
                 GUI.skin = orig;
             }
         }
 
-        protected void DrawFolderWindow(int id)
-        {
-            DrawFolderWindow(id, this, DrawControlButtons);
-        }
-
+        /// <summary>
+        /// Override to draw additional control buttons. Draw behind or after the base buttons by placing the base call accordingly.
+        /// </summary>
         protected virtual void DrawControlButtons()
         {
             DrawBaseControlButtons(this);
@@ -121,9 +134,9 @@ namespace BrowserFolders
             //if (WindowRect.height > 400 || isHorizontal && WindowRect.height > 200)
             {
                 if (GUILayout.Button("Screenshot folder"))
-                    Utils.OpenDirInExplorer(Path.Combine(Utils.NormalizePath(UserData.Path), "cap"));
+                    Utils.OpenDirInExplorer(Path.Combine(BrowserFoldersPlugin.UserDataPath, "cap"));
                 if (GUILayout.Button("Main game folder"))
-                    Utils.OpenDirInExplorer(Path.GetDirectoryName(Utils.NormalizePath(UserData.Path)));
+                    Utils.OpenDirInExplorer(Path.GetDirectoryName(BrowserFoldersPlugin.UserDataPath));
             }
         }
 
