@@ -75,7 +75,7 @@ namespace BrowserFolders
                 var orig = GUI.skin;
                 GUI.skin = IMGUIUtils.SolidBackgroundGuiSkin;
 
-                WindowRect = GUILayout.Window(WindowID, WindowRect, id => DrawFolderWindow(id, this, DrawControlButtons), Title);
+                WindowRect = GUILayout.Window(WindowID, WindowRect, id => DrawFolderWindow(id, this, DrawControlButtons), Title, _GloNone);
 
                 GUI.skin = orig;
             }
@@ -89,6 +89,9 @@ namespace BrowserFolders
             DrawBaseControlButtons(this);
         }
 
+        private static readonly GUILayoutOption[] _GloHorizontalBtns = { GUILayout.Width(200), GUILayout.ExpandHeight(true) };
+        private static readonly GUILayoutOption[] _GloVerticalBtns = { GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false) };
+        private static readonly GUILayoutOption[] _GloNone = { };
         private static void DrawFolderWindow(int id, IFolderBrowser instance, Action drawControlButtons)
         {
             var borderTop = GUI.skin.window.border.top - 4;
@@ -97,13 +100,13 @@ namespace BrowserFolders
 
             var isHorizontal = instance.WindowRect.width > instance.WindowRect.height;
             if (isHorizontal)
-                GUILayout.BeginHorizontal();
+                GUILayout.BeginHorizontal(_GloNone);
             else
-                GUILayout.BeginVertical();
+                GUILayout.BeginVertical(_GloNone);
             {
                 instance.TreeView.DrawDirectoryTree();
 
-                GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
+                GUILayout.BeginVertical(GUI.skin.box, isHorizontal ? _GloHorizontalBtns : _GloVerticalBtns);
                 {
                     drawControlButtons();
                 }
@@ -119,7 +122,7 @@ namespace BrowserFolders
 
         private static void DrawBaseControlButtons(IFolderBrowser instance)
         {
-            if (GUILayout.Button("Refresh thumbnails"))
+            if (GUILayout.Button("Refresh thumbnails", _GloNone))
             {
                 instance.TreeView.ResetTreeCache();
                 instance.OnListRefresh();
@@ -127,11 +130,11 @@ namespace BrowserFolders
 
             GUILayout.Space(1);
 
-            if (GUILayout.Button("Current folder"))
+            if (GUILayout.Button("Current folder", _GloNone))
                 Utils.OpenDirInExplorer(instance.TreeView.CurrentFolder);
-            if (GUILayout.Button("Screenshot folder"))
+            if (GUILayout.Button("Screenshot folder", _GloNone))
                 Utils.OpenDirInExplorer(Path.Combine(BrowserFoldersPlugin.UserDataPath, "cap"));
-            if (GUILayout.Button("Main game folder"))
+            if (GUILayout.Button("Main game folder", _GloNone))
                 Utils.OpenDirInExplorer(Path.GetDirectoryName(BrowserFoldersPlugin.UserDataPath));
         }
 
@@ -147,7 +150,7 @@ namespace BrowserFolders
                     drawAdditionalButtons?.Invoke();
                     DrawBaseControlButtons(instance);
                 });
-            }, instance.Title);
+            }, instance.Title, _GloNone);
 
             GUI.skin = orig;
         }
