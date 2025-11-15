@@ -5,14 +5,13 @@ using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using Common;
 using HarmonyLib;
 using KKAPI;
 using UnityEngine;
 
 namespace BrowserFolders
 {
-    [BepInPlugin(Guid, "Maker/Studio Browser Folders", Version)]
+    [BepInPlugin(Guid, Constants.Name, Version)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
 #if KKP
     // KKP needs a completely different set of hooks !!only for its main exe!!
@@ -30,7 +29,7 @@ namespace BrowserFolders
 #endif
     public class BrowserFoldersPlugin : BaseUnityPlugin
     {
-        public const string Guid = Constants.Guid;
+        public const string Guid = "marco.FolderBrowser";
         public const string Version = Constants.Version;
 
         internal static new ManualLogSource Logger { get; private set; }

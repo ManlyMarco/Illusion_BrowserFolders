@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders", "KK_Hooks_KK\KK_BrowserFolders.csproj", "{6A22392A-EBC1-4E86-9DBC-591715A1C799}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3D441F96-C387-473E-BB0E-5E4EC205D2E3} = {3D441F96-C387-473E-BB0E-5E4EC205D2E3}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_BrowserFolders_Party", "KK_Hooks_KKP\KK_BrowserFolders_Party.csproj", "{3D441F96-C387-473E-BB0E-5E4EC205D2E3}"
 EndProject
@@ -20,6 +23,14 @@ EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{9303FD5B-13ED-4BBE-9625-B1EAF4287802}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KKS_BrowserFolders", "KKS_BrowserFolders\KKS_BrowserFolders.csproj", "{867DB9DF-F1F2-43EF-98E7-F92CD2D01E49}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KKEC", "KKEC", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution", "_Solution", "{89CC1B23-A826-4EAC-A343-6446E35B06E3}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		nuget.config = nuget.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,23 +67,27 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{6A22392A-EBC1-4E86-9DBC-591715A1C799} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{3D441F96-C387-473E-BB0E-5E4EC205D2E3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{EBD219D5-7A7A-4A9B-BAE6-460EC5CF8C43} = {28447449-8DF7-4CFD-80BF-FF26290830E6}
 		{206D2E71-0933-4B96-B74D-D07521EB58DB} = {28447449-8DF7-4CFD-80BF-FF26290830E6}
 		{9808EF6D-057E-46E4-99AC-F7BBF2C5A057} = {28447449-8DF7-4CFD-80BF-FF26290830E6}
+		{30773058-5A9C-43A2-9E43-CE8B0B77140C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{867DB9DF-F1F2-43EF-98E7-F92CD2D01E49} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {28F0A8B3-ACB9-46D0-995C-4D9717D8E724}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Common\Common.projitems*{206d2e71-0933-4b96-b74d-d07521eb58db}*SharedItemsImports = 4
-		Common_AIHS2\Common_AIHS2.projitems*{206d2e71-0933-4b96-b74d-d07521eb58db}*SharedItemsImports = 4
-		Common\Common.projitems*{30773058-5a9c-43a2-9e43-ce8b0b77140c}*SharedItemsImports = 4
-		Common\Common.projitems*{3d441f96-c387-473e-bb0e-5e4ec205d2e3}*SharedItemsImports = 4
-		Common\Common.projitems*{6a22392a-ebc1-4e86-9dbc-591715a1c799}*SharedItemsImports = 4
-		Common\Common.projitems*{867db9df-f1f2-43ef-98e7-f92cd2d01e49}*SharedItemsImports = 4
+		Common\Common.projitems*{206d2e71-0933-4b96-b74d-d07521eb58db}*SharedItemsImports = 5
+		Common_AIHS2\Common_AIHS2.projitems*{206d2e71-0933-4b96-b74d-d07521eb58db}*SharedItemsImports = 5
+		Common\Common.projitems*{30773058-5a9c-43a2-9e43-ce8b0b77140c}*SharedItemsImports = 5
+		Common\Common.projitems*{3d441f96-c387-473e-bb0e-5e4ec205d2e3}*SharedItemsImports = 5
+		Common\Common.projitems*{6a22392a-ebc1-4e86-9dbc-591715a1c799}*SharedItemsImports = 5
+		Common\Common.projitems*{867db9df-f1f2-43ef-98e7-f92cd2d01e49}*SharedItemsImports = 5
 		Common\Common.projitems*{9303fd5b-13ed-4bbe-9625-b1eaf4287802}*SharedItemsImports = 13
 		Common_AIHS2\Common_AIHS2.projitems*{9808ef6d-057e-46e4-99ac-f7bbf2c5a057}*SharedItemsImports = 13
-		Common\Common.projitems*{ebd219d5-7a7a-4a9b-bae6-460ec5cf8c43}*SharedItemsImports = 4
-		Common_AIHS2\Common_AIHS2.projitems*{ebd219d5-7a7a-4a9b-bae6-460ec5cf8c43}*SharedItemsImports = 4
+		Common\Common.projitems*{ebd219d5-7a7a-4a9b-bae6-460ec5cf8c43}*SharedItemsImports = 5
+		Common_AIHS2\Common_AIHS2.projitems*{ebd219d5-7a7a-4a9b-bae6-460ec5cf8c43}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
