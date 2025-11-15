@@ -374,17 +374,14 @@ namespace BrowserFolders
 
                             if (NonTranslatedButton(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
                             {
-
                                 if (string.Equals(CurrentFolder, dirFullName, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (_openedObjects.Contains(dirFullName) == false)
-                                        _openedObjects.Add(dirFullName);
-                                    else
+                                    // Toggle open state
+                                    if (!_openedObjects.Add(dirFullName))
                                         _openedObjects.Remove(dirFullName);
                                 }
 
                                 CurrentFolder = dirFullName;
-
                             }
                         }
                         GUILayout.EndHorizontal();

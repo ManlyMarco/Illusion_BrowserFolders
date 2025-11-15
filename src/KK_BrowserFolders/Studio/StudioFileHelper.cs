@@ -8,7 +8,7 @@ namespace BrowserFolders.Studio
 {
     public static class StudioFileHelper
     {
-        private static object _lock = new object();
+        private static readonly object _lock = new object();
         private static bool _hooked;
 
         // GetAllFilesOverrideFolders[searchPattern][defaultFolder] => overrideFolder
