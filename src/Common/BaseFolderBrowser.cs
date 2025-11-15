@@ -16,7 +16,7 @@ namespace BrowserFolders
             _defaultPath = defaultPath ?? throw new ArgumentNullException(nameof(defaultPath));
         }
 
-        private readonly int _id = 362; // Assume at most one folder window can be visible at one time
+        private const int WindowID = 362; // Assume at most one folder window can be visible at one time
         private readonly string _topmostPath;
         private readonly string _defaultPath;
 
@@ -57,7 +57,7 @@ namespace BrowserFolders
                 var orig = GUI.skin;
                 GUI.skin = IMGUIUtils.SolidBackgroundGuiSkin;
 
-                WindowRect = GUILayout.Window(_id, WindowRect, DrawFolderWindow, Title);
+                WindowRect = GUILayout.Window(WindowID, WindowRect, DrawFolderWindow, Title);
 
                 GUI.skin = orig;
             }
