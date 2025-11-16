@@ -322,8 +322,7 @@ namespace BrowserFolders
                 return;
             }
 
-            int itemHeight;
-            _itemHeightMap.TryGetValue(dirFullName, out itemHeight);
+            _itemHeightMap.TryGetValue(dirFullName, out var itemHeight);
 
             var isSearching = !string.IsNullOrEmpty(_searchString);
             if (!isSearching || dirFullName.IndexOf(_searchString, DefaultPath.Length, StringComparison.OrdinalIgnoreCase) >= 0)
