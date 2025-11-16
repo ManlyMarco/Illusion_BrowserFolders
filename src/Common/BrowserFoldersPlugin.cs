@@ -104,7 +104,7 @@ namespace BrowserFolders
         private static IFolderBrowser[] LoadBrowsers(Harmony harmony, ConfigFile config, Dictionary<string, Rect> windowRects)
         {
             // Collect all IFolderBrowser instances
-            var allTypes = typeof(BrowserFoldersPlugin).Assembly.GetTypesSafe().Where(x => typeof(IFolderBrowser).IsAssignableFrom(x) && !x.IsAbstract);
+            var allTypes = AccessTools.GetTypesFromAssembly(typeof(BrowserFoldersPlugin).Assembly).Where(x => typeof(IFolderBrowser).IsAssignableFrom(x) && !x.IsAbstract);
             var allTypesCount = 0;
             var allInstances = new List<IFolderBrowser>();
             foreach (var browserType in allTypes)

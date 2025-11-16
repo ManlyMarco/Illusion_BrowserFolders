@@ -59,7 +59,7 @@ namespace BrowserFolders.MainGame
 
                                 // Create old directories to copy stuff into later, because game doesn't create subdirs
                                 var fullCardDir = Path.Combine(origTargetDir, relativeCardDir).TrimEnd('/', '\\');
-                                Utils.Logger.LogDebug("Setting import backup directory to " + fullCardDir + "/" + cardName + ".png");
+                                BrowserFoldersPlugin.Logger.LogDebug("Setting import backup directory to " + fullCardDir + "/" + cardName + ".png");
                                 Directory.CreateDirectory(fullCardDir);
 
                                 return Path.Combine(relativeCardDir, cardName);
@@ -68,7 +68,7 @@ namespace BrowserFolders.MainGame
                     }
                 }
 
-                Utils.Logger.LogWarning($"Unknown target dir passed to GetMoveFile or card path is outside of UserData! targetDir={targetDir}   cardPath={cardPath}");
+                BrowserFoldersPlugin.Logger.LogWarning($"Unknown target dir passed to GetMoveFile or card path is outside of UserData! targetDir={targetDir}   cardPath={cardPath}");
                 return cardName;
             }
 

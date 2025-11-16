@@ -2,26 +2,34 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using BepInEx.Logging;
+using UnityEngine;
 
 namespace BrowserFolders
 {
-    public static class Utils
+    internal static class Utils
     {
-        private static readonly Dictionary<string, string> _normalizedDirectoryNames = new Dictionary<string, string>();
-        
+        #region IMGUI
+
+        public static readonly GUILayoutOption[] LayoutNone = { };
+        public static readonly GUILayoutOption[] LayoutNoExpand = { GUILayout.ExpandHeight(false), GUILayout.ExpandWidth(false) };
+        public static readonly GUILayoutOption[] LayoutExpand = { GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true) };
+
+        #endregion
+
+        #region Paths
+
+        private static readonly Dictionary<string, string> _NormalizedDirectoryNames = new Dictionary<string, string>();
+
         public static string GetNormalizedDirectoryName(string filePath)
         {
-            if (_normalizedDirectoryNames.TryGetValue(filePath, out var result)) return result;
+            if (_NormalizedDirectoryNames.TryGetValue(filePath, out var result)) return result;
 
             var dir = Path.GetDirectoryName(filePath);
             if (!string.IsNullOrEmpty(dir))
             {
-                if (!_normalizedDirectoryNames.TryGetValue(dir, out result))
+                if (!_NormalizedDirectoryNames.TryGetValue(dir, out result))
                 {
-                    _normalizedDirectoryNames[dir] = result = NormalizePath(dir);
+                    _NormalizedDirectoryNames[dir] = result = NormalizePath(dir);
                 }
             }
             else
@@ -29,7 +37,7 @@ namespace BrowserFolders
                 result = string.Empty;
             }
 
-            _normalizedDirectoryNames[filePath] = result;
+            _NormalizedDirectoryNames[filePath] = result;
             return result;
         }
 
@@ -38,13 +46,21 @@ namespace BrowserFolders
             return Path.GetFullPath(path).Replace('/', '\\').TrimEnd('\\').ToLower();
         }
 
-        public static IEnumerable<Type> GetTypesSafe(this Assembly ass)
+        public static void OpenDirInExplorer(string path)
         {
-            try { return ass.GetTypes(); }
-            catch (ReflectionTypeLoadException e) { return e.Types.Where(x => x != null); }
-            catch { return Enumerable.Empty<Type>(); }
+            try
+            {
+                Process.Start("explorer.exe", $"\"{Path.GetFullPath(path)}\"");
+            }
+            catch (Exception e)
+            {
+                BrowserFoldersPlugin.Logger.LogError(e);
+                BrowserFoldersPlugin.Logger.LogMessage("Failed to open the folder - " + e.Message);
+            }
         }
 
+        #endregion
+        
         public static IEnumerable<T2> Attempt<T, T2>(this IEnumerable<T> items, Func<T, T2> action)
         {
             foreach (var item in items)
@@ -63,24 +79,38 @@ namespace BrowserFolders
             }
         }
 
-        public static ManualLogSource Logger => BrowserFoldersPlugin.Logger;
+        #region AutoTranslator compat
 
-        public static void OpenDirInExplorer(string path)
+        private static GameObject _xua;
+        private static bool _xuaChecked;
+
+        private static GameObject XuaObject
         {
+            get
+            {
+                if (_xuaChecked) return _xua;
+                _xua = GameObject.Find("___XUnityAutoTranslator");
+                _xuaChecked = true;
+                return _xua;
+            }
+        }
+
+        public static bool NonTranslatedButton(string text, GUIStyle style, params GUILayoutOption[] options)
+        {
+            if (XuaObject == null)
+                return GUILayout.Button(text, style, options);
+
             try
             {
-                Process.Start("explorer.exe", $"\"{Path.GetFullPath(path)}\"");
+                XuaObject.SendMessage("DisableAutoTranslator");
+                return GUILayout.Button(text, style, options);
             }
-            catch (Exception e)
+            finally
             {
-                Logger.LogError(e);
-                Logger.LogMessage("Failed to open the folder - " + e.Message);
+                XuaObject.SendMessage("EnableAutoTranslator");
             }
         }
 
-        public static bool IsEmpty(this UnityEngine.Rect value)
-        {
-            return value.height == 0 || value.width == 0;
-        }
+        #endregion
     }
 }

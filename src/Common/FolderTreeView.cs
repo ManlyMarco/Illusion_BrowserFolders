@@ -16,22 +16,7 @@ namespace BrowserFolders
         private long _refreshRequestedFrame;
         private FileSystemWatcher _fileSystemWatcher;
 
-        private static GameObject _xua;
-        private static bool _xuaChecked;
-
         public static bool EnableFilesystemWatcher { get; set; } = true;
-
-        private GameObject XuaObject
-        {
-            get
-            {
-                if (_xuaChecked) return _xua;
-                _xua = GameObject.Find("___XUnityAutoTranslator");
-                _xuaChecked = true;
-                return _xua;
-            }
-        }
-
 
         public void ScrollListToSelected()
         {
@@ -120,9 +105,9 @@ namespace BrowserFolders
                 }
             }
 
-            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+            GUILayout.BeginVertical(GUI.skin.box, Utils.LayoutExpand);
             {
-                _treeScrollPosition = GUILayout.BeginScrollView(_treeScrollPosition, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                _treeScrollPosition = GUILayout.BeginScrollView(_treeScrollPosition, Utils.LayoutExpand);
                 {
                     var totalHeight = 0;
                     DisplayObjectTreeHelper(DefaultPathTree, 0, ref totalHeight);
@@ -292,19 +277,6 @@ namespace BrowserFolders
             }
         }
 
-        private bool NonTranslatedButton(string text, GUIStyle style, params GUILayoutOption[] options)
-        {
-            XuaObject?.SendMessage("DisableAutoTranslator");
-            try
-            {
-                return GUILayout.Button(text, style, options);
-            }
-            finally
-            {
-                XuaObject?.SendMessage("EnableAutoTranslator");
-            }
-        }
-
         private void DisplayObjectTreeHelper(DirectoryTree dir, int indent, ref int drawnItemTotalHeight)
         {
             var dirFullName = dir.FullName;
@@ -312,11 +284,11 @@ namespace BrowserFolders
 
             if (indent == 0 && subDirs.Count == 0)
             {
-                GUILayout.BeginVertical();
+                GUILayout.BeginVertical(Utils.LayoutNone);
                 {
-                    GUILayout.Label("You can organize your files into folders and use this window to browse them.");
+                    GUILayout.Label("You can organize your files into folders and use this window to browse them.", Utils.LayoutNone);
                     GUILayout.Space(5);
-                    GUILayout.Label($"Folders placed inside your {DefaultPath.Substring(_topmostPath.Length)} folder will appear on this list.");
+                    GUILayout.Label($"Folders placed inside your {DefaultPath.Substring(_topmostPath.Length)} folder will appear on this list.", Utils.LayoutNone);
                 }
                 GUILayout.EndVertical();
                 return;
@@ -348,7 +320,7 @@ namespace BrowserFolders
 
                 if (draw)
                 {
-                    GUILayout.BeginHorizontal();
+                    GUILayout.BeginHorizontal(Utils.LayoutNone);
                     {
                         GUILayout.Space(indent * 20f);
 
@@ -356,12 +328,12 @@ namespace BrowserFolders
                         if (dirFullName == CurrentFolder)
                             GUI.color = Color.cyan;
 
-                        GUILayout.BeginHorizontal();
+                        GUILayout.BeginHorizontal(Utils.LayoutNone);
                         {
 
                             if (subDirs.Count > 0)
                             {
-                                if (GUILayout.Toggle(_openedObjects.Contains(dirFullName), "", GUILayout.ExpandWidth(false)))
+                                if (GUILayout.Toggle(_openedObjects.Contains(dirFullName), "", Utils.LayoutNoExpand))
                                     _openedObjects.Add(dirFullName);
                                 else
                                     _openedObjects.Remove(dirFullName);
@@ -371,7 +343,7 @@ namespace BrowserFolders
                                 GUILayout.Space(20f);
                             }
 
-                            if (NonTranslatedButton(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
+                            if (Utils.NonTranslatedButton(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
                             {
                                 if (string.Equals(CurrentFolder, dirFullName, StringComparison.OrdinalIgnoreCase))
                                 {

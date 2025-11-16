@@ -55,7 +55,7 @@ namespace BrowserFolders.Studio
         {
             base.DrawControlButtons();
 
-            if (GUILayout.Button("Character folder"))
+            if (GUILayout.Button("Character folder", Utils.LayoutNone))
                 Utils.OpenDirInExplorer(Path.Combine(BrowserFoldersPlugin.UserDataPath, "chara"));
         }
 
