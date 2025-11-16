@@ -29,13 +29,13 @@ namespace BrowserFolders.MainGame
 
         protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            if (isStudio) return false;
-
-            _folderTreeView = TreeView;
-
             EnableClassroom = config.Bind("Main game", "Enable folder browser in classroom/new game browser", true, "Changes take effect on game restart");
 
             _randomCharaSubfolders = config.Bind("Main game", "Search subfolders for random characters", true, "When filling the class with random characters (or in other cases where a random character is picked) choose random characters from the main directory AND all of its subdirectories. If false, only search in the main directory (UserData/chara/female).");
+
+            _folderTreeView = TreeView;
+            
+            if (isStudio) return false;
 
             harmony.PatchAll(typeof(Hooks));
 
