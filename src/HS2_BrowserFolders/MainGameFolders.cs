@@ -67,8 +67,7 @@ namespace BrowserFolders
 
         public Rect GetDefaultRect()
         {
-            const float x = 0.02f, y = 0.59f, w = 0.200f, h = 0.35f;
-            return new Rect((int)(Screen.width * x), (int)(Screen.height * y), (int)(Screen.width * w), (int)(Screen.height * h));
+            return new Rect((int)(Screen.width * 0.024f), (int)(Screen.height * 0.575f), (int)(Screen.width * 0.182f), (int)(Screen.height * 0.37f));
         }
 
         public void OnListRefresh()
