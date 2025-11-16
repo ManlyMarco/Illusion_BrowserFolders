@@ -95,7 +95,7 @@ namespace BrowserFolders
         private static void DrawFolderWindow(int id, IFolderBrowser instance, Action drawControlButtons)
         {
             var borderTop = GUI.skin.window.border.top - 4;
-            if (GUI.Button(new Rect(instance.WindowRect.width - borderTop - 2, 2, borderTop + 4, borderTop), "R"))
+            if (GUI.Button(new Rect(2, 2, borderTop + 4, borderTop), "R"))
                 instance.WindowRect = instance.GetDefaultRect();
 
             var isHorizontal = instance.WindowRect.width > instance.WindowRect.height;
