@@ -3,8 +3,6 @@ A BepInEx plugin for Koikatu, Koikatsu Party, EmotionCreators, AI-Shoujo and Hon
 
 ![folders preview](https://user-images.githubusercontent.com/39247311/77538502-230b7e80-6ea0-11ea-8722-79f93138e2f6.PNG)
 
-You can support development of my plugins through my Patreon page: https://www.patreon.com/ManlyMarco
-
 ## How to use
 1. Make sure the latest version of [Illusion ModdingAPI](https://github.com/IllusionMods/IllusionModdingAPI) for your game is installed (with all of its prerequisites) and that your game is fully updated.
 2. Download the latest release from [here](https://github.com/ManlyMarco/Illusion_BrowserFolders/releases).
@@ -26,3 +24,5 @@ If you are updating from an older version you can remove `KK_BrowserFolders_Hook
 
 #### How to contribute
 Feel free to fork the repository and submit pull requests. If you find any bugs report them in the Issues section (a PR with a fix would be ideal though).
+
+You can support development of my plugins through my Patreon page: https://www.patreon.com/ManlyMarco
