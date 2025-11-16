@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net46</TargetFramework>
-    <DefineConstants>KKS</DefineConstants>
+    <TargetFramework>net35</TargetFramework>
+    <DefineConstants>KK</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IllusionModdingAPI.KKSAPI" Version="1.35.0" />
+    <PackageReference Include="IllusionModdingAPI.KKAPI" Version="1.35.0" />
   </ItemGroup>
 
   <Import Project="..\Common\Common.projitems" Label="Shared" />

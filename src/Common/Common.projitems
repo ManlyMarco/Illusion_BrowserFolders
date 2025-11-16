@@ -6,15 +6,14 @@
     <SharedGUID>9303fd5b-13ed-4bbe-9625-b1eaf4287802</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Common</Import_RootNamespace>
+    <Import_RootNamespace>BrowserFolders</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BaseFolderBrowser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BrowserFoldersPlugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DirectoryTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FolderTreeView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IFolderBrowser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)InterfaceUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utils.cs" />
   </ItemGroup>
 </Project>

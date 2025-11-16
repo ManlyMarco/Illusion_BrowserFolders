@@ -10,10 +10,10 @@ namespace BrowserFolders
     public class FolderTreeView
     {
         private bool _scrollTreeToSelected;
-        private float _lastRefreshedTime = 0f;
-        private float _refreshRequestedTime = 0f;
-        private long _lastRefreshedFrame = 0;
-        private long _refreshRequestedFrame = 0;
+        private float _lastRefreshedTime;
+        private float _refreshRequestedTime;
+        private long _lastRefreshedFrame;
+        private long _refreshRequestedFrame;
         private FileSystemWatcher _fileSystemWatcher;
 
         private static GameObject _xua;
@@ -41,7 +41,7 @@ namespace BrowserFolders
 
         private readonly HashSet<string> _openedObjects = new HashSet<string>();
         private Vector2 _treeScrollPosition;
-        private float? _selectedTreeScrollPositionY = null;
+        private float? _selectedTreeScrollPositionY;
         private string _currentFolder;
 
         private DirectoryTree _defaultPathTree;
@@ -124,16 +124,16 @@ namespace BrowserFolders
             {
                 _treeScrollPosition = GUILayout.BeginScrollView(_treeScrollPosition, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
                 {
-                    var itemsDrawn = 0;
-                    DisplayObjectTreeHelper(DefaultPathTree, 0, ref itemsDrawn);
+                    var totalHeight = 0;
+                    DisplayObjectTreeHelper(DefaultPathTree, 0, ref totalHeight);
                 }
                 GUILayout.EndScrollView();
 
                 if (Event.current.type == EventType.Repaint)
                 {
                     var viewRect = GUILayoutUtility.GetLastRect();
-                    
-                    if(_scrollviewHeight == 0)
+
+                    if (_scrollviewHeight == 0)
                     {
                         _scrollviewWidth = (int)viewRect.width;
                         _scrollviewHeight = (int)viewRect.height;
@@ -149,7 +149,10 @@ namespace BrowserFolders
                 GUILayout.BeginHorizontal();
                 {
                     GUILayout.Label("Search: ", GUILayout.ExpandWidth(false));
+                    // todo fix searchbox losing focus when folder count changes
+                    // doesn't work GUI.SetNextControlName("_searchbox");
                     _searchString = GUILayout.TextField(_searchString).Replace('\\', '/');
+                    //GUI.FocusControl("_searchbox");
                 }
                 GUILayout.EndHorizontal();
             }
@@ -274,7 +277,7 @@ namespace BrowserFolders
                 {
                     CurrentFolder = DefaultPath;
                 }
-            } 
+            }
             UpdateTreeCache();
 
             var path = CurrentFolder;
@@ -311,30 +314,29 @@ namespace BrowserFolders
             {
                 GUILayout.BeginVertical();
                 {
-                    GUILayout.Label(@"You can organize your files into folders and use this window to browse them.");
+                    GUILayout.Label("You can organize your files into folders and use this window to browse them.");
                     GUILayout.Space(5);
-                    GUILayout.Label($@"Folders placed inside your {DefaultPath.Substring(_topmostPath.Length)} folder will appear on this list.");
+                    GUILayout.Label($"Folders placed inside your {DefaultPath.Substring(_topmostPath.Length)} folder will appear on this list.");
                 }
                 GUILayout.EndVertical();
                 return;
             }
 
-            int itemHeight;
-            _itemHeightMap.TryGetValue(dirFullName, out itemHeight);
+            _itemHeightMap.TryGetValue(dirFullName, out var itemHeight);
 
             var isSearching = !string.IsNullOrEmpty(_searchString);
             if (!isSearching || dirFullName.IndexOf(_searchString, DefaultPath.Length, StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 bool draw;
 
-                if( Event.current.type == EventType.Layout )
+                if (Event.current.type == EventType.Layout)
                 {
                     draw =
                         _scrollTreeToSelected ||
                         itemHeight == 0 || _scrollviewHeight == 0 ||
                         // Only draw items that are visible at current scroll position
-                        drawnItemTotalHeight >= _treeScrollPosition.y - itemHeight &&
-                        drawnItemTotalHeight <= _treeScrollPosition.y + _scrollviewHeight + itemHeight;
+                        drawnItemTotalHeight >= _treeScrollPosition.y - itemHeight * 3 &&
+                        drawnItemTotalHeight <= _treeScrollPosition.y + _scrollviewHeight + itemHeight * 3;
 
                     if (draw)
                         _displayItems.Add(dirFullName);
@@ -371,17 +373,14 @@ namespace BrowserFolders
 
                             if (NonTranslatedButton(dir.Name, GUI.skin.label, GUILayout.ExpandWidth(true), GUILayout.MinWidth(100)))
                             {
-
                                 if (string.Equals(CurrentFolder, dirFullName, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (_openedObjects.Contains(dirFullName) == false)
-                                        _openedObjects.Add(dirFullName);
-                                    else
+                                    // Toggle open state
+                                    if (!_openedObjects.Add(dirFullName))
                                         _openedObjects.Remove(dirFullName);
                                 }
 
                                 CurrentFolder = dirFullName;
-
                             }
                         }
                         GUILayout.EndHorizontal();
@@ -390,7 +389,7 @@ namespace BrowserFolders
                     }
                     GUILayout.EndHorizontal();
 
-                    if(Event.current.type == EventType.Repaint)
+                    if (Event.current.type == EventType.Repaint)
                     {
                         if (itemHeight == 0)
                             itemHeight = _itemHeightMap[dirFullName] = (int)GUILayoutUtility.GetLastRect().height;

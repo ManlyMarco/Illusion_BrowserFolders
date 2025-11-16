@@ -1,10 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using AIChara;
 using HarmonyLib;
 using KKAPI;
-using KKAPI.Chara;
 
 namespace BrowserFolders
 {
@@ -50,10 +49,10 @@ namespace BrowserFolders
                 return;
             
             var fullPath = Path.GetFullPath(fs.Name);
-            chaFileFullPathMap[__instance.charaFileName] = fullPath;
+            _ChaFileFullPathMap[__instance.charaFileName] = fullPath;
         }
 
-        static Dictionary<string, string> chaFileFullPathMap = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> _ChaFileFullPathMap = new Dictionary<string, string>();
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ChaFileControl), "ConvertCharaFilePath")]
@@ -66,7 +65,7 @@ namespace BrowserFolders
 
             // BUG - If there are multiple cards with the same file name (in different subdirs) the last added card will override all other copies
             // more info at https://github.com/ManlyMarco/Illusion_BrowserFolders/pull/52
-            if (path == __instance.charaFileName && chaFileFullPathMap.TryGetValue(path, out string fullPath))
+            if (path == __instance.charaFileName && _ChaFileFullPathMap.TryGetValue(path, out string fullPath))
             {
                 __result = fullPath;
                 return false;
@@ -81,9 +80,10 @@ namespace BrowserFolders
                 return false;
             }
 
-            if (File.Exists(UserData.Path + "chara/female/" + path))
+            var charaPath = UserData.Path + "chara/female/" + path;
+            if (File.Exists(charaPath))
             {
-                __result = UserData.Path + "chara/female/" + path;
+                __result = charaPath;
                 return false;
             }
 

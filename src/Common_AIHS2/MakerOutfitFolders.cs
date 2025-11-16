@@ -1,17 +1,18 @@
-﻿using AIChara;
-using CharaCustom;
-using HarmonyLib;
-using KKAPI.Maker;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
+using AIChara;
+using BepInEx.Configuration;
+using CharaCustom;
+using HarmonyLib;
+using KKAPI.Maker;
 using UnityEngine;
 
 namespace BrowserFolders
 {
-    public class MakerOutfitFolders : IFolderBrowser
+    public class MakerOutfitFolders : BaseFolderBrowser
     {
         private static CvsC_ClothesLoad _charaLoad;
         private static CanvasGroup[] _charaLoadVisible;
@@ -19,44 +20,66 @@ namespace BrowserFolders
         private static CanvasGroup[] _charaSaveVisible;
         private static GameObject _makerCanvas;
 
-        private static VisibleWindow _lastRefreshed;
-        private static FolderTreeView _folderTreeView;
+        private static MakerOutfitFolders _instance;
 
-        private bool _guiActive;
-        private static Rect _windowRect;
+        private static VisibleWindow _currentlyVisible;
 
-        public MakerOutfitFolders()
+        public MakerOutfitFolders() : base("Clothes folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
+
+        protected override bool OnInitialize(bool isStudio, ConfigFile config, Harmony harmony)
         {
-            _folderTreeView = new FolderTreeView(AI_BrowserFolders.UserDataPath, AI_BrowserFolders.UserDataPath)
-            {
-                CurrentFolderChanged = RefreshCurrentWindow
-            };
+            var enable = config.Bind("Main game", "Enable clothes folder browser in maker", true, "Changes take effect on game restart");
 
-            Harmony.CreateAndPatchAll(typeof(MakerOutfitFolders));
-        }
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ChaFileCoordinate), "SaveFile")]
-        internal static void SaveFilePatch(ref string path)
-        {
-            try
-            {
-                if (_makerCanvas == null) return;
-                var newFolder = _folderTreeView?.CurrentFolder;
-                if (newFolder == null) return;
+            if (isStudio || !enable.Value) return false;
 
-                var name = Path.GetFileName(path);
-                path = Path.Combine(newFolder, name);
+            _instance = this;
 
-                // Force reload
-                _lastRefreshed = VisibleWindow.None;
-            }
-            catch (Exception ex)
-            {
-                UnityEngine.Debug.LogError(ex);
-            }
+            harmony.PatchAll(typeof(Hooks));
+            return true;
         }
 
-        private static VisibleWindow IsVisible()
+        protected override int IsVisible()
+        {
+            _currentlyVisible = WhatIsVisible();
+            return (int)_currentlyVisible;
+        }
+
+        public override void OnListRefresh()
+        {
+            var visibleWindow = WhatIsVisible();
+            var resetTree = false;
+            switch (visibleWindow)
+            {
+                case VisibleWindow.Load:
+                    if (_charaLoad != null)
+                    {
+                        _charaLoad.UpdateClothesList();
+                        resetTree = true;
+                    }
+                    break;
+                case VisibleWindow.Save:
+                    if (_charaSave != null)
+                    {
+                        _charaSave.UpdateClothesList();
+                        resetTree = true;
+                    }
+                    break;
+                case VisibleWindow.None:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(visibleWindow.ToString());
+            }
+
+            // clear tree cache
+            if (resetTree) TreeView.ResetTreeCache();
+        }
+
+        public override Rect GetDefaultRect()
+        {
+            return MakerFolders.GetDefaultDisplayRect();
+        }
+
+        private static VisibleWindow WhatIsVisible()
         {
             if (_makerCanvas == null) return VisibleWindow.None;
             if (!_makerCanvas.activeSelf) return VisibleWindow.None;
@@ -75,114 +98,86 @@ namespace BrowserFolders
             }
         }
 
+
         private static string GetCurrentRelativeFolder(string defaultPath)
         {
-            if (IsVisible() != VisibleWindow.None)
+            if (_currentlyVisible != VisibleWindow.None)
             {
-                var overrideFolder = _folderTreeView?.CurrentRelativeFolder;
+                var overrideFolder = _instance?.TreeView.CurrentRelativeFolder;
                 if (overrideFolder != null) return overrideFolder + '/';
             }
             return defaultPath;
         }
 
-        private static void RefreshCurrentWindow()
-        {
-            var visibleWindow = IsVisible();
-            _lastRefreshed = visibleWindow;
-            var resetTree = false;
-
-            switch (visibleWindow)
-            {
-                case VisibleWindow.Load:
-                    if (_charaLoad != null)
-                    {
-                        _charaLoad.UpdateClothesList();
-                        resetTree = true;
-                    }
-                    break;
-                case VisibleWindow.Save:
-                    if (_charaSave != null)
-                    {
-                        _charaSave.UpdateClothesList();
-                        resetTree = true;
-                    }
-                    break;
-            }
-
-            // clear tree cache
-            if (resetTree) _folderTreeView.ResetTreeCache();
-        }
-
-        public void OnGui()
-        {
-            //todo  When loading a coordinate it resets to the main folder without deselect in menu
-            var visibleWindow = IsVisible();
-            if (visibleWindow == VisibleWindow.None)
-            {
-                _lastRefreshed = VisibleWindow.None;
-                if (_guiActive)
-                {
-                    _folderTreeView?.StopMonitoringFiles();
-                    _guiActive = false;
-                }
-                return;
-            }
-
-            _guiActive = true;
-            if (_lastRefreshed != visibleWindow) RefreshCurrentWindow();
-
-            InterfaceUtils.DisplayFolderWindow(_folderTreeView, () => _windowRect, r => _windowRect = r, "Select clothes folder", RefreshCurrentWindow);
-        }
-
         private enum VisibleWindow
         {
-            None,
+            None = 0,
             Load,
             Save,
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CvsC_ClothesLoad), "Start")]
-        internal static void InitHookLoad(CvsC_ClothesLoad __instance)
+        private static class Hooks
         {
-            _folderTreeView.DefaultPath = Path.Combine(Utils.NormalizePath(UserData.Path),
-                MakerAPI.GetMakerSex() == 0 ? "coordinate/male" : @"coordinate/female");
-            _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
-            //_targetScene = GetAddSceneName();
-
-            _makerCanvas = __instance.GetComponentInParent<Canvas>().gameObject;
-
-            _charaLoad = __instance;
-            _charaLoadVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
-
-            _windowRect = MakerFolders.GetDefaultDisplayRect();
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CvsC_ClothesSave), "Start")]
-        internal static void InitHookSave(CvsC_ClothesSave __instance)
-        {
-            _charaSave = __instance;
-            _charaSaveVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
-
-            _windowRect = MakerFolders.GetDefaultDisplayRect();
-        }
-
-        [HarmonyTranspiler]
-        [HarmonyPatch(typeof(CustomClothesFileInfoAssist), nameof(CustomClothesFileInfoAssist.CreateClothesFileInfoList))]
-        internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
-        {
-            var getFolderMethod = AccessTools.Method(typeof(MakerOutfitFolders), nameof(GetCurrentRelativeFolder)) ??
-                                  throw new MissingMethodException("could not find GetCurrentRelativeFolder");
-
-            foreach (var instruction in instructions)
+            [HarmonyPrefix]
+            [HarmonyWrapSafe]
+            [HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.SaveFile))]
+            internal static void SaveFilePatch(ref string path)
             {
-                yield return instruction;
+                if (_makerCanvas == null) return;
+                var newFolder = _instance?.TreeView.CurrentFolder;
+                if (newFolder == null) return;
 
-                if (string.Equals(instruction.operand as string, "coordinate/male/", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(instruction.operand as string, "coordinate/female/", StringComparison.OrdinalIgnoreCase))
-                    // Will eat the string that just got pushed and produce a replacement
-                    yield return new CodeInstruction(OpCodes.Call, getFolderMethod);
+                var name = Path.GetFileName(path);
+                path = Path.Combine(newFolder, name);
+
+                // Force reload
+                _instance?.OnListRefresh();
+            }
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(CvsC_ClothesLoad), nameof(CvsC_ClothesLoad.Start))]
+            internal static void InitHookLoad(CvsC_ClothesLoad __instance)
+            {
+                var treeView = _instance?.TreeView;
+                if (treeView == null) return;
+                treeView.DefaultPath = Path.Combine(BrowserFoldersPlugin.UserDataPath, MakerAPI.GetMakerSex() == 0 ? "coordinate/male" : "coordinate/female");
+                treeView.CurrentFolder = treeView.DefaultPath;
+                //_targetScene = GetAddSceneName();
+
+                _makerCanvas = __instance.GetComponentInParent<Canvas>().gameObject;
+
+                _charaLoad = __instance;
+                _charaLoadVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
+
+                //_windowRect = MakerFolders.GetDefaultDisplayRect();
+            }
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(CvsC_ClothesSave), nameof(CvsC_ClothesSave.Start))]
+            internal static void InitHookSave(CvsC_ClothesSave __instance)
+            {
+                _charaSave = __instance;
+                _charaSaveVisible = __instance.GetComponentsInParent<CanvasGroup>(true);
+
+                //_windowRect = MakerFolders.GetDefaultDisplayRect();
+            }
+
+            [HarmonyTranspiler]
+            [HarmonyPatch(typeof(CustomClothesFileInfoAssist), nameof(CustomClothesFileInfoAssist.CreateClothesFileInfoList))]
+            internal static IEnumerable<CodeInstruction> InitializePatch(IEnumerable<CodeInstruction> instructions)
+            {
+                var getFolderMethod = AccessTools.Method(typeof(MakerOutfitFolders), nameof(MakerOutfitFolders.GetCurrentRelativeFolder)) ??
+                                      throw new MissingMethodException("could not find GetCurrentRelativeFolder");
+
+                foreach (var instruction in instructions)
+                {
+                    yield return instruction;
+
+                    if (string.Equals(instruction.operand as string, "coordinate/male/", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(instruction.operand as string, "coordinate/female/", StringComparison.OrdinalIgnoreCase))
+                        // Will eat the string that just got pushed and produce a replacement
+                        yield return new CodeInstruction(OpCodes.Call, getFolderMethod);
+                }
             }
         }
     }

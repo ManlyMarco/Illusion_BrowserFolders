@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BepInEx.Configuration;
@@ -6,7 +6,7 @@ using HarmonyLib;
 using Studio;
 using UnityEngine;
 
-namespace BrowserFolders
+namespace BrowserFolders.Studio
 {
     public class StudioOutfitFolders : IFolderBrowser
     {
@@ -15,7 +15,6 @@ namespace BrowserFolders
 
         private bool _guiActive;
         public Rect WindowRect { get; set; }
-
         public FolderTreeView TreeView => _costumeInfoEntry?.FolderTreeView;
         public string Title => "Outfit folder";
 
@@ -29,10 +28,9 @@ namespace BrowserFolders
 
             return true;
         }
-
         public void Update()
         {
-            var visible = _costumeInfoEntry != null && _costumeInfoEntry.ListIsActive();
+            var visible = _costumeInfoEntry != null && _costumeInfoEntry.isActive();
             if (!visible)
             {
                 if (_guiActive)
@@ -45,7 +43,12 @@ namespace BrowserFolders
         {
             if (!_guiActive) return;
 
-            BaseFolderBrowser.DisplayFolderWindow(this);
+            var entry = _costumeInfoEntry;
+            BaseFolderBrowser.DisplayFolderWindow(this, drawAdditionalButtons: () =>
+            {
+                if (BrowserFoldersPlugin.DrawDefaultCardsToggle())
+                    entry.InitOutfitList();
+            });
         }
 
         public void OnListRefresh()
@@ -67,7 +70,6 @@ namespace BrowserFolders
         {
             public static void Apply(Harmony harmony)
             {
-                //CostumeInfo is a private nested class            
                 var type = typeof(MPCharCtrl.CostumeInfo);
                 {
                     var target = AccessTools.Method(type, nameof(MPCharCtrl.CostumeInfo.InitList));
@@ -87,7 +89,11 @@ namespace BrowserFolders
             {
                 ___sex = __state;
                 if (_costumeInfoEntry != null)
+                {
                     _costumeInfoEntry.RefilterInProgress = false;
+                    StudioFileHelper.SetGetAllFilesOverride(_costumeInfoEntry.CurrentFolder, "*.png", null);
+                }
+
                 _refilterOnly = false;
             }
 
@@ -96,9 +102,12 @@ namespace BrowserFolders
                 //If the CostumeInfo.sex field is equal to the parameter _sex, the method doesn't do anything
                 __state = _sex;
                 ___sex = 99;
-                if (_costumeInfoEntry == null || _costumeInfoEntry.GetSex() != _sex)
+                if (_costumeInfoEntry == null)
                     _costumeInfoEntry = new CostumeInfoEntry(__instance);
                 _refilterOnly = _costumeInfoEntry.RefilterInProgress;
+
+                // This is such a mess
+                StudioFileHelper.SetGetAllFilesOverride(_costumeInfoEntry.CurrentFolder, "*.png", _costumeInfoEntry.CurrentFolder);
             }
 
             private static void InitListPostfix()
@@ -136,15 +145,18 @@ namespace BrowserFolders
             public bool RefilterInProgress;
             private List<CharaFileInfo> _backupFileInfos;
             private string _currentFolder;
+            private string _currentDefaultDataFolder;
             private FolderTreeView _folderTreeView;
             private int _sex = -1;
+            private readonly GameObject _clothesRoot;
 
             public CostumeInfoEntry(MPCharCtrl.CostumeInfo costumeInfo)
             {
                 _costumeInfo = costumeInfo;
+                _clothesRoot = costumeInfo.objRoot;
             }
 
-            public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? UserData.Path);
+            public string CurrentFolder => _currentFolder ?? Utils.NormalizePath(_folderTreeView?.CurrentFolder ?? UserData.Path + "coordinate/");
 
             public FolderTreeView FolderTreeView
             {
@@ -154,7 +166,7 @@ namespace BrowserFolders
                     {
                         _folderTreeView = new FolderTreeView(
                             BrowserFoldersPlugin.UserDataPath,
-                            Path.Combine(BrowserFoldersPlugin.UserDataPath, GetSex() != 0 ? "coordinate/female" : "coordinate/male"));
+                            Path.Combine(BrowserFoldersPlugin.UserDataPath, "coordinate/"));
                         _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
                         _folderTreeView.CurrentFolderChanged = OnFolderChanged;
                         OnFolderChanged();
@@ -163,12 +175,17 @@ namespace BrowserFolders
                 }
             }
 
-            public bool ListIsActive() => _costumeInfo.objRoot.activeInHierarchy;
+            public bool isActive() => _clothesRoot.activeInHierarchy;
 
             public void ApplyFilter()
             {
                 var currentFolder = CurrentFolder;
-                GetCharaFileInfos().RemoveAll(cfi => Utils.GetNormalizedDirectoryName(cfi.file) != currentFolder);
+                var currentDefaultFolder = BrowserFoldersPlugin.ShowDefaultCards.Value ? _currentDefaultDataFolder : null;
+                GetCharaFileInfos().RemoveAll(cfi =>
+                {
+                    var directoryName = Utils.GetNormalizedDirectoryName(cfi.file);
+                    return directoryName != currentFolder && directoryName != currentDefaultFolder;
+                });
             }
 
             public void InitOutfitList()
@@ -194,7 +211,7 @@ namespace BrowserFolders
             {
                 return _costumeInfo?.fileSort?.cfiList;
             }
-            public int GetSex()
+            private int GetSex()
             {
                 if (_sex == -1)
                     _sex = _costumeInfo.sex;
@@ -203,7 +220,12 @@ namespace BrowserFolders
             private void OnFolderChanged()
             {
                 _currentFolder = Utils.NormalizePath(FolderTreeView.CurrentFolder);
-                RefilterInProgress = true;
+
+                var normalizedUserData = BrowserFoldersPlugin.UserDataPath;
+                _currentDefaultDataFolder = Utils.NormalizePath(normalizedUserData + "/../DefaultData/" + _currentFolder.Remove(0, normalizedUserData.Length));
+                Debug.Log(_currentDefaultDataFolder);
+
+                //RefilterInProgress = true;
                 InitOutfitList();
             }
         }

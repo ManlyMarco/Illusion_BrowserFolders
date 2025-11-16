@@ -8,7 +8,7 @@ using HarmonyLib;
 using Studio;
 using UnityEngine;
 
-namespace BrowserFolders
+namespace BrowserFolders.Studio
 {
     public class SceneFolders : BaseFolderBrowser
     {
