@@ -122,6 +122,15 @@ namespace BrowserFolders
 
             GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
             {
+                GUILayout.BeginHorizontal();
+                {
+                    // Search needs to be before the tree to avoid losing focus when typing because of disappearing items
+                    // Tried setting name and using GUI.FocusControl but it didn't work properly
+                    GUILayout.Label("Search: ", GUILayout.ExpandWidth(false));
+                    _searchString = GUILayout.TextField(_searchString).Replace('\\', '/');
+                }
+                GUILayout.EndHorizontal();
+
                 _treeScrollPosition = GUILayout.BeginScrollView(_treeScrollPosition, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
                 {
                     var totalHeight = 0;
@@ -145,16 +154,6 @@ namespace BrowserFolders
                         _scrollviewHeight = 0;
                     }
                 }
-
-                GUILayout.BeginHorizontal();
-                {
-                    GUILayout.Label("Search: ", GUILayout.ExpandWidth(false));
-                    // todo fix searchbox losing focus when folder count changes
-                    // doesn't work GUI.SetNextControlName("_searchbox");
-                    _searchString = GUILayout.TextField(_searchString).Replace('\\', '/');
-                    //GUI.FocusControl("_searchbox");
-                }
-                GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();
 
