@@ -11,10 +11,12 @@ You can support development of my plugins through my Patreon page: https://www.p
 3. Extract the plugin into your game directory. The dll file(s) should end up inside the folder `BepInEx\plugins`.
 4. Start Studio and open the scene load window. You should see a new window next to the standard file list. Click on the folder names in the list to open contents of that folder.
 
+If you are updating from an older version you can remove `KK_BrowserFolders_Hooks_KK.dll`, `KK_BrowserFolders_Hooks_KKP.dll` and `KKS_BrowserFolders_Hooks.dll` if you have any of them in your `BepInEx\plugins` folder. These files are no longer needed.
+
 #### Incompatibilities
-- Remove `KKSceneBrowserFolders.dll` from `BepInEx` if you have it, as it's an old version of this mod.
-- The KKS version is incompatible with `KKS_StudioDefaultData`. You must remove `KKS_StudioDefaultData.dll` from your plugins folder or BrowserFolders will not work.
-- There is a mild incompatibility with `KK_ReloadCharaListOnChange v1.2 and older`; check for an updated version if you use this plugin.
+- Remove `KKSceneBrowserFolders.dll` from the `BepInEx` folder if you have it, as it's an old version of this mod.
+- The KKS version is incompatible with `KKS_StudioDefaultData`. You must remove `BepInEx\plugins\KKS_StudioDefaultData.dll` if you have it or BrowserFolders will not work.
+- There is a mild incompatibility with `KK_ReloadCharaListOnChange v1.2 and older`; check for an updated version on the KK_Plugins repo if you use this plugin.
 
 ## How to compile
 1. Clone this repository.
