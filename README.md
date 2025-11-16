@@ -9,7 +9,7 @@ A BepInEx plugin for Koikatu, Koikatsu Party, EmotionCreators, AI-Shoujo and Hon
 3. Extract the plugin into your game directory. The dll file(s) should end up inside the folder `BepInEx\plugins`.
 4. Start Studio and open the scene load window. You should see a new window next to the standard file list. Click on the folder names in the list to open contents of that folder.
 
-If you are updating from an older version you can remove `KK_BrowserFolders_Hooks_KK.dll`, `KK_BrowserFolders_Hooks_KKP.dll` and `KKS_BrowserFolders_Hooks.dll` if you have any of them in your `BepInEx\plugins` folder. These files are no longer needed.
+If you are updating from an older version you can remove `KK_BrowserFolders_Hooks_KK.dll`, `KK_BrowserFolders_Hooks_KKP.dll`, `EC_BrowserFolders_Hooks_EC.dll` and `KKS_BrowserFolders_Hooks.dll` if you have any of them in your `BepInEx\plugins` folder. These files are no longer needed.
 
 #### Incompatibilities
 - Remove `KKSceneBrowserFolders.dll` from the `BepInEx` folder if you have it, as it's an old version of this mod.
