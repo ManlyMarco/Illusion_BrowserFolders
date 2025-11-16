@@ -68,10 +68,10 @@ namespace BrowserFolders
             var configFile = Config;
 #endif
 
-            _adaptToResolution = configFile.Bind("General", "Scale size and position on resolution change", true, "Attempt to automatically adjust sizes and positions of all windows whenever game resolution is changed. May cause window sizes and positions to drift, especially when using resolutions in aspect ratios other than 16:9.");
+            _adaptToResolution = configFile.Bind("General", "Scale window size and position on resolution change", true, "Attempt to automatically adjust sizes and positions of all windows whenever game resolution is changed. May cause window sizes and positions to drift, especially when using resolutions in aspect ratios other than 16:9.");
 
             var storeRects = configFile.Bind("General", "Save window sizes and positions", true, "Store window sizes and positions to config so it persists across game restarts. If disabled, the values are reset to defaults on game start.");
-            var storedRects = configFile.Bind("General", "Window Rectangles", string.Empty, new ConfigDescription("Stored window positions and sizes.", null, "Advanced"));
+            var storedRects = configFile.Bind("General", "Window sizes and positions", string.Empty, new ConfigDescription("Stored window rectangles in screen size percentages.", null, "Advanced"));
             var storedRectsDic = DeserializeRects(storeRects.Value ? storedRects.Value : null);
             KoikatuAPI.Quitting += (o, e) => storedRects.Value = SerializeRects(_instances, storedRectsDic);
 
@@ -149,17 +149,23 @@ namespace BrowserFolders
         }
 
         #region Storing window rects
-
         private static Dictionary<string, Rect> DeserializeRects(string storedRectsValue)
         {
             if (string.IsNullOrEmpty(storedRectsValue)) return new Dictionary<string, Rect>();
 
+            var screenWidth = Screen.width;
+            var screenHeight = Screen.height;
             return storedRectsValue.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).Attempt(x =>
             {
-                var parts = x.Split(',');
-                var fullname = parts[0];
-                var rect = new Rect(int.Parse(parts[1]), int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]));
-                return new KeyValuePair<string, Rect>(fullname, rect);
+                var parts = x.Split(';');
+                var key = parts[0];
+                // Parse as percentage
+                var px = float.Parse(parts[1]);
+                var py = float.Parse(parts[2]);
+                var pwidth = float.Parse(parts[3]);
+                var pheight = float.Parse(parts[4]);
+                var rect = new Rect((int)(screenWidth * px), (int)(screenHeight * py), (int)(screenWidth * pwidth), (int)(screenHeight * pheight));
+                return new KeyValuePair<string, Rect>(key, rect);
             }).ToDictionary(x => x.Key, x => x.Value);
         }
         private static string SerializeRects(IFolderBrowser[] instances, Dictionary<string, Rect> rectDict)
@@ -167,10 +173,17 @@ namespace BrowserFolders
             foreach (var instance in instances)
                 rectDict[GetCacheKey(instance)] = instance.WindowRect;
 
+            var screenWidth = Screen.width;
+            var screenHeight = Screen.height;
             return string.Join("|", rectDict.Select(x =>
             {
                 var rect = x.Value;
-                return $"{x.Key},{rect.x:F0},{rect.y:F0},{rect.width:F0},{rect.height:F0}";
+                // Store as percentage of resolution
+                var px = rect.x / screenWidth;
+                var py = rect.y / screenHeight;
+                var pwidth = rect.width / screenWidth;
+                var pheight = rect.height / screenHeight;
+                return $"{x.Key};{px:F3};{py:F3};{pwidth:F3};{pheight:F3}";
             }).ToArray());
         }
         private static string GetCacheKey(IFolderBrowser instance)
