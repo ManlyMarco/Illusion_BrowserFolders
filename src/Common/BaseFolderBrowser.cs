@@ -89,7 +89,7 @@ namespace BrowserFolders
             DrawBaseControlButtons(this);
         }
 
-        private static readonly GUILayoutOption[] _GloHorizontalBtns = { GUILayout.Width(200), GUILayout.ExpandHeight(true) };
+        private static readonly GUILayoutOption[] _GloHorizontalBtns = { GUILayout.Width(200), GUILayout.ExpandHeight(false) };
         private static void DrawFolderWindow(int id, IFolderBrowser instance, Action drawControlButtons)
         {
             var borderTop = GUI.skin.window.border.top - 4;
