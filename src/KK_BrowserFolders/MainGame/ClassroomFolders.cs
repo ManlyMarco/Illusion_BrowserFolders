@@ -34,7 +34,7 @@ namespace BrowserFolders.MainGame
             _randomCharaSubfolders = config.Bind("Main game", "Search subfolders for random characters", true, "When filling the class with random characters (or in other cases where a random character is picked) choose random characters from the main directory AND all of its subdirectories. If false, only search in the main directory (UserData/chara/female).");
 
             _folderTreeView = TreeView;
-            
+
             if (isStudio) return false;
 
             harmony.PatchAll(typeof(Hooks));
@@ -57,7 +57,8 @@ namespace BrowserFolders.MainGame
 
             // Fix add info toggle breaking
             var tglInfo = _customCharaFile.listCtrl.tglAddInfo;
-            tglInfo.onValueChanged.Invoke(tglInfo.isOn);
+            if (tglInfo != null)
+                tglInfo.onValueChanged.Invoke(tglInfo.isOn);
         }
 
         public override Rect GetDefaultRect()

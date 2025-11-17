@@ -48,7 +48,7 @@ namespace BrowserFolders.MainGame
 
             RefreshList();
         }
-        
+
         public override Rect GetDefaultRect()
         {
             return new Rect((int)(Screen.width * 0.015), (int)(Screen.height * 0.35f),
@@ -69,13 +69,18 @@ namespace BrowserFolders.MainGame
 
                 // Fix add info toggle breaking
                 var tglAddInfo = listCtrl.tglAddInfo;
-                tglAddInfo.onValueChanged.Invoke(tglAddInfo.isOn);
+                if (tglAddInfo != null)
+                    tglAddInfo.onValueChanged.Invoke(tglAddInfo.isOn);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogException(ex);
             }
             finally
             {
                 _refreshing = false;
             }
-            
+
             void ClearEventInvocations(object obj, string eventName)
             {
                 var fi = GetEventField(obj.GetType(), eventName);
