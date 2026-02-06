@@ -1,4 +1,8 @@
-﻿using BepInEx.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection.Emit;
+using BepInEx.Configuration;
 using ChaCustom;
 using HarmonyLib;
 using KKAPI.Maker;
@@ -21,6 +25,7 @@ namespace BrowserFolders.MainGame
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
+        private static string _currentRelativeFolder;
         private static string _targetScene;
 
         public MakerFolders() : base("Character folder", BrowserFoldersPlugin.UserDataPath, BrowserFoldersPlugin.UserDataPath) { }
@@ -74,12 +79,13 @@ namespace BrowserFolders.MainGame
 
         public override void OnListRefresh()
         {
+            _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
+
             if (_customCharaFile == null) return;
 
-            var loadCharaToggleIsOn = _loadCharaToggle != null && _loadCharaToggle.isOn;
-            if (loadCharaToggleIsOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
+            if (_loadCharaToggle != null && _loadCharaToggle.isOn || _saveCharaToggle != null && _saveCharaToggle.isOn)
             {
-                _customCharaFile.Initialize(loadCharaToggleIsOn, false);
+                _customCharaFile.Initialize();
             }
         }
 
@@ -102,6 +108,24 @@ namespace BrowserFolders.MainGame
                     _folderTreeView.CurrentFolder = _folderTreeView.DefaultPath;
 
                     _targetScene = Scene.AddSceneName;
+                }
+            }
+
+            [HarmonyTranspiler]
+            [HarmonyPatch(typeof(CustomCharaFile), nameof(CustomCharaFile.Initialize))]
+            internal static IEnumerable<CodeInstruction> InitializeTranspiler(IEnumerable<CodeInstruction> instructions)
+            {
+                foreach (var instruction in instructions)
+                {
+                    if (string.Equals(instruction.operand as string, "chara/female/", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(instruction.operand as string, "chara/male/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        //0x7E	ldsfld <field>	Push the value of the static field on the stack.
+                        instruction.opcode = OpCodes.Ldsfld;
+                        instruction.operand = typeof(MakerFolders).GetField(nameof(_currentRelativeFolder), BindingFlags.NonPublic | BindingFlags.Static);
+                    }
+
+                    yield return instruction;
                 }
             }
 

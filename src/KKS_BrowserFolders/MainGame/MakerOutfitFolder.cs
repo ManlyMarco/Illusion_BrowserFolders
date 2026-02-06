@@ -1,4 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Reflection.Emit;
 using BepInEx.Configuration;
 using ChaCustom;
 using HarmonyLib;
@@ -20,6 +24,7 @@ namespace BrowserFolders.MainGame
 
         public static string CurrentRelativeFolder => _folderTreeView?.CurrentRelativeFolder;
 
+        private static string _currentRelativeFolder;
         private static bool _refreshList;
         private static string _targetScene;
 
@@ -82,12 +87,13 @@ namespace BrowserFolders.MainGame
 
         public override void OnListRefresh()
         {
+            _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
+
             if (_customCoordinateFile == null) return;
 
-            var loadOutfitToggleIsOn = _loadOutfitToggle != null && _loadOutfitToggle.isOn;
-            if (loadOutfitToggleIsOn || _saveOutfitToggle != null && _saveOutfitToggle.isOn)
+            if (_loadOutfitToggle != null && _loadOutfitToggle.isOn || _saveOutfitToggle != null && _saveOutfitToggle.isOn)
             {
-                _customCoordinateFile.Initialize(loadOutfitToggleIsOn, false);
+                _customCoordinateFile.Initialize();
             }
         }
 
@@ -120,6 +126,23 @@ namespace BrowserFolders.MainGame
                 _targetScene = Scene.AddSceneName;
 
                 _customControl = UnityEngine.Object.FindObjectOfType<CustomControl>();
+            }
+
+            [HarmonyTranspiler]
+            [HarmonyPatch(typeof(CustomCoordinateFile), nameof(CustomCoordinateFile.Initialize))]
+            internal static IEnumerable<CodeInstruction> InitializeTranspiler(IEnumerable<CodeInstruction> instructions)
+            {
+                foreach (var instruction in instructions)
+                {
+                    if (string.Equals(instruction.operand as string, "coordinate/", StringComparison.OrdinalIgnoreCase))
+                    {
+                        //0x7E	ldsfld <field>	Push the value of the static field on the stack.
+                        instruction.opcode = OpCodes.Ldsfld;
+                        instruction.operand = typeof(MakerOutfitFolders).GetField(nameof(_currentRelativeFolder), BindingFlags.NonPublic | BindingFlags.Static);
+                    }
+
+                    yield return instruction;
+                }
             }
 
             [HarmonyPrefix]
