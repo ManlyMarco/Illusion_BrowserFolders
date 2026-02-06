@@ -87,7 +87,7 @@ namespace BrowserFolders.MainGame
 
         public override void OnListRefresh()
         {
-            _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
+            _currentRelativeFolder = _folderTreeView?.CurrentRelativeFolder;
 
             if (_customCoordinateFile == null) return;
 
