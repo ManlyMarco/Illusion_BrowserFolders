@@ -48,6 +48,10 @@ namespace BrowserFolders
         /// If the returned number changes the list is refreshed.
         /// </summary>
         protected abstract int IsVisible();
+        /// <summary>
+        /// Whether a change in this browser's visible state should also rebuild its file list.
+        /// </summary>
+        protected virtual bool RefreshListOnVisibilityChange => true;
         /// <inheritdoc/>
         public abstract void OnListRefresh();
         /// <inheritdoc/>
@@ -62,7 +66,8 @@ namespace BrowserFolders
                 if (newVisible == 0 && GuiVisible != 0)
                     TreeView.StopMonitoringFiles();
 
-                OnListRefresh();
+                if (RefreshListOnVisibilityChange)
+                    OnListRefresh();
             }
             GuiVisible = newVisible;
         }

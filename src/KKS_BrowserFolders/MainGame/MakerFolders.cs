@@ -72,6 +72,8 @@ namespace BrowserFolders.MainGame
             return 0;
         }
 
+        protected override bool RefreshListOnVisibilityChange => false;
+
         public override void OnListRefresh()
         {
             if (_customCharaFile == null) return;
