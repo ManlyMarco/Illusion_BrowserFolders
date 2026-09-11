@@ -65,6 +65,8 @@ namespace BrowserFolders.MainGame
             return 0;
         }
 
+        protected override bool RefreshListOnVisibilityChange => false;
+
         public override void OnListRefresh()
         {
             _currentRelativeFolder = _folderTreeView.CurrentRelativeFolder;
